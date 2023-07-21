@@ -1,0 +1,732 @@
+ <!-- starts here  -->
+<?php include(__DIR__ . "/layout/layout.phtml"); ?>
+
+<?php $this->placeholder('style2')->captureStart(); ?>
+<link href="<?php echo $this->basePath('assets/els/css/forecast.css'); ?>" rel="stylesheet" type="text/css">
+<?php $this->placeholder('style2')->captureEnd(); ?>
+
+
+
+<?php $gem_ns = $this->config()->getConfig('auth', 'gem_ns'); ?>
+<?php
+$this->formElementErrors()
+	 ->setAttributes(array('class' => 'list-unstyled'));
+?>
+<?php
+$view_url = "";
+$view_type = "{$this->data_type}s";
+if($this->data_type != 'Asset') {
+    $view_url = $this->basePath('gem/' . strtolower($this->data_type) . 's/');
+}
+?>
+<!-- ends here -->
+
+<?php $this->placeholder('style')->captureStart(); ?>
+<link href="<?php echo $this->basePath('assets/css/recentlyDevices.css'); ?>" rel="stylesheet" type="text/css"/>
+
+<?php $this->placeholder('style')->captureEnd(); ?>
+
+
+<!-- script section starts here -->
+<?php $this->placeholder('script')->captureStart(); ?>
+
+<!-- js  for infoots track n  count -->
+<!-- here was recently viewed -->
+
+
+
+<script type="text/javascript">
+$(document).ready(function() {
+        <?php
+            $words = array();
+            foreach($this->infodots as $info) {
+                $text = $info['identifier'];
+                if(empty($text)) {
+                    $text = $info['asset'];
+                }
+                $words[] = array(
+                    'text' => $text,
+                    'weight' => $info['count'],
+                    'url' => $this->basePath('gem/devices/view/' . $info['asset_id']),
+                    'title' => "{$info['identifier']} - {$info['asset']}"
+                );
+            }
+            $json = $this->json($words);
+            $json = (empty($json)) ? "[]" : $json;
+            // Store the infodots data in a file
+       $filename = "infodots.json";
+       file_put_contents($filename, $json);
+        ?>
+        var words = <?php echo $json; ?>;
+        var items = '';
+        for(var i=0; i<words.length; i++) {
+            items += '<li><a href="'+words[i].url+'" title="'+words[i].title+'">'+words[i].text+ ' ('+words[i].weight+')'+'</a></li>';
+        }
+        $("#infodot_placeholder").html('<ul>'+items+'</ul>');
+    });
+		</script>
+
+
+<!-- this script is for drop list count sites and count racks -->
+<script type="text/javascript">
+
+	$(document).ready(function() {
+	  $.ajax({
+	    "url": "<?php echo $this->basePath('gem/rest/sites/'); ?>",
+	    "data": {"retired": 0},
+	    "dataType": "json",
+	    "success": function(response) {
+	      // Initialize variables
+	      var options = '';
+	      var cities = [];
+	      var cityCounts = {};
+
+	      // Loop through response to create dropdown options and count sites and racks
+	      for (var i = 0; i < response.length; i++) {
+	        var site = response[i];
+	        if (site.name && site.name !== "Unallocated") {
+	          // Add city to dropdown options if it hasn't been added before
+	          if (!cities.includes(site.name)) {
+	            cities.push(site.name);
+	            options += '<option value="'+site.name+'" title="'+site.name+'">'+site.name+'</option>';
+	          }
+	          // Count sites by city
+	          if (!cityCounts[site.name]) {
+	            cityCounts[site.name] = 1;
+	          } else {
+	            cityCounts[site.name]++;
+	          }
+	        }
+	      }
+
+	      // Display dropdown options and site count
+	      $("#site_dropdown").html(options);
+	      var cityCount = Object.keys(cityCounts).length;
+	      $("#site_count").text(cityCount);
+
+				// Set "Ruckus - 350 Java (RUC1)" as the default value in the dropdown
+				$("#site_dropdown").val("Ruckus - 350 Java (RUC1)");
+
+				// Show/hide gauges based on site selection
+				if ($("#site_dropdown").val() === "Ruckus - 350 Java (RUC1)") {
+				  $(".gauge-container").show();
+				  $(".LabsD").show();
+				} else {
+				  $(".gauge-container").hide();
+				  $(".LabsD").hide();
+				}
+	    }
+	  });
+	});
+</script>
+
+<!-- this logc is for counting labs -->
+<script type="text/javascript">
+var labCounts = {};
+$.ajax({
+	"url": "<?php echo $this->basePath('gem/rest/labs/'); ?>",
+	"data": {"retired": 0},
+	"dataType": "json",
+	"success": function(response) {
+		for (var i = 0; i < response.length; i++) {
+			var lab = response[i];
+			if (lab.name  && lab.site === "Ruckus - 350 Java (RUC1)") {
+				if (!labCounts[lab.name]) {
+					labCounts[lab.name] = 1;
+				} else {
+					labCounts[lab.name]++;
+				}
+			}
+		}
+		var labCount = Object.keys(labCounts).length;
+		console.log(labCount)
+		$("#lab_count").text(labCount);
+	}
+});
+</script>
+
+
+<!-- this logc is for counting racks -->
+<script type="text/javascript">
+var rackCounts = {};
+$.ajax({
+	"url": "<?php echo $this->basePath('gem/rest/racks/'); ?>",
+	"data": {"retired": 0},
+	"dataType": "json",
+	"success": function(response) {
+		for (var i = 0; i < response.length; i++) {
+			var rack = response[i];
+			if (rack.name && rack.site === "Ruckus - 350 Java (RUC1)") {
+				if (!rackCounts[rack.name]) {
+					rackCounts[rack.name] = 1;
+				} else {
+					rackCounts[rack.name]++;
+				}
+			}
+		}
+		var rackCount = Object.keys(rackCounts).length;
+		$("#rack_count").text(rackCount);
+	}
+});
+</script>
+
+
+<!-- this logc is for counting labviews  -->
+<script type="text/javascript">
+var labviewCounts = {};
+$.ajax({
+	"url": "<?php echo $this->basePath('gem/rest/labviews/'); ?>",
+	// "data": {"retired": 0},
+	"dataType": "json",
+	"success": function(response) {
+		for (var i = 0; i < response.length; i++) {
+			var labview = response[i];
+			if (labview.name) {
+				if (!labviewCounts[labview.name]) {
+					labviewCounts[labview.name] = 1;
+				} else {
+					labviewCounts[labview.name]++;
+				}
+			}
+		}
+		var labviewCount = Object.keys(labviewCounts).length;
+		console.log(labviewCount)
+		$("#labview_count").text(labviewCount);
+	}
+});
+</script>
+
+
+<!-- this logc is for counting testbeds -->
+<script type="text/javascript">
+var testbedCounts = {};
+$.ajax({
+	"url": "<?php echo $this->basePath('gem/rest/testbeds/'); ?>",
+	"dataType": "json",
+	"success": function(response) {
+		for (var i = 0; i < response.length; i++) {
+			var testbed = response[i];
+			if (testbed.name) {
+				if (!testbedCounts[testbed.name]) {
+					testbedCounts[testbed.name] = 1;
+				} else {
+					testbedCounts[testbed.name]++;
+				}
+			}
+		}
+		var testbedCount = Object.keys(testbedCounts).length;
+		console.log(testbedCount)
+		$("#testbed_count").text(testbedCount);
+	}
+});
+</script>
+
+
+<!-- this logc is for counting virtuals -->
+<script type="text/javascript">
+var virtualCounts = {};
+$.ajax({
+	"url": "<?php echo $this->basePath('gem/rest/virtuals/'); ?>",
+	"data": {"retired": 0},
+	"dataType": "json",
+	"success": function(response) {
+		for (var i = 0; i < response.length; i++) {
+			var virtual = response[i];
+			if (virtual.name && virtual.site === "Ruckus - 350 Java (RUC1)") {
+				if (!virtualCounts[virtual.name]) {
+					virtualCounts[virtual.name] = 1;
+				} else {
+					virtualCounts[virtual.name]++;
+				}
+			}
+		}
+		var virtualCount = Object.keys(virtualCounts).length;
+		console.log(virtualCount)
+		$("#virtual_count").text(virtualCount);
+	}
+});
+</script>
+
+
+
+<!-- this logic is for selecting site   -->
+<script type="text/javascript">
+$("#site_dropdown").on("change", function() {
+	if ($(this).val() === "Ruckus - 350 Java (RUC1)") {
+		$(".LabsD").show();
+	} else {
+		$(".LabsD").hide();
+	}
+});
+</script>
+
+
+
+<!--Eaton power here -->
+<script type="text/javascript">
+var totalPower = 0;
+var count = 0;
+
+$.ajax({
+	"url": "<?php echo $this->basePath('power/rest/powerpdus/'); ?>",
+	// "data": {"retired": 0},
+	"dataType": "json",
+	"success": function(response) {
+		for (var i = 0; i < response.length; i++) {
+			var powerpdu = response[i];
+			var power = parseFloat(powerpdu.power); // Parse as float instead of integer
+			if (powerpdu.manufacturer === "Eaton" && power >= 0) {
+				// Calculate average power
+				totalPower += power;
+				count++;
+			}
+		}
+
+		// Check if any Eaton powerpdus were found
+		if (count > 0) {
+			var averagePower = totalPower / count;
+			localStorage.setItem('average_power_eaton', averagePower);
+			localStorage.setItem('total_power_eaton', totalPower);
+			$("#average_power").text(averagePower.toFixed(2));
+			$("#total_power").text(totalPower.toFixed(2));
+		} else {
+			$("#average_power").text("No Eaton powerpdus found.");
+			$("#total_power").text("No Eaton powerpdus found.");
+		}
+	}
+});
+</script>
+
+<!--Emerson power here -->
+<script type="text/javascript">
+var totalPowerE = 0;
+var count = 0;
+
+$.ajax({
+	"url": "<?php echo $this->basePath('power/rest/powerpdus/'); ?>",
+	// "data": {"retired": 0},
+	"dataType": "json",
+	"success": function(response) {
+		for (var i = 0; i < response.length; i++) {
+			var powerpdu = response[i];
+			var power = parseFloat(powerpdu.power); // Parse as float instead of integer
+			if (powerpdu.manufacturer === "Emerson" && power >= 0) {
+				// Calculate average power
+				totalPowerE += power;
+				count++;
+			}
+		}
+
+		// Check if any Eaton powerpdus were found
+		if (count > 0) {
+			var averagePower = totalPowerE / count;
+				localStorage.setItem('average_power_emerson', averagePower);
+				localStorage.setItem('total_power_emerson', totalPowerE);
+			$("#average_power_emerson").text(averagePower.toFixed(2));
+			$("#total_power_emerson").text(totalPowerE.toFixed(2));
+		} else {
+			$("#average_power_emerson").text("No Emerson powerpdus found.");
+			$("#total_power_emerson").text("No Emerson powerpdus found.");
+		}
+	}
+});
+</script>
+
+<!--Raritan power here -->
+<script type="text/javascript">
+var totalPowerR = 0;
+var count = 0;
+
+$.ajax({
+	"url": "<?php echo $this->basePath('power/rest/powerpdus/'); ?>",
+	// "data": {"retired": 0},
+	"dataType": "json",
+	"success": function(response) {
+		for (var i = 0; i < response.length; i++) {
+			var powerpdu = response[i];
+			var power = parseFloat(powerpdu.power); // Parse as float instead of integer
+			if (powerpdu.manufacturer === "Raritan" && power >= 0) {
+				// Calculate average power
+				totalPowerR += power;
+				count++;
+			}
+		}
+
+		// Check if any Eaton powerpdus were found
+		if (count > 0) {
+			var averagePower = totalPowerR / count;
+				localStorage.setItem('average_power_raritan', averagePower);
+				localStorage.setItem('total_power_raritan', totalPowerR);
+			$("#average_power_raritan").text(averagePower.toFixed(2));
+			$("#total_power_raritan").text(totalPowerR.toFixed(2));
+		} else {
+			$("#average_power_raritan").text("No Raritan powerpdus found.");
+			$("#total_power_raritan").text("No Raritan powerpdus found.");
+		}
+	}
+});
+</script>
+
+
+<!--Avocent power here -->
+<script type="text/javascript">
+var totalPowerA = 0;
+var count = 0;
+
+$.ajax({
+	"url": "<?php echo $this->basePath('power/rest/powerpdus/'); ?>",
+	// "data": {"retired": 0},
+	"dataType": "json",
+	"success": function(response) {
+		for (var i = 0; i < response.length; i++) {
+			var powerpdu = response[i];
+			var power = parseFloat(powerpdu.power); // Parse as float instead of integer
+			if (powerpdu.manufacturer === "Avocent" && power >= 0) {
+				// Calculate average power
+				totalPowerA += power;
+				count++;
+			}
+		}
+
+		// Check if any Eaton powerpdus were found
+		if (count > 0) {
+			var averagePower = totalPowerA / count;
+				localStorage.setItem('average_power_avocent', averagePower);
+				localStorage.setItem('total_power_avocent', totalPowerA);
+			$("#average_power_avocent").text(averagePower.toFixed(2));
+			$("#total_power_avocent").text(totalPowerA.toFixed(2));
+		} else {
+			$("#average_power_avocent").text("No Avocent powerpdus found.");
+			$("#total_power_avocent").text("No Avocent powerpdus found.");
+		}
+	}
+});
+</script>
+
+<script>
+$(document).ready(function() {
+	const processText = document.querySelectorAll('.process');
+	const successText = document.querySelectorAll('.success');
+	const needles = document.querySelectorAll('.needle1, .needle2, .needle3, .needle4');
+
+	// Use forEach to add the "active" class to all elements with the "process" class
+	processText.forEach(el => {
+		el.classList.add('active');
+	});
+
+	// Use setTimeout to remove the "active" class from all elements with the "process" class and add it to all elements with the "success" class
+	setTimeout(() => {
+		processText.forEach(el => {
+			el.classList.remove('active');
+		});
+		successText.forEach(el => {
+			el.classList.add('active');
+		});
+	}, 1600);
+
+	// Get the values from specific elements with IDs
+	const averagePower = parseFloat(localStorage.getItem('average_power_eaton'));
+	const averagePowerEmerson = parseFloat(localStorage.getItem('average_power_emerson'));
+	const averagePowerRaritan = parseFloat(localStorage.getItem('average_power_raritan'));
+	const averagePowerAvocent = parseFloat(localStorage.getItem('average_power_avocent'));
+
+	// Set the values for each needle
+	const values = [averagePower, averagePowerEmerson, averagePowerRaritan, averagePowerAvocent];
+
+	// Loop through each needle element and calculate the angle for the needle based on the value and set the transform property to rotate the needle to the calculated angle
+	needles.forEach((needle, index) => {
+		const value = values[index];
+		const angle = ((value) * 180)/3 - 30;
+		needle.style.transform = `rotate(${angle}deg)`;
+	});
+		});
+</script>
+
+<script type="text/javascript">
+var grandPower = 0;
+
+// Retrieve Eaton power value from localStorage
+var eatonPower = localStorage.getItem('total_power_eaton');
+if (eatonPower !== null) {
+  grandPower += parseFloat(eatonPower);
+}
+
+// Retrieve Emerson power value from localStorage
+var emersonPower = localStorage.getItem('total_power_emerson');
+if (emersonPower !== null) {
+  grandPower += parseFloat(emersonPower);
+}
+
+// Retrieve Raritan power value from localStorage
+var raritanPower = localStorage.getItem('total_power_raritan');
+if (raritanPower !== null) {
+  grandPower += parseFloat(raritanPower);
+}
+
+// Retrieve Avocent power value from localStorage
+var avocentPower = localStorage.getItem('total_power_avocent');
+if (avocentPower !== null) {
+  grandPower += parseFloat(avocentPower);
+}
+
+if (grandPower >= 0) {
+	$("#Grand_power").text(grandPower.toFixed(2));
+} else {
+	$("#Grand_power").text("No powerpdus found.");
+}
+</script>
+
+
+<?php $this->placeholder('script')->captureEnd(); ?>
+<!-- script section ends here -->
+
+<div class="row space-bottom">
+	<div class="col-sm-12">
+		<div class="widget-box">
+			<div class="widget-header widget-header-flat widget-header-small">
+				<h5 class="widget-title">
+					<i class="ace-icon fa fa-laptop"></i> Recently Viewed Devices
+				</h5>
+			</div>
+			<div class="widget-body" style="padding: 3px 3px 3px 3px;">
+				<div class="widget-main no-padding">
+					<div id="infodot_placeholder" style="width: 100%; height: 50px;"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div style="border-top: 2px solid transparent;"></div>
+
+<div class="row space-bottom">
+	<div class="col-sm-12">
+		<div class="widget-box">
+			<div class="widget-header widget-header-flat widget-header-small">
+				<h5 class="widget-title">
+					<i class="ace-icon fa fa-sitemap"></i> Select a Site to View Details
+				</h5>
+			</div>
+			<div class="widget-body" style="padding: 3px 3px 3px 3px;">
+				<div class="widget-main no-padding">
+          <select id="site_dropdown">
+              <option value="">Select a Site</option>
+          </select>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div style="border-top: 10px solid transparent;"></div>
+
+ <!-- here starts the gauge container -->
+<div class ="LabsD" style="display: none;">
+	<div class="row">
+		<div class="col-sm-12">
+			<div class="widget-box">
+				<div class="widget-header widget-header-flat widget-header-small">
+					<h5 class="widget-title">
+						<i class="ace-icon fa fa-list"></i> BRICS Lab Power
+					</h5>
+				</div>
+					<div class="widget-body" style="padding: 3px 3px 3px 3px;">
+						<div class="widget-main no-padding">
+
+
+							<!-- here starts the gauge zone under LabsD -->
+								<div style="border-top: 2px solid transparent;"></div>
+								<div class="gauge-container"  style="display: none;">
+								  <div class="container-gauge">
+										<span class="pdu">Eaton PDUs</span>
+								    <div class="gauge1">
+								      <div class="progress1">
+								        <div class="bar1"></div>
+								        <div class="needle1"></div>
+								      </div>
+								    </div>
+								    <div class="msg">
+								      <p class="process" >Processing...</p>
+								      <div class="success" >Average Power Value in Kw: <span id="average_power"></span></div>
+											<div class="success" >Total Power Value in Kw: <span id="total_power"></span></div>
+								    </div>
+								  </div>
+								<!-- <div class="number"><span id="average_power"></span></div> -->
+								  <div class="container-gauge">
+											<span class="pdu">Emerson PDUs</span>
+								    <div class="gauge2">
+								      <div class="progress1">
+								        <div class="bar1"></div>
+								        <div class="needle1"></div>
+								      </div>
+								    </div>
+								    <div class="msg">
+								      <p class="process">Processing...</p>
+								      <div class="success" >Average Power Value in Kw: <span id="average_power_emerson"></span></div>
+											<div class="success" >Total Power Value in Kw: <span id="total_power_emerson"></span></div>
+								    </div>
+								  </div>
+
+								  <div class="container-gauge">
+											<span class="pdu">Raritan PDUs</span>
+								    <div class="gauge3">
+								      <div class="progress1">
+								        <div class="bar1"></div>
+								        <div class="needle1"></div>
+								      </div>
+								    </div>
+								    <div class="msg">
+								      <p class="process">Processing...</p>
+								    <div class="success" >Average Power Value in Kw: <span id="average_power_raritan"></span></div>
+										<div class="success" >Total Power Value in Kw: <span id="total_power_raritan"></span></div>
+								    </div>
+								  </div>
+
+								  <div class="container-gauge">
+										<span class="pdu">Avocent PDUs</span>
+								    <div class="gauge4">
+								      <div class="progress1">
+								        <div class="bar1"></div>
+								        <div class="needle1"></div>
+								      </div>
+								    </div>
+								    <div class="msg">
+								      <p class="process">Processing...</p>
+								      <div class="success" >Average Power Value in Kw: <span id="average_power_avocent"></span></div>
+											<div class="success" >Total Power Value in Kw: <span id="total_power_avocent"></span></div>
+								    </div>
+								  </div>
+								</div>
+								<div style="border-top: 2px solid transparent;"></div>
+							</div>
+						</div>
+					</div>
+			</div>
+		</div>
+	</div>
+
+<!-- here ends the gauge container -->
+
+<div style="border-top: 40px solid transparent;"></div>
+
+<div class ="LabsD" style="display: none;">
+	<div class="row">
+		<div class="col-sm-12">
+			<div class="widget-box">
+				<div class="widget-header widget-header-flat widget-header-small">
+					<h5 class="widget-title">
+						<i class="ace-icon fa fa-list"></i> Sunnyvale Core Lab - Grand Power in KW
+					</h5>
+				</div>
+					<div class="widget-body" style="padding: 3px 3px 3px 3px;">
+						<div class="widget-main no-padding">
+		<span class="number2" id="Grand_power"></span>
+						</div>
+
+					</div>
+
+			</div>
+
+
+		</div>
+
+	</div>
+
+</div>
+
+<div style="border-top: 40px solid transparent;"></div>
+
+<div class ="LabsD" style="display: none;">
+<div class="row">
+	<div class="col-sm-12">
+		<div class="widget-box">
+			<div class="widget-header widget-header-flat widget-header-small">
+				<h5 class="widget-title">
+					<i class="ace-icon fa fa-list"></i> Ruckus 350 Java (RUC1) Site - Overview
+				</h5>
+			</div>
+			<div class="widget-body" style="padding: 3px 3px 3px 3px;">
+				<div class="widget-main no-padding">
+				<!-- here starts the content -->
+				<div class="cards">
+											 <div class="card cardim">
+													<div class="card-content">
+															<div class="card-name">Total Number of Sites </div>
+															<div class="number"><span id="site_count"></span></div>
+															<a class="mya" href="<?php echo $this->basePath('gem/sites/'); ?>">View All Sites</a>
+													</div>
+													<div class="icon-box">
+														 <a  href="/gem/export/sites/?_=1&amp;draw=1&amp;order%5B0%5D%5Bcolumn%5D=name&amp;order%5B0%5D%5Bdir%5D=asc&amp;retired=0"><i class="fa fa-download"></i></a>
+													</div>
+											</div>
+
+											<div class="card cardim">
+													<div class="card-content">
+															<div class="card-name">Total Number of Labs</div>
+														 <div class="number"><span id="lab_count"></span></div>
+														 <a class="mya"  href="<?php echo $this->basePath('gem/labs/?site_id=586993&type_id='); ?>">View All Labs</a>
+
+													</div>
+													<div class="icon-box">
+														 <a  href="/gem/export/labs/?_=1&amp;draw=1&amp;order%5B0%5D%5Bcolumn%5D=name&amp;order%5B0%5D%5Bdir%5D=asc&amp;retired=0&amp;site_id=586993"><i class="fa fa-download"></i></a>
+													</div>
+											</div>
+
+											 <div class="card cardim">
+													 <div class="card-content">
+														 	<div class="card-name">Total Number of Racks </div>
+															 <div class="number"><span id="rack_count"></span></div>
+															 <a class="mya"  href="<?php echo $this->basePath('gem/racks/?site_id=586993&lab_id=&type_id='); ?>">View All Racks</a>
+
+													 </div>
+													 <div class="icon-box">
+															<a  href="/gem/export/racks/?_=1&amp;draw=1&amp;order%5B0%5D%5Bcolumn%5D=name&amp;order%5B0%5D%5Bdir%5D=asc&amp;retired=0&amp;site_id=586993"><i class="fa fa-download"></i></a>
+													 </div>
+											 </div>
+
+											 <div class="card cardim">
+													<div class="card-content">
+														<div class="card-name">Total Number of Labviews</div>
+															<div class="number"><span id="labview_count"></span></div>
+															 <a class="mya"  href="<?php echo $this->basePath('gem/labviews/'); ?>">View All Labviews</a>
+
+													</div>
+													<div class="icon-box">
+														 <a  href="/gem/export/labviews/?_=1&amp;draw=1&amp;order%5B0%5D%5Bcolumn%5D=name&amp;order%5B0%5D%5Bdir%5D=asc"><i class="fa fa-download"></i></a>
+													</div>
+											</div>
+
+
+											<div class="card cardim">
+												 <div class="card-content">
+													 <div class="card-name">Total Number of Testbeds</div>
+														 <div class="number"><span id="testbed_count"></span></div>
+														 <a class="mya" href="<?php echo $this->basePath('gem/testbeds/'); ?>">View All Testbeds</a>
+
+												 </div>
+												 <div class="icon-box">
+														<a href="/gem/export/testbeds/?_=1&amp;draw=1&amp;order%5B0%5D%5Bcolumn%5D=name&amp;order%5B0%5D%5Bdir%5D=asc&amp;status=ACTIVE"><i class="fa fa-download"></i></a>
+												 </div>
+										 </div>
+
+
+										 <div class="card cardim">
+												<div class="card-content">
+													<div class="card-name">Total Number of Virtuals</div>
+														<div class="number"><span id="virtual_count"></span></div>
+														<a class="mya" href="<?php echo $this->basePath('gem/virtuals/?site_id=586993'); ?>">View All Virtuals</a>
+
+												</div>
+												<div class="icon-box">
+													 <a href="/gem/export/sphinx-virtuals/?retired=0&amp;_=1&amp;draw=1&amp;order%5B0%5D%5Bcolumn%5D=locations.site&amp;order%5B0%5D%5Bdir%5D=asc&amp;order%5B1%5D%5Bcolumn%5D=locations.lab&amp;order%5B1%5D%5Bdir%5D=asc&amp;order%5B2%5D%5Bcolumn%5D=locations.rack&amp;order%5B2%5D%5Bdir%5D=asc&amp;start=0&amp;length=485"><i class="fa fa-download"></i></a>
+												</div>
+										</div>
+									 </div>
+				    </div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+<!-- <div class="cardim-container"> -->

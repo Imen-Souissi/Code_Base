@@ -1,0 +1,363 @@
+<?php $this->placeholder('bodyclass')->set('no-skin'); ?>
+
+<?php $this->placeholder('prescript')->captureStart('SET'); ?>
+	<script type="text/javascript" src="<?php echo $this->basePath('assets/js/ace-extra.min.js'); ?>"></script>
+	<?php echo $this->placeholder('prescript'); ?>
+<?php $this->placeholder('prescript')->captureEnd(); ?>
+
+<?php $this->placeholder('style')->captureStart('SET'); ?>
+	<link href="<?php echo $this->basePath('d-assets/all.css'); ?>" rel="stylesheet" type="text/css" />
+	<?php echo $this->placeholder('style'); ?>
+<?php $this->placeholder('style')->captureEnd(); ?>
+
+<?php $this->placeholder('script')->captureStart('SET'); ?>
+	<script type="text/javascript" src="<?php echo $this->basePath('d-assets/all.js'); ?>"></script>
+
+	<?php echo $this->placeholder('pre-ace-script'); ?>
+
+	<script type="text/javascript" src="<?php echo $this->basePath('assets/js/ace-elements.min.js'); ?>"></script>
+	<script type="text/javascript" src="<?php echo $this->basePath('assets/js/ace.min.js'); ?>"></script>
+
+
+	<?php echo $this->placeholder('script'); ?>
+
+
+	<?php $this->placeholder('script')->captureEnd(); ?>
+
+<?php
+$route = $this->route()->getRouteName();
+$routeactive = ($route == "application") ? 'active' : '';
+$routeopen = ($routeactive == 'active') ? 'open' : '';
+$routehover = ($routeactive == 'active') ? 'hover' : '';
+?>
+
+<?php $this->placeholder('content')->captureStart('SET'); ?>
+
+
+<div id="navbar" class="navbar navbar-default shiny-text">
+	<!-- for now I will desactivate this line and just add the main function -->
+	<script type="text/javascript">
+		try{ace.settings.check('navbar' , 'fixed')}catch(e){}
+	</script>
+
+
+
+
+<!-- this navbar contains a toggler, a manu and other elements -->
+<!-- this is the toggle  -->
+	<div class="navbar-container" id="navbar-container">
+		<button type="button" class="navbar-toggle menu-toggler pull-left collapsed" data-toggle="collapse" id="menu-toggler" data-target="#mynavv">
+			<span class="sr-only">Toggle sidebar</span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+		</button>
+
+
+<!-- this is the logo and name  -->
+		<div class="navbar-header  pull-left">
+			<a href="/brics/index/" class="navbar-brand">
+				<small>
+					<?php echo $this->config()->getApplicationConfig('app_name'); ?>
+				</small>
+				</div>
+
+
+			<!-- this is the menu -->
+				<?php
+					$max_tools = 7;
+					$available_tools = array(
+						array(
+							'label' => 'Dashboard',
+							'url' => $this->basePath('/'),
+							'order' => 0,
+							'security' => array(
+								'controller' => 'Project::Projects',
+								'action' => 'calendar',
+							),
+				    ),
+				      array(
+				  			'label' => 'Project Calender',
+				  			'url' => $this->basePath('project/projects/calendar/'),
+				  			'order' => 1,
+				  			'security' => array(
+				  				'controller' => 'Project::Projects',
+				  				'action' => 'calendar',
+				  			),
+						),
+						array(
+							'label' => 'Equipement Reservation',
+							'url' => $this->basePath('gem/devices/'),
+							'order' => 2,
+							'security' => array(
+								'controller' => 'Gem::Devices',
+								'action' => 'index',
+							),
+						),
+						array(
+							'label' => 'Map View',
+							'order' => 3,
+							'url' => ($this->site()->getDefaultSiteId() !== false) ? $this->basePath('gem/assets/view-layout/' . $this->site()->getDefaultSiteId()) : null,
+							'security' => array(
+								'controller' => 'Gem::Assets',
+								'action' => 'view-layout',
+							),
+						),
+						array(
+							'label' => 'Service Request',
+							'order' => 4,
+							'url' => ($this->site()->getDefaultSiteId() !== false) ? $this->basePath('ticket/service-requests/?filtering=1&hr_contact_id=' . $this->authentication()->getAuthenticatedUserId()) : null,
+							'security' => array(
+								'controller' => 'Ticket::ServiceRequests',
+								'action' => 'index',
+							),
+						),
+						array(
+							'label' => 'Reporting',
+							'order' => 5,
+							'url' => $this->basePath('report/reports/'),
+							'security' => array(
+								'controller' => 'Report::Reports',
+								'action' => 'index',
+							),
+						),
+						array(
+							'label' => 'Procurement',
+							'order' => 6,
+							'url' => $this->basePath('procurement/proposals/?filtering=1&requestor_id=' . $this->authentication()->getAuthenticatedUserId()),
+							'security' => array(
+								'controller' => 'Procurement::Proposals',
+								'action' => 'index'
+							)
+						),
+						array(
+							'label' => 'Compliance',
+							'order' => 7,
+							'url' => ($this->inprogress_status) ? $this->basePath('compliance/transactions/?status_id=' . $this->inprogress_status->id) : $this->basePath('compliance/transactions/'),
+							'security' => array(
+								'controller' => 'Compliance::Transactions',
+								'action' => 'index',
+							)
+						)
+					);
+
+					$unavailable_tools = array();
+					$top_available_tools = array();
+
+					// find the first 4 available tools this user have access to
+					foreach($available_tools as $tool) {
+						if(empty($tool['security']) || $this->authorization()->isPermitted($tool['security']['controller'], $tool['security']['action'])) {
+							$top_available_tools[] = $tool;
+						} else {
+							$unavailable_tools[] = $tool;
+						}
+
+						if(count($top_available_tools) >= $max_tools) {
+							break;
+						}
+					}
+
+					if(count($top_available_tools) < $max_tools && count($unavailable_tools) > 0) {
+						foreach($unavailable_tools as $tool) {
+							$top_available_tools[] = $tool;
+
+							if(count($top_available_tools) >= $max_tools) {
+								break;
+							}
+						}
+					}
+
+					usort($top_available_tools, function($a, $b) {
+						return $a['order'] - $b['order'];
+					});
+				?>
+
+				<!-- here  have created another class container inside the main container to override the default style  -->
+		<div class="mynav" id="mynav">
+			<ul class="list mynav_list">
+				<?php
+				foreach($available_tools as $tool) {
+					if(empty($tool['security']) || $this->authorization()->isPermitted($tool['security']['controller'], $tool['security']['action'])) {
+						echo '<li class="mynav_item">';
+						echo '<a href="' . $tool['url'] . '">' . $tool['label'] . '</a>';
+						echo '</li>';
+					}
+				}
+				?>
+			</ul>
+		</div>
+
+
+
+
+<!-- here ends the menu section  -->
+
+		<div class="navbar-buttons navbar-header  pull-right" role="navigation">
+			<ul class="nav ace-nav">
+				<?php
+				// here is the key
+					// output the topbar generated by the Application::Module::buildMenu
+					echo $this->topbar;
+				?>
+				<?php echo $this->placeholder('topbar'); ?>
+				<?php
+					$navcolor = $this->config()->getApplicationConfig('navbar_color');
+					$navcolor = (empty($navcolor)) ? 'light-red' : $navcolor;
+				?>
+				<?php
+				$user_id = $this->authentication()->getAuthenticatedUserId();
+				if(!empty($user_id)) {
+				?>
+				<li class="<?php echo $navcolor; ?>">
+					<a data-toggle="dropdown" href="#" class="dropdown-toggle">
+						<img class="nav-user-photo" src="<?php echo $this->basePath($this->profile()->getUserImageUrl()); ?>" alt="<?php echo $this->profile()->getFirstname(); ?>'s Photo" style="height: 20px;" />
+						<span class="user-info">
+							<small>Welcome,</small>
+							<?php
+								echo $this->profile()->getFirstname();
+							?>
+						</span>
+						<i class="ace-icon fa fa-caret-down"></i>
+					</a>
+					<ul class="user-menu dropdown-menu-right dropdown-menu dropdown-yellow dropdown-caret dropdown-close">
+						<li>
+							<a href="<?php echo $this->basePath('logout'); ?>">
+								<i class="ace-icon fa fa-power-off"></i>
+								Logout
+							</a>
+						</li>
+					</ul>
+				</li>
+				<?php } else { ?>
+				<li class="<?php echo $navcolor; ?>">
+					<a href="<?php echo $this->basePath('login'); ?>">
+						<i class="ace-icon fa fa-key"></i>
+						Login
+					</a>
+				</li>
+				<?php } ?>
+			</ul>
+		</div>
+	</div><!-- /.navbar-container -->
+</div>
+<!-- ends here the navbar -->
+
+<!-- the nav section that will show on toggler click is here  -->
+<div class="mynavv" id="mynavv">
+	<ul class="list mynavv_list">
+		<?php foreach($available_tools as $tool) {
+			if(empty($tool['security']) || $this->authorization()->isPermitted($tool['security']['controller'], $tool['security']['action'])) {
+				echo '<li class="mynavv_item">';
+				echo '<a href="' . $tool['url'] . '">' . $tool['label'] . '</a>';
+				echo '</li>';
+			}
+		} ?>
+	</ul>
+</div>
+
+
+
+
+
+<div class="main-container " id="main-container">
+	<script type="text/javascript">
+		try{ace.settings.check('main-container' , 'fixed')}catch(e){}
+	</script>
+
+	<?php if ($this->authentication()->isAuthenticated()) { ?>
+		<?php $this->placeholder('settings')->captureStart(); ?>
+		<script type="text/javascript">
+			<?php $escaper = new \Zend\Escaper\Escaper('utf-8'); ?>
+			function pinit() {
+				$.post('<?php echo $this->url('application/application/default', array('controller' => 'index', 'action' => 'pin-it')); ?>', {
+					route: '<?php echo $this->route()->getRouteName(); ?>',
+					controller: '<?php echo $this->route()->getControllerName(); ?>',
+					action: '<?php echo $this->route()->getAction(); ?>',
+					id: '<?php echo $this->route()->getId(); ?>',
+					query: "<?php echo $escaper->escapeJs($this->json($this->route()->getQuery())); ?>"
+				});
+
+
+			}
+			function clearit() {
+				$.post('<?php echo $this->url('application/application/default', array('controller' => 'index', 'action' => 'clear-it')); ?>', {});
+			}
+		</script>
+		<?php if ($this->config()->getApplicationConfig('app')) { ?>
+			<div class="btn-group pull-right" style="float: right; z-index: 1000;">
+				<button data-toggle="dropdown" class="btn btn-link">
+					<i class="ace-icon fa fa-gears grey"></i>
+				</button>
+
+				<ul class="dropdown-menu dropdown-default">
+					<li>
+						<a href="javascript: void(0);" onclick="pinit()" title="Mark this as my primary landing page">
+							<i class="ace-icon fa fa-map-signs"></i>
+							Pin Page
+						</a>
+					</li>
+					<li>
+						<a href="javascript: void(0);" onclick="clearit()" title="Reset the primary landing page to default">
+							<i class="ace-icon fa fa-chain-broken"></i>
+							Clear Page
+						</a>
+					</li>
+				</ul>
+			</div>
+		<?php } ?>
+		<?php $this->placeholder('settings')->captureEnd(); ?>
+	<?php } ?>
+
+	<div id="sidebar" class="sidebar h-sidebar navbar-collapse collapse"></div>
+
+	<div class="main-content">
+		<div class="main-content-inner">
+			<?php echo $this->placeholder('settings'); ?>
+			<div class="page-content <?php echo ($this->layout_type == 'h') ? '': ''; ?>">
+				<?php $header = $this->placeholder('header')->toString(); ?>
+				<?php if (!empty($header)) { ?>
+				<div class="page-header">
+					<?php echo $header; ?>
+				</div>
+				<?php } ?>
+				<div class="row">
+					<div class="col-xs-12">
+						<!-- PAGE CONTENT BEGINS -->
+						<?php echo $this->placeholder('content'); ?>
+						<!-- PAGE CONTENT ENDS -->
+					</div><!-- /.col -->
+				</div><!-- /.row -->
+			</div><!-- /.page-content -->
+		</div>
+	</div><!-- /.main-content -->
+
+	<div class="footer">
+		<div class="footer-inner">
+			<div class="footer-content">
+				<span class="bigger-120">
+					<?php echo $this->config()->getApplicationConfig('footer_app_name'); ?> By <a href="https://arris365.sharepoint.com/sites/CSS/wwie/SitePages/Home.aspx" target="_blank" class="lighter red">WWIE</a> &copy;
+					<?php echo (date('Y') == '2015') ? '2015' : '2015-' . date('Y'); ?>
+				</span>
+				<?php $version = $this->config()->getApplicationConfig('version'); ?>
+				<?php if($version) { ?>
+				<span class="pull-right text-muted">
+					<?php if ($this->config()->getApplicationConfig('enable_version_doc') !== false) { ?>
+					<a href="<?php echo $this->basePath('documentations/release-notes.html'); ?>" target="_blank">
+						<?php echo $version; ?>
+					</a>
+					<?php } else { ?>
+						<?php echo $version; ?>
+					<?php } ?>
+				</span>
+				<?php } ?>
+			</div>
+		</div>
+	</div>
+
+	<a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
+		<i class="ace-icon fa fa-angle-double-up icon-only bigger-110"></i>
+	</a>
+</div><!-- /.main-container -->
+<?php $this->placeholder('content')->captureEnd(); ?>
+
+<?php include("base.phtml"); ?>

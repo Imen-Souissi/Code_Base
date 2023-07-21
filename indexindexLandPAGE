@@ -1,0 +1,275 @@
+<?php include(__DIR__ . "/../layout/layout.phtml"); ?>
+
+<!-- this is the landing page  -->
+<?php $this->placeholder('content')->captureStart(); ?>
+
+<div style="position: relative; width:100%; height:100%;">
+  <img src="<?php echo $this->basePath('/assets/els/img/slide1-S.jpg') ?>" style="width:100%; height:100%; object-fit: cover;">
+</div>
+
+<div class="separation">
+
+</div>
+
+<!-- <div class="mycontainer bigcont"> -->
+  <!-- <div class="titlepluscardims "> -->
+<!-- add the content from bloc note here  -->
+  	<!-- here ends the grid section -->
+<!-- see notepad content_index_landing_page_content in  dOCUMENTS -->
+
+<div class="cardim-container">
+  <div class="cardim">
+    <h2>Services</h2>
+    <ul>
+      <!-- Services list -->
+
+     <li id="hello-text4">WWIE Lab Services</li>
+     <div id="image-containercov4">
+      <img id="hello-image41" src="<?php echo $this->basePath('/assets/els/img/WWIE.JPG') ?>">
+       <i  id="close-button4" class="fa fa-window-close" aria-hidden="true"></i>
+        <div id="zoom-buttons4">
+         <i id="zoom-in-button4" class="fa fa-search-plus" aria-hidden="true"></i>
+         <i id="zoom-out-button4" class="fa fa-search-minus" aria-hidden="true"></i>
+        </div>
+     </div>
+
+     <li id="hello-text5">Worldwide Lab Enablement</li>
+     <div id="image-containercov5">
+      <img id="hello-image51" src="<?php echo $this->basePath('/assets/els/img/eng.JPG') ?>">
+       <i  id="close-button5" class="fa fa-window-close" aria-hidden="true"></i>
+        <div id="zoom-buttons5">
+         <i id="zoom-in-button5" class="fa fa-search-plus" aria-hidden="true"></i>
+         <i id="zoom-out-button5" class="fa fa-search-minus" aria-hidden="true"></i>
+        </div>
+     </div>
+
+     <li id="hello-text6">CID - Cloud Infrastructure & Demonstration tool </li>
+     <div id="image-containercov6">
+      <img id="hello-image61" src="<?php echo $this->basePath('/assets/els/img/CID.JPG') ?>">
+       <i  id="close-button6" class="fa fa-window-close" aria-hidden="true"></i>
+        <div id="zoom-buttons6">
+         <i id="zoom-in-button6" class="fa fa-search-plus" aria-hidden="true"></i>
+         <i id="zoom-out-button6" class="fa fa-search-minus" aria-hidden="true"></i>
+        </div>
+     </div>
+
+
+     <li id="hello-text7">CID Catalogue View</li>
+     <div id="image-containercov7">
+      <img id="hello-image71" src="<?php echo $this->basePath('/assets/els/img/catalogue.JPG') ?>">
+       <i  id="close-button7" class="fa fa-window-close" aria-hidden="true"></i>
+        <div id="zoom-buttons7">
+         <i id="zoom-in-button7" class="fa fa-search-plus" aria-hidden="true"></i>
+         <i id="zoom-out-button7" class="fa fa-search-minus" aria-hidden="true"></i>
+        </div>
+     </div>
+
+     <li id="hello-text8">CID - Sandbox View​</li>
+     <div id="image-containercov8">
+      <img id="hello-image81" src="<?php echo $this->basePath('/assets/els/img/sandbox.JPG') ?>">
+       <i  id="close-button8" class="fa fa-window-close" aria-hidden="true"></i>
+        <div id="zoom-buttons8">
+         <i id="zoom-in-button8" class="fa fa-search-plus" aria-hidden="true"></i>
+         <i id="zoom-out-button8" class="fa fa-search-minus" aria-hidden="true"></i>
+        </div>
+     </div>
+
+     <li id="hello-text3">Lab Policies</li>
+     <div id="image-containercov3">
+      <img id="hello-image31" src="<?php echo $this->basePath('/assets/els/img/Lab_policy.JPG') ?>">
+       <i  id="close-button3" class="fa fa-window-close" aria-hidden="true"></i>
+        <div id="zoom-buttons3">
+         <i id="zoom-in-button3" class="fa fa-search-plus" aria-hidden="true"></i>
+         <i id="zoom-out-button3" class="fa fa-search-minus" aria-hidden="true"></i>
+        </div>
+      </div>
+    </ul>
+    </div>
+
+
+  <div class="cardim">
+    <h2>Need Equipment?</h2>
+    <ul>
+      <!-- Need Equipment? list -->
+
+      <li id="hello-text2">Opportunity Support Request</li>
+      <div id="image-containercov2">
+       <img id="hello-image21" src="<?php echo $this->basePath('/assets/els/img/tutoSlide21.JPG') ?>">
+       <img id="hello-image22" src="<?php echo $this->basePath('/assets/els/img/tutoSlide22.JPG') ?>">
+       <img id="hello-image23" src="<?php echo $this->basePath('/assets/els/img/tutoSlide23.JPG') ?>">
+       <img id="hello-image24" src="<?php echo $this->basePath('/assets/els/img/tutoSlide24.JPG') ?>">
+       <img id="hello-image25" src="<?php echo $this->basePath('/assets/els/img/tutoSlide25.JPG') ?>">
+       <img id="hello-image26" src="<?php echo $this->basePath('/assets/els/img/tutoSlide26.JPG') ?>">
+        <i  id="close-button2" class="fa fa-window-close" aria-hidden="true"></i>
+         <div id="zoom-buttons2">
+          <i id="zoom-in-button2" class="fa fa-search-plus" aria-hidden="true"></i>
+          <i id="zoom-out-button2" class="fa fa-search-minus" aria-hidden="true"></i>
+         </div>
+         <div id="land-slides2">
+         <i id="slide-left2" class="fa fa-arrow-circle-left" aria-hidden="true"></i>
+         <i id="slide-right2" class="fa fa-arrow-circle-right" aria-hidden="true"></i>
+         </div>
+      </div>
+
+
+      <li id="hello-text">Technical Assistance Center (Child Case Required)</li>
+      <div id="image-containercov">
+       <img id="hello-image1" src="<?php echo $this->basePath('/assets/els/img/tutoSlide1.JPG') ?>">
+       <img id="hello-image2" src="<?php echo $this->basePath('/assets/els/img/tutoSlide2.JPG') ?>">
+       <img id="hello-image3" src="<?php echo $this->basePath('/assets/els/img/tutoSlide3.JPG') ?>">
+       <img id="hello-image4" src="<?php echo $this->basePath('/assets/els/img/tutoSlide4.JPG') ?>">
+       <img id="hello-image5" src="<?php echo $this->basePath('/assets/els/img/tutoSlide5.JPG') ?>">
+        <i  id="close-button" class="fa fa-window-close" aria-hidden="true"></i>
+         <div id="zoom-buttons">
+          <i id="zoom-in-button" class="fa fa-search-plus" aria-hidden="true"></i>
+          <i id="zoom-out-button" class="fa fa-search-minus" aria-hidden="true"></i>
+         </div>
+         <div id="land-slides">
+         <i id="slide-left" class="fa fa-arrow-circle-left" aria-hidden="true"></i>
+         <i id="slide-right" class="fa fa-arrow-circle-right" aria-hidden="true"></i>
+         </div>
+      </div>
+
+    </ul>
+  </div>
+
+  <div class="cardim">
+    <h2>Service Level Agreement</h2>
+    <ul>
+      <!-- Service Level Agreement list -->
+      <li class="bullet-boldd">Priority 1/Severity 1</li>
+      <li class="bullet-boldc">On-call</li>
+      <li class="bullet-boldc">Prompt Response Activation</li>
+      <li class="bullet-boldc">24-hour Turnaround</li>
+      <li class="bullet-boldc">Education</li>
+      <li class="bullet-boldc">TAC</li>
+      <li class="bullet-boldd">Priority 2/Severity 2</li>
+      <li class="bullet-boldc">Within 2 business days</li>
+      <li class="bullet-boldc">No On-Call Support</li>
+      <li class="bullet-boldc">TAC</li>
+      <li class="bullet-boldc">Engineering</li>
+      <li class="bullet-boldd">Priority (3/4) /Severity (3/4)</li>
+      <li class="bullet-boldc">Within 3-4 business days</li>
+      <li class="bullet-boldc">Opportunity Support Request</li>
+      <li class="bullet-boldc">TAC</li>
+      <li class="bullet-boldc">Engineering</li>
+    </ul>
+  </div>
+
+  </body>
+
+</html>
+
+  <div class="cardim">
+    <h2>BRICS - Business Reservation & Inventory Control System </h2>
+    <ul>
+      <!-- Tools - Arris Credentials list -->
+      <li id="hello-text9">GEM - Global Equipment Manager</li>
+      <div id="image-containercov9">
+       <img id="hello-image91" src="<?php echo $this->basePath('/assets/els/img/gem.JPG') ?>">
+        <i  id="close-button9" class="fa fa-window-close" aria-hidden="true"></i>
+         <div id="zoom-buttons9">
+          <i id="zoom-in-button9" class="fa fa-search-plus" aria-hidden="true"></i>
+          <i id="zoom-out-button9" class="fa fa-search-minus" aria-hidden="true"></i>
+         </div>
+      </div>
+
+
+
+      <li id="hello-text10">BRICS 1.0</li>
+      <div id="image-containercov10">
+       <img id="hello-image101" src="<?php echo $this->basePath('/assets/els/img/brics1.JPG') ?>">
+        <i  id="close-button10" class="fa fa-window-close" aria-hidden="true"></i>
+         <div id="zoom-buttons10">
+          <i id="zoom-in-button10" class="fa fa-search-plus" aria-hidden="true"></i>
+          <i id="zoom-out-button10" class="fa fa-search-minus" aria-hidden="true"></i>
+         </div>
+      </div>
+
+
+
+      <li id="hello-text11">BRICS 2.0</li>
+      <div id="image-containercov11">
+       <img id="hello-image111" src="<?php echo $this->basePath('/assets/els/img/brics2.JPG') ?>">
+        <i  id="close-button11" class="fa fa-window-close" aria-hidden="true"></i>
+         <div id="zoom-buttons11">
+          <i id="zoom-in-button11" class="fa fa-search-plus" aria-hidden="true"></i>
+          <i id="zoom-out-button11" class="fa fa-search-minus" aria-hidden="true"></i>
+         </div>
+      </div>
+
+      <li id="hello-text12">Logical Architecture View</li>
+      <div id="image-containercov12">
+       <img id="hello-image121" src="<?php echo $this->basePath('/assets/els/img/logicalArchitect.JPG') ?>">
+        <i  id="close-button12" class="fa fa-window-close" aria-hidden="true"></i>
+         <div id="zoom-buttons12">
+          <i id="zoom-in-button12" class="fa fa-search-plus" aria-hidden="true"></i>
+          <i id="zoom-out-button12" class="fa fa-search-minus" aria-hidden="true"></i>
+         </div>
+      </div>
+
+      <li id="hello-text13">Pictorial View of Labs​</li>
+      <div id="image-containercov13">
+       <img id="hello-image131" src="<?php echo $this->basePath('/assets/els/img/mapview.JPG') ?>">
+        <i  id="close-button13" class="fa fa-window-close" aria-hidden="true"></i>
+         <div id="zoom-buttons13">
+          <i id="zoom-in-button13" class="fa fa-search-plus" aria-hidden="true"></i>
+          <i id="zoom-out-button13" class="fa fa-search-minus" aria-hidden="true"></i>
+         </div>
+      </div>
+
+
+    </ul>
+  </div>
+
+  <div class="cardim">
+    <h2>Onsite Coverage</h2>
+    <div>
+  <label for="location">Select Location:</label>
+  <select id="location">
+    <option value="...">....</option>
+    <option value="sunnyvale">Sunnyvale</option>
+    <option value="bangalore">Bangalore</option>
+  </select>
+  <label for="shift">Select Shift:</label>
+  <select id="shift">
+    <option value="...">....</option>
+    <option value="day">Day Shift</option>
+    <option value="night">Night Shift</option>
+  </select>
+  </div>
+  <div id="calendar">
+    <table class="tablecov" id="sunnyvale-day"></table>
+    <table class="tablecov" id="sunnyvale-night"></table>
+    <table class="tablecov" id="bangalore-day"></table>
+    <table class="tablecov" id="bangalore-night"></table>
+  </div>
+  </div>
+
+ <div class="cardim">
+  <h2>Contact Us</h2>
+  <p>Still got questions?</p>
+  <p>Have a Network Issue to report?</p>
+  <p>Like to provide feedback?</p>
+  <p>Please email the lab team:</p>
+  <p><a href="mailto:labs@commscope.com">#labs@commscope.com</a></p>
+  <h3>Escalations</h3>
+  <p>Michael Bermudez</p>
+  <p>Lab Manager - Sunnyvale</p>
+  <p><a href="tel:+14086630762">+1 408-663-0762</a></p>
+  <p><a href="mailto:michael.bermudez@commscope.com">michael.bermudez@commscope.com</a></p>
+  <p>Arun Sekaran</p>
+  <p>Lab Manager - Bangalore</p>
+  <p><a href="tel:+919535284943">+91 953-528-4943</a></p>
+  <p><a href="mailto:arun.sekaran@commscope.com">arun.sekaran@commscope.com</a></p>
+</div>
+
+</div>
+  <!-- </div>
+
+
+</div> -->
+
+
+ <!-- here ends the cardims section -->
+<?php $this->placeholder('content')->captureEnd(); ?>
