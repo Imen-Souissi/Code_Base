@@ -1,0 +1,165 @@
+<?php include(__DIR__ . "/layout/layout.phtml"); ?>
+<?php
+$this->formElementErrors()
+	 ->setAttributes(array('class' => 'list-unstyled'));
+?>
+
+<?php $this->placeholder('heading')->captureStart(); ?>
+Update Resource
+<?php $this->placeholder('heading')->captureEnd() ;?>
+
+<?php $this->placeholder('breadcrumb')->captureStart(); ?>
+<li>
+	<a href="<?php echo $this->basePath('auth/security/resources/'); ?>">Resources</a>
+</li>
+<li class="active">
+	<a href="<?php echo $this->basePath('auth/security/resources-edit/' . $this->id); ?>">Update Resource (<?php echo $this->resource['controller'] . ' >> ' . $this->resource['action']; ?>)</a>
+</li>
+<?php $this->placeholder('breadcrumb')->captureEnd() ;?>
+
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript">
+	$(document).ready(function() {		
+		var fields = {
+			controller: {
+				required: true,
+				message: 'Please provide a Controller'
+			},
+			action: {
+				required: true,
+				message: 'Please provide an Action'
+			}
+		};
+		$.validate_utils.create('#resource', fields);
+		
+		<?php if($this->success) { ?>
+		setTimeout(function() {
+			$("#success-msg").hide();
+		}, 2000);
+		<?php } ?>
+	});
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<?php $this->placeholder('header')->captureStart('SET'); ?>
+<h1>
+	Security
+	<small>
+		<i class="ace-icon fa fa-angle-double-right"></i>
+		Update Resource
+	</small>
+</h1>
+<?php $this->placeholder('header')->captureEnd(); ?>
+
+<?php $this->placeholder('content')->captureStart('SET'); ?>
+<div class="row no-padding no-margin">
+	<form id="resource" method="post" role="form" class="form-horizontal">
+		<?php if ($this->error) { ?>
+			<div class="alert alert-danger alert-dismissible">
+				<?php echo $this->error; ?>
+			</div>
+		<?php } ?>
+		
+		<?php if ($this->success) { ?>
+			<div id="success-msg" class="alert alert-success alert-dismissible">
+				<?php echo $this->success; ?>
+			</div>
+		<?php } ?>
+		
+		<div class="alert alert-warning">
+			All fields with an <i class="ace-icon fa fa-asterisk red"></i> are required.
+		</div>
+		
+		<?php $error = ($this->form->has('controller')) ? $this->formElementErrors($this->form->get('controller')) : ""; ?>
+		<div class="form-group <?php echo ($error) ? "has-error" : ""; ?>">
+			<label class="col-sm-2 control-label no-padding-right" for="controller">Controller </label>
+			<div class="col-sm-5">
+				<span class="block input-icon input-icon-right">
+					<input type="text"
+						   id="controller"
+						   name="controller"
+						   placeholder="Controller name"
+						   value="<?php echo $this->post['controller']; ?>"
+						   class="width-100" />
+					<i class="ace-icon fa fa-asterisk red" style="margin-right: 15px;"></i>
+				</span>
+				<?php if ($error) { ?>
+				<div id="controller-error" class="help-block">
+					<?php echo $error; ?>
+				</div>
+				<?php } ?>
+			</div>
+		</div>
+		
+		<?php $error = ($this->form->has('action')) ? $this->formElementErrors($this->form->get('action')) : ""; ?>
+		<div class="form-group <?php echo ($error) ? "has-error" : ""; ?>">
+			<label class="col-sm-2 control-label no-padding-right" for="action">Action </label>
+			<div class="col-sm-5">
+				<span class="block input-icon input-icon-right">
+					<input type="text"
+						   id="action"
+						   name="action"
+						   placeholder="Action"
+						   value="<?php echo $this->post['action']; ?>"
+						   class="width-100" />
+					<i class="ace-icon fa fa-asterisk red" style="margin-right: 15px;"></i>
+				</span>
+				<?php if ($error) { ?>
+				<div id="action-error" class="help-block">
+					<?php echo $error; ?>
+				</div>
+				<?php } ?>
+			</div>
+		</div>
+		
+		<div class="form-group">
+			<label class="col-sm-2"></label>
+			<div class="col-sm-9">
+				<a class="btn btn-sm" href="<?php echo $this->basePath('auth/security/resources/'); ?>">
+					<i class="ace-icon fa fa-remove align-top bigger-125"></i>
+					Cancel
+				</a>
+				<button class="btn btn-sm btn-primary"
+						type="submit">
+					<i class="ace-icon fa fa-check align-top bigger-125"></i>
+					Update
+				</button>
+			</div>
+		</div>
+	</form>
+</div>
+<div class="row tabbable">
+	<div class="col-xs-12">
+		<div class="btn-group pull-right bring-front">
+			<button type="button" class="btn btn-xs btn-inverse dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				Tab Actions
+				<span class="ace-icon fa fa-caret-down icon-only"></span>
+			</button>
+			<ul class="dropdown-menu dropdown-inverse dropdown-white dropdown-menu-right">							
+				<?php if($this->authorization()->isPermitted('Auth::Security', 'resources-assign-permissions')) { ?>
+				<li>
+					<a data-toggle='modal' href='#assign_resource_permissions_modal'>
+						<i class="ace-icon fa fa-plus"></i>
+						Assign Permissions
+					</a>
+				</li>
+				<?php } ?>
+			</ul>
+		</div>
+		<ul class="nav nav-tabs" id="report-tab">
+			<li class="active">
+				<a data-toggle="tab" href="#permissions_pane" id="permissions_a">Permissions</a>
+			</li>
+		</ul>
+		<div class="tab-content">		
+			<div id="permissions_pane" class="tab-pane fade in active">
+				<?php include(__DIR__ . "/pane/resource-permissions.phtml"); ?>
+			</div>
+		</div>
+	</div>	
+</div>
+
+<?php if($this->authorization()->isPermitted('Auth::Security', 'resources-assign-permissions')) { ?>
+<?php include(__DIR__ . "/pane/assign-resource-permissions.phtml"); ?>
+<?php } ?>
+<?php $this->placeholder('content')->captureEnd(); ?>

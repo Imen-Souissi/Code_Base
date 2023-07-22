@@ -1,0 +1,119 @@
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript">
+	$(document).ready(function() {
+		var selects = [{
+			id: 'roles',
+			url: '<?php echo $this->basePath('auth/rest/available-exclude-roles/'); ?>',
+			onData: function(data) {
+				data['role_id'] = '<?php echo $this->id; ?>';				
+			}
+		}];
+		
+		$.select2_utils.create(selects, 25, {
+			multiple: true
+		});
+		
+		$.validate_utils.create('#assign_role_exclude_roles', {
+			roles: {
+				required: true,
+				message: 'Please select a role'
+			}
+		}, function(form) {
+			$("#assign_role_exclude_roles_message")
+				.show()
+				.removeClass("label-success")
+				.removeClass("label-danger")
+				.addClass("label-default")
+				.html("Assigning excluded roles...");
+			
+			$.ajax({
+				type: 'POST',
+				url: '<?php echo $this->basePath('auth/security/roles-assign-exclude-roles/' . $this->id); ?>',
+				data: $(form).serializeArray()
+			}).done(function(data) {
+				$("#assign_role_exclude_roles_message")
+					.removeClass("label-default")
+					.addClass("label-success")
+					.html("Successfully assigned excluded roles");
+				
+				setTimeout(function() {					
+					$("#assign_role_exclude_roles_message").hide();						
+					$("#assign_role_exclude_roles_modal").modal('hide');
+					
+					if ($.fn.DataTable.isDataTable('#role_exclude_roles')) {
+						$("#role_exclude_roles").dataTable().api().ajax.reload();
+					}
+				}, 1000);
+			}).fail(function(error) {
+				if (error.responseJSON && error.responseJSON['error']) {
+					error = error.responseJSON['error'];
+				} else {
+					error = 'Unable to assign roles, try again';
+				}
+				
+				$("#assign_role_exclude_roles_message")
+					.removeClass("label-default")
+					.addClass("label-danger")
+					.html(error);
+			});
+			return false;
+		});
+		
+		$('#assign_role_exclude_roles_modal').on('show.bs.modal', function(e) {
+			// reset the roles field
+			$("#roles").select2('val', null);
+		});
+	});
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<div id="assign_role_exclude_roles_modal" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header no-padding">
+				<div class="table-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						<span class="white">&times;</span>
+					</button>
+					Assign Excluded Roles
+				</div>
+			</div>
+			<form id="assign_role_exclude_roles" class="form-horizontal">
+				<div class="modal-body">				
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="alert alert-warning">
+								All fields with an <i class="ace-icon fa fa-asterisk red"></i> are required.  Select as many <strong>Roles</strong> as desire to be excluded from users with this role.
+							</div>
+							<div class="form-group">
+								<label class="col-sm-2 control-label no-padding-right" for="roles">Roles </label>
+								<div class="col-sm-9">
+									<span class="block input-icon input-icon-right">
+										<input type="text"
+											   id="roles"
+											   name="roles"
+											   placeholder="Roles"
+											   class="width-100" />
+										<i class="ace-icon fa fa-asterisk red" style="margin-right: 15px;"></i>
+									</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer align-left">
+					<a class="btn btn-sm" href="#" data-dismiss="modal" aria-hidden="true">
+						<i class="ace-icon fa fa-remove bigger-125"></i>
+						Cancel
+					</a>
+					<button class="btn btn-sm btn-primary"
+							type="submit">
+						<i class="ace-icon fa fa-plus bigger-125"></i>
+						Assign
+					</button>
+					<div id="assign_role_exclude_roles_message" style="display: none;" class="pull-right label label-default"></div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

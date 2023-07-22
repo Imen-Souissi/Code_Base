@@ -1,0 +1,109 @@
+<?php $this->placeholder('bodyclass')->set('login-layout'); ?>
+
+<?php
+$font_color = $this->config()->getApplicationConfig('font_color');
+$font_color = (empty($font_color)) ? 'red' : $font_color;
+?>
+<?php $this->placeholder('style')->captureStart(); ?>
+<link href="<?php echo $this->basePath('assets/els/css/login.css'); ?>" rel="stylesheet" type="text/css" />
+<?php $this->placeholder('style')->captureEnd(); ?>
+
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript">
+	jQuery(function($) {
+	 $(document).on('click', '.toolbar a[data-target]', function(e) {
+		e.preventDefault();
+		var target = $(this).data('target');
+		$('.widget-box.visible').removeClass('visible');//hide others
+		$(target).addClass('visible');//show target
+	 });
+
+        <?php if ($this->redirect_url) { ?>
+            $(document).ready(function() {
+                setTimeout(function() {
+                    window.location = '<?php echo $this->redirect_url; ?>';
+                }, 10000);
+            });
+        <?php } ?>
+	});
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<?php $this->placeholder('content')->captureStart(); ?>
+<div class="main-container">
+	<div class="main-content">
+		<?php echo $this->config()->getApplicationConfig('pre_login_msg'); ?>
+		<div class="row">
+			<div class="col-sm-10 col-sm-offset-1">
+				<?php echo $this->config()->getApplicationConfig('left_login_msg'); ?>
+				<div class="login-container">
+					<div class="center">
+						<h1>
+							<!--<i class="ace-icon fa fa-leaf red"></i>-->
+							<!-- <img src="<?php echo $this->basePath('assets/els/img/els.png'); ?>" style="width: 50px;" /> -->
+							<?php echo $this->config()->getApplicationConfig('login_app_name'); ?>
+						</h1>
+					</div>
+
+					<div class="space-6"></div>
+
+					<div class="position-relative">
+						<?php if($this->config()->getApplicationConfig('login_logo') !== false) { ?>
+						<img src="<?php echo $this->basePath('assets/els/img/els.png'); ?>"
+							 class="login-logo" />
+						<?php } ?>
+						<div id="login-box" class="login-box visible widget-box no-border">
+							<div class="widget-body">
+								<div class="widget-main">
+									<h5 class="header <?php echo $font_color; ?> lighter bigger">
+										<i class="ace-icon fa fa-desktop grey"></i>
+										Decommissioned!
+									</h5>
+
+									<div class="space-6"></div>
+
+									<?php if ($this->message) { ?>
+                                        <?php echo $this->message; ?>
+                                    <?php } else { ?>
+                                        This application has been decommissioned.
+                                        <?php if ($this->redirect_url) { ?>
+                                        You will be redirected to the latest application momentarily.
+                                        <?php } ?>
+                                    <?php } ?>
+								</div><!-- /.widget-main -->
+							</div><!-- /.widget-body -->
+						</div><!-- /.login-box -->
+					</div><!-- /.position-relative -->
+
+					<div class="space-6"></div>
+
+					<div class="center">
+						<h4 class="<?php echo $font_color; ?>" id="id-company-text">&copy; Commscope</h4>
+					</div>
+				</div>
+				<?php echo $this->config()->getApplicationConfig('right_login_msg'); ?>
+			</div><!-- /.col -->
+		</div><!-- /.row -->
+		<?php echo $this->config()->getApplicationConfig('post_login_msg'); ?>
+	</div><!-- /.main-content -->
+
+	<div class="footer layout_fullscreen">
+		<div class="footer-inner">
+			<div class="footer-content" style="border: none;">
+				<?php $version = $this->config()->getApplicationConfig('version'); ?>
+				<?php if($version) { ?>
+				<span class="pull-right text-muted">
+					<?php if ($this->config()->getApplicationConfig('enable_version_doc') !== false) { ?>
+					<a href="<?php echo $this->basePath('documentations/release-notes.html'); ?>" target="_blank">
+						<?php echo $version; ?>
+					</a>
+					<?php } else { ?>
+						<?php echo $version; ?>
+					<?php } ?>
+				</span>
+				<?php } ?>
+			</div>
+		</div>
+	</div>
+</div><!-- /.main-container -->
+<?php $this->placeholder('content')->captureEnd(); ?>

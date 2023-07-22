@@ -1,0 +1,91 @@
+<?php $this->placeholder('style')->captureStart(); ?>
+<link href="<?php echo $this->basePath('assets/videojs/video-js.min.css'); ?>" rel="stylesheet" />
+<?php $this->placeholder('style')->captureEnd(); ?>
+
+<?php $this->placeholder('script')->captureStart(); ?>
+<script src="<?php echo $this->basePath('assets/videojs/videojs-ie8.min.js'); ?>"></script>
+<script src="<?php echo $this->basePath('assets/videojs/video.min.js'); ?>"></script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<?php $this->placeholder('content')->captureStart(); ?>
+<div class="col-sm-4">
+    <h2 class='header lighter red center'>Video Tutorials</h2>
+    <div class='media'>
+        <div class='media-left'>
+            <a href='/brics/tutorial/video/1'>
+                <img class='media-object' src='/images/icons/video/tutorial.jpg' alt='Video Tutorial' style='width: 40px; padding-top: 5px;' />
+            </a>
+        </div>
+        <div class='media-body'>
+            <h5 class='media-heading'>
+                <a href='/brics/tutorial/video/1' class='lighter red'>Intro</a>
+            </h5>
+            Quick intro to BRICS 2.0
+        </div>
+    </div>
+    <div class='media'>
+        <div class='media-left'>
+            <a href='/brics/tutorial/video/2'>
+                <img class='media-object' src='/images/icons/video/tutorial.jpg' alt='Video Tutorial' style='width: 40px; padding-top: 5px;' />
+            </a>
+        </div>
+        <div class='media-body'>
+            <h5 class='media-heading'>
+                <a href='/brics/tutorial/video/2' class='lighter red'>Access & Permissions</a>
+            </h5>
+            Departmental Access, Roles, & Permissions
+        </div>
+    </div>
+    <div class='media'>
+        <div class='media-left'>
+            <a href='/brics/tutorial/video/3'>
+                <img class='media-object' src='/images/icons/video/tutorial.jpg' alt='Video Tutorial' style='width: 40px; padding-top: 5px;' />
+            </a>
+        </div>
+        <div class='media-body'>
+            <h5 class='media-heading'>
+                <a href='/brics/tutorial/video/3' class='lighter red'>Standard User</a>
+            </h5>
+            Standard User role and use cases
+        </div>
+    </div>
+    <div class='media'>
+        <div class='media-left'>
+            <a href='/brics/tutorial/video/4'>
+                <img class='media-object' src='/images/icons/video/tutorial.jpg' alt='Video Tutorial' style='width: 40px; padding-top: 5px;' />
+            </a>
+        </div>
+        <div class='media-body'>
+            <h5 class='media-heading'>
+                <a href='/brics/tutorial/video/4' class='lighter red'>Group Admin</a>
+            </h5>
+            Group Admin role and use cases
+        </div>
+    </div>
+	<div class='media'>
+        <div class='media-left'>
+            <a href='/brics/tutorial/video/5'>
+                <img class='media-object' src='/images/icons/video/tutorial.jpg' alt='Video Tutorial' style='width: 40px; padding-top: 5px;' />
+            </a>
+        </div>
+        <div class='media-body'>
+            <h5 class='media-heading'>
+                <a href='/brics/tutorial/video/5' class='lighter red'>Procurement Module</a>
+            </h5>
+            Forecast and Procure Assets
+        </div>
+    </div>
+    <div class="space-4"></div>
+</div>
+<div class="col-sm-8">
+    <div style="width: 640px; height: 320px;">
+        <video class="video-js" preload="auto" controls data-setup="{}" width="640px" height="320px">
+            <source src="<?php echo $this->basePath('videos/training/video' . $this->id . '.mp4'); ?>" type="video/mp4" />
+            <source src="<?php echo $this->basePath('videos/training/video'. $this->id . '.ogg'); ?>" type="video/ogg" />
+            <p class="vjs-no-js">
+                To view this video please enable JavaScript, and consider upgrading to a web browser that supports HTML5 video
+            </p>
+        </video>
+    </div>
+</div>
+<?php $this->placeholder('content')->captureEnd(); ?>

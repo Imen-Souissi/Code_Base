@@ -1,0 +1,229 @@
+<?php $this->placeholder('heading')->captureStart(); ?>
+BRICS
+<?php $this->placeholder('heading')->captureEnd(); ?>
+
+<?php $this->placeholder('style')->captureStart(); ?>
+<link href="<?php echo $this->basePath('assets/els/css/forecast.css'); ?>" rel="stylesheet" type="text/css">
+<style type="text/css">
+/* span.glyphicon-bigger-size-center,
+span.fa-bigger-size-center {
+    font-size: 2em;
+    text-align: center;
+}
+a span.glyphicon,
+a span.fa {
+	color: #0d274d !important;
+}
+a span.glyphicon:hover,
+a span.glyphicon:focus,
+a span.fa:hover,
+a span.fa:focus {
+	color: #0d274d !important;
+} */
+span.card-title {
+  font-size: 1em;
+  text-align: center;
+  color: #0d274d !important;
+}
+span.card-title:hover,
+span.card-title:focus
+{
+	color: #0d274d !important;
+}
+
+.bigcont {
+	/* background-color: #eee; */
+  /* background-color: red; */
+  margin-top: 1000;
+  padding-top: 0;
+  border-top: 0;
+
+}
+
+.mycards {
+  margin-top:6%;
+}
+.card-img-top { height: 200px; }
+.row1::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+.row1 {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.column1 {
+  flex: 1;
+  margin-right: 20px; /* Add margin on the right side of the first column */
+}
+
+.column2 {
+  flex: 1;
+  margin-left: 20px; /* Add margin on the left side of the second column */
+}
+
+.column1 img {
+  max-width: 100%;
+  height: auto;
+}
+.column2 img {
+  max-width: 100%;
+  height: auto;
+}
+
+
+.mytext {
+  margin-top:8%;
+  margin-bottom: 8%;
+  font-size: 100 px;
+}
+.inner {
+  overflow:hidden;
+}
+.inner img {
+  transition: all 1.5s ease;
+  width: 100%;
+ height: auto;
+}
+.inner:hover img {
+  transform: scale(1.2);
+}
+/* .row1 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 20px;
+} */
+
+/* .column1 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+} */
+
+.Equi {
+  font-size: 24px;
+  margin-top: 10px;
+
+}
+
+#image-containercov {
+  position: relative;
+}
+
+#hello-image {
+  display: none;
+  width: 100%; /* Set initial width to 100% */
+  height: auto; /* Maintain aspect ratio */
+  transition: width 0.3s ease; /* Add transition for smooth zoom effect */
+}
+
+#close-button {
+  display: none;
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 5px;
+  font-size: 20px;
+  cursor: pointer;
+  color: #000;
+  background-color: #fff;
+  border-radius: 50%;
+  opacity: 0.7;
+}
+
+#hello-text {
+  cursor: pointer;
+}
+
+#zoom-buttons {
+  margin-top: 10px;
+  position: absolute;
+  top: 10%;
+  left: 10px;
+  transform: translateY(-50%);
+}
+
+#zoom-in-button,
+#zoom-out-button {
+  cursor: pointer;
+  padding: 5px;
+  font-size: 20px;
+  cursor: pointer;
+  color: #000;
+  background-color: #fff;
+  border-radius: 10%;
+  opacity: 0.7;
+  margin-bottom: 10px;
+}
+
+#zoom-in-button {
+display: none;
+  margin-right: 10px;
+}
+
+#zoom-out-button {
+display: none;
+  margin-right: 5px;
+}
+
+#image-container:hover #close-button,
+#image-container:hover #zoom-buttons {
+  display: block;
+}
+
+
+
+</style>
+<?php $this->placeholder('style')->captureEnd(); ?>
+<?php $this->placeholder('style2')->captureStart(); ?>
+<link href="<?php echo $this->basePath('assets/els/css/forecast.css'); ?>" rel="stylesheet" type="text/css">
+<link href="<?php echo $this->basePath('assets/css/dataTables.fixedHeader.min.css'); ?>" rel="stylesheet" type="text/css">
+<link href="<?php echo $this->basePath('assets/css/responsive.dataTables.min.css'); ?>" rel="stylesheet" type="text/css">
+<link href="<?php echo $this->basePath('assets/els/css/dataTable.responsive.css'); ?>" rel="stylesheet" type="text/css">
+<?php $this->placeholder('style2')->captureEnd(); ?>
+
+
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/jquery.dataTables.min.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/jquery.dataTables.bootstrap.min.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/dataTables.tableTools.min.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/dataTables.colVis.min.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/dataTables.fixedHeader.min.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/dataTables.responsive.min.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/dataTables/api/fnSetFilteringDelay.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/moment.min.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/moment-timezone.min.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/els/js/datatables/utils.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/els/js/select2/utils.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/els/js/validate/utils.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/responsive-tabs.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/jquery.dataTables.min.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/custom2.js');?>" ></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/custom3.js');?>" ></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/custom4.js');?>" ></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/custom5.js');?>" ></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/custom6.js');?>" ></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/custom7.js');?>" ></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/custom8.js');?>" ></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/custom9.js');?>" ></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/custom10.js');?>" ></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/custom11.js');?>" ></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/custom12.js');?>" ></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/custom13.js');?>" ></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/custom14.js');?>" ></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/custom15.js');?>" ></script>
+<script type="text/javascript">
+    // disable the warning messages from datatable since we are relying on json attributes which may/maynot exists
+    $.fn.dataTable.ext.errMode = 'none';
+    // show only 3 number buttons on the paginator
+    $.fn.dataTable.ext.pager.numbers_length = 5;
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>

@@ -1,0 +1,145 @@
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript">
+	$(document).ready(function() {		
+		/* Intialize the Controller Select */
+		var controllers = new Bloodhound({
+			datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
+			queryTokenizer: Bloodhound.tokenizers.whitespace,
+			remote: '<?php echo $this->basePath('auth/rest/controller-resources/'); ?>?controller=*%QUERY*'
+		});
+		controllers.initialize();
+		$("#controller").typeahead({
+			hint: true,
+			highlight: true,
+			// minimum characters before searching starts
+			minLength: 2
+		}, {
+			name: 'controller',
+			displayKey: 'controller',
+			source: controllers.ttAdapter()
+		});
+		
+		$.validate_utils.create('#add_resource', {
+			controller: {
+				required: true,
+				message: 'Please provide a Controller'
+			},
+			action: {
+				required: true,
+				message: 'Please provide an Action'
+			}
+		}, function(form) {
+			$("#add_message")
+				.show()
+				.removeClass("label-success")
+				.removeClass("label-danger")
+				.addClass("label-default")
+				.html("Adding resource...");
+			
+			$.ajax({
+				type: 'POST',
+				url: '<?php echo $this->basePath('auth/security/resources-add/'); ?>',
+				data: $(form).serializeArray()
+			}).done(function(data) {
+				$("#add_message")
+					.removeClass("label-default")
+					.addClass("label-success")
+					.html("Successfully added resource");
+				
+				setTimeout(function() {
+					$("#add_message").hide();						
+					$("#add_resource_modal").modal('hide');
+					
+					if ($.fn.DataTable.isDataTable('#resources')) {
+						$("#resources").dataTable().api().ajax.reload();
+					}
+				}, 1000);
+			}).fail(function(error) {
+				if (error.responseJSON && error.responseJSON['error']) {
+					error = error.responseJSON['error'];
+				} else {
+					error = 'Unable to add resource, try again';
+				}
+				
+				$("#add_message")
+					.removeClass("label-default")
+					.addClass("label-danger")
+					.html(error);
+			});
+			
+			// prevent the page submit
+			return false;
+		});
+		
+		$('#add_resource_modal').on('show.bs.modal', function(e) {
+			// reset the form
+			$("#add_resource")[0].reset();
+		});
+	});
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<div id="add_resource_modal" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header no-padding">
+				<div class="table-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						<span class="white">&times;</span>
+					</button>
+					Add New Resource
+				</div>
+			</div>
+			<form id="add_resource" class="form-horizontal">
+				<div class="modal-body">				
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="alert alert-warning">
+								All fields with an <i class="ace-icon fa fa-asterisk red"></i> are required.
+							</div>
+							<div class="form-group">
+								<label class="col-sm-2 control-label no-padding-right" for="controller">Controller </label>
+								<div class="col-sm-9">
+									<span class="block input-icon input-icon-right">
+										<input type="text"
+											   id="controller"
+											   name="controller"
+											   placeholder="Controller name"
+											   class="width-100" />
+										<i class="ace-icon fa fa-asterisk red" style="margin-right: 15px;"></i>
+									</span>
+								</div>
+							</div>
+								
+							<div class="form-group">
+								<label class="col-sm-2 control-label no-padding-right" for="action">Action </label>
+								<div class="col-sm-9">
+									<span class="block input-icon input-icon-right">
+										<input type="text"
+											   id="action"
+											   name="action"
+											   placeholder="Action"
+											   class="width-100" />
+										<i class="ace-icon fa fa-asterisk red" style="margin-right: 15px;"></i>
+									</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer align-left">
+					<a class="btn btn-sm" href="#" data-dismiss="modal" aria-hidden="true">
+						<i class="ace-icon fa fa-remove bigger-125"></i>
+						Cancel
+					</a>
+					<button class="btn btn-sm btn-primary"
+							type="submit">
+						<i class="ace-icon fa fa-plus bigger-125"></i>
+						Add
+					</button>
+					<div id="add_message" style="display: none;" class="pull-right label label-default"></div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

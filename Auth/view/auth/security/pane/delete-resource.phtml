@@ -1,0 +1,115 @@
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("#delete_resource").on('submit', function() {
+			$("#delete_resource_message")
+				.show()
+				.removeClass("label-success")
+				.removeClass("label-danger")
+				.addClass("label-default")
+				.html("Deleting resource...");
+			
+			$.ajax({
+				type: 'POST',
+				url: '<?php echo $this->basePath('auth/security/resources-delete/'); ?>' + $("#delete_resource_id").val()
+			}).done(function(data) {
+				$("#delete_resource_message")
+					.removeClass("label-default")
+					.addClass("label-success")
+					.html("Successfully deleted resource");
+				
+				setTimeout(function() {
+					$("#delete_resource_message").hide();
+					$("#delete_resource_modal").modal('hide');
+					
+					if ($.fn.DataTable.isDataTable('#resources')) {
+						$("#resources").dataTable().api().ajax.reload();
+					}
+				}, 1000);
+			}).fail(function(error) {
+				if (error.responseJSON && error.responseJSON['error']) {
+					error = error.responseJSON['error'];
+				} else {
+					error = 'Unable to delete resource, try again';
+				}
+				
+				$("#delete_resource_message")
+					.removeClass("label-default")
+					.addClass("label-danger")
+					.html(error);
+			});
+			
+			// prevent the page submit
+			return false;
+		});
+	});
+	
+	function deleteResource(row) {
+		$("#delete_resource_message").hide();
+		var data = $("#resources").dataTable().fnGetData(row);
+		if (data) {
+			$("#delete_resource_id").val(data.id);
+			$("#delete_controller_value").html(data.controller);
+			$("#delete_action_value").html(data.action);
+			
+			$('#delete_resource_modal').modal('show');
+		}
+	}
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<div id="delete_resource_modal" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header no-padding">
+				<div class="table-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						<span class="white">&times;</span>
+					</button>
+					Delete Resource
+				</div>
+			</div>
+			<form id="delete_resource" class="form-horizontal">
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="alert alert-warning">
+								Are you sure?  Click <strong>Delete</strong> to proceed and delete this resource.
+							</div>
+							<input type="hidden" id="delete_resource_id" name="id" />
+							<div class="profile-user-info">
+								<div class="profile-info-row">
+									<div class="profile-info-name"> Controller </div>
+									<div class="profile-info-value">
+										<span id="delete_controller_value"></span>
+									</div>
+								</div>
+								<div class="profile-info-row">
+									<div class="profile-info-name"> Action </div>
+									<div class="profile-info-value">
+										<span id="delete_action_value"></span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="space-6"></div>
+				<div class="modal-footer">
+					<button class="btn btn-sm pull-left"
+							type="button"
+							data-dismiss="modal">
+						<i class="ace-icon fa fa-remove bigger-125"></i>
+						Cancel
+					</button>
+					<button class="btn btn-sm btn-danger pull-left"
+							type="submit">
+						<i class="ace-icon fa fa-trash bigger-125"></i>
+						Delete
+					</button>
+					<div id="delete_resource_message" style="display: none;" class="pull-right label label-default"></div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

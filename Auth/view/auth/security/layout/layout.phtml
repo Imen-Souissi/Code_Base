@@ -1,0 +1,13 @@
+<?php include(__DIR__ . "/../../layout/layout.phtml"); ?>
+
+<?php $this->placeholder('breadcrumb')->captureStart('APPEND'); ?>
+<li>
+	<a href="javascript: void(0);">
+		Security
+	</a>
+</li>
+<?php $this->placeholder('breadcrumb')->captureEnd() ;?>
+
+<?php $this->placeholder('heading')->captureStart('APPEND'); ?>
+Security >>
+<?php $this->placeholder('heading')->captureEnd() ;?>

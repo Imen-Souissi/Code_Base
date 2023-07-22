@@ -1,0 +1,120 @@
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$.validate_utils.create('#add_permission', {
+			name: {
+				required: true,
+				message: 'Please provide a Name'
+			}
+		}, function(form) {
+			$("#add_message")
+				.show()
+				.removeClass("label-success")
+				.removeClass("label-danger")
+				.addClass("label-default")
+				.html("Adding permission...");
+			
+			$.ajax({
+				type: 'POST',
+				url: '<?php echo $this->basePath('auth/security/permissions-add/'); ?>',
+				data: $(form).serializeArray()
+			}).done(function(data) {
+				$("#add_message")
+					.removeClass("label-default")
+					.addClass("label-success")
+					.html("Successfully added permission");
+				
+				setTimeout(function() {					
+					$("#add_message").hide();						
+					$("#add_permission_modal").modal('hide');
+					
+					if ($.fn.DataTable.isDataTable('#permissions')) {
+						$("#permissions").dataTable().api().ajax.reload();
+					}
+				}, 1000);
+			}).fail(function(error) {
+				if (error.responseJSON && error.responseJSON['error']) {
+					error = error.responseJSON['error'];
+				} else {
+					error = 'Unable to add permission, try again';
+				}
+				
+				$("#add_message")
+					.removeClass("label-default")
+					.addClass("label-danger")
+					.html(error);
+			});
+			
+			return false;
+		});
+		
+		$('#add_permission_modal').on('show.bs.modal', function(e) {
+			// reset the form
+			$("#add_permission")[0].reset();
+		});
+	});
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<div id="add_permission_modal" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header no-padding">
+				<div class="table-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						<span class="white">&times;</span>
+					</button>
+					Add New Permission
+				</div>
+			</div>
+			<form id="add_permission" class="form-horizontal">
+				<div class="modal-body">				
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="alert alert-warning">
+								All fields with an <i class="ace-icon fa fa-asterisk red"></i> are required.
+							</div>
+							<div class="form-group">
+								<label class="col-sm-2 control-label no-padding-right" for="name">Name </label>
+								<div class="col-sm-9">
+									<span class="block input-icon input-icon-right">
+										<input type="text"
+											   id="name"
+											   name="name"
+											   placeholder="Permission name"
+											   class="width-100" />
+										<i class="ace-icon fa fa-asterisk red" style="margin-right: 15px;"></i>
+									</span>
+								</div>
+							</div>
+							
+							<div class="form-group">
+								<label class="col-sm-2 control-label no-padding-right" for="description">Description </label>
+								<div class="col-sm-9">
+									<span class="block input-icon input-icon-right">
+										<textarea id="description"
+												  name="description"
+												  placeholder="Permission description"
+												  class="width-100"></textarea>
+									</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer align-left">
+					<a class="btn btn-sm" href="#" data-dismiss="modal" aria-hidden="true">
+						<i class="ace-icon fa fa-remove bigger-125"></i>
+						Cancel
+					</a>
+					<button class="btn btn-sm btn-primary"
+							type="submit">
+						<i class="ace-icon fa fa-plus bigger-125"></i>
+						Add
+					</button>
+					<div id="add_message" style="display: none;" class="pull-right label label-default"></div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

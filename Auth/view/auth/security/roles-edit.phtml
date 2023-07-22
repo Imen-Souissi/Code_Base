@@ -1,0 +1,229 @@
+<?php include(__DIR__ . "/layout/layout.phtml"); ?>
+<?php
+$this->formElementErrors()
+	 ->setAttributes(array('class' => 'list-unstyled'));
+?>
+
+<?php $this->placeholder('heading')->captureStart(); ?>
+Update Role
+<?php $this->placeholder('heading')->captureEnd() ;?>
+
+<?php $this->placeholder('breadcrumb')->captureStart(); ?>
+<li>
+	<a href="<?php echo $this->basePath('auth/security/roles/'); ?>">Roles</a>
+</li>
+<li class="active">
+	<a href="<?php echo $this->basePath('auth/security/roles-edit/' . $this->id); ?>">Update Role (<?php echo $this->role['name']; ?>)</a>
+</li>
+<?php $this->placeholder('breadcrumb')->captureEnd() ;?>
+
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$.validate_utils.create('#role', {
+			name: {
+				required: true,
+				message: 'Please provide a Name'
+			}
+		});
+		
+		$("#rights_level").ace_spinner({
+			min: 0,
+			max: parseInt('<?php echo max($this->authorization()->getRoles()); ?>', 10),
+			step: 1,
+			touch_spinner: ace.vars['touch'],
+			btn_up_class: 'btn-info',
+			btn_down_class: 'btn-info'
+		}).closest('.ace-spinner')
+		.css('width', '200px');
+		
+		<?php if($this->success) { ?>
+		setTimeout(function() {
+			$("#success-msg").hide();
+		}, 2000);
+		<?php } ?>
+	});
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<?php $this->placeholder('header')->captureStart('SET'); ?>
+<h1>
+	Security
+	<small>
+		<i class="ace-icon fa fa-angle-double-right"></i>
+		Update Role
+	</small>
+</h1>
+<?php $this->placeholder('header')->captureEnd(); ?>
+
+<?php $this->placeholder('content')->captureStart('SET'); ?>
+<div class="row no-padding no-margin">
+	<form id="role" method="post" role="form" class="form-horizontal">
+		<?php if ($this->error) { ?>
+			<div class="alert alert-danger alert-dismissible">
+				<?php echo $this->error; ?>
+			</div>
+		<?php } ?>
+		
+		<?php if ($this->success) { ?>
+			<div id="success-msg" class="alert alert-success alert-dismissible">
+				<?php echo $this->success; ?>
+			</div>
+		<?php } ?>
+		
+		<div class="alert alert-warning">
+			All fields with an <i class="ace-icon fa fa-asterisk red"></i> are required.
+		</div>
+		
+		<?php $error = ($this->form->has('name')) ? $this->formElementErrors($this->form->get('name')) : ""; ?>
+		<div class="form-group <?php echo ($error) ? "has-error" : ""; ?>">
+			<label class="col-sm-2 control-label no-padding-right" for="name">Name </label>
+			<div class="col-sm-5">
+				<span class="block input-icon input-icon-right">
+					<input type="text"
+						   id="name"
+						   name="name"
+						   placeholder="Role name"
+						   value="<?php echo $this->post['name']; ?>"
+						   class="width-100" />
+					<i class="ace-icon fa fa-asterisk red" style="margin-right: 15px;"></i>
+				</span>
+				<?php if ($error) { ?>
+				<div id="name-error" class="help-block">
+					<?php echo $error; ?>
+				</div>
+				<?php } ?>
+			</div>
+		</div>
+		
+		<div class="form-group">
+			<label class="col-sm-2 control-label no-padding-right" for="description">Description </label>
+			<div class="col-sm-5">
+				<span class="block input-icon input-icon-right">
+					<textarea id="description"
+							  name="description"
+							  placeholder="Role description"
+							  class="width-100"><?php echo $this->post['description']; ?></textarea>
+				</span>
+			</div>
+		</div>
+		
+		<div class="form-group">
+			<label class="col-sm-2 control-label no-padding-right" for="rights_level">Rights Level</label>
+			<div class="col-sm-9">
+				<input name="rights_level"
+					   id="rights_level"
+					   value="<?php echo $this->post['rights_level']; ?>"
+					   class="typeahead scrollable" />
+				<span class="text-muted">
+					&nbsp;&nbsp;Can manage other Roles with lower Rights Level.
+				</span>
+			</div>
+		</div>
+		
+		<div class="form-group">
+			<label class="col-sm-2"></label>
+			<div class="col-sm-9">
+				<a class="btn btn-sm" href="<?php echo $this->basePath('auth/security/roles/'); ?>">
+					<i class="ace-icon fa fa-remove align-top bigger-125"></i>
+					Cancel
+				</a>
+				<button class="btn btn-sm btn-primary"
+						type="submit">
+					<i class="ace-icon fa fa-check align-top bigger-125"></i>
+					Update
+				</button>
+			</div>
+		</div>
+	</form>
+</div>
+<div class="row tabbable">
+	<div class="col-xs-12">
+		<div class="btn-group pull-right bring-front">
+			<button type="button" class="btn btn-xs btn-inverse dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				Tab Actions
+				<span class="ace-icon fa fa-caret-down icon-only"></span>
+			</button>
+			<ul class="dropdown-menu dropdown-inverse dropdown-white dropdown-menu-right">							
+				<?php if($this->authorization()->isPermitted('Auth::Security', 'roles-assign-permissions')) { ?>
+				<li>
+					<a data-toggle='modal' href='#assign_role_permissions_modal'>
+						<i class="ace-icon fa fa-plus"></i>
+						Assign Permissions
+					</a>
+				</li>
+				<?php } ?>
+				<?php if($this->authorization()->isPermitted('Auth::Security', 'roles-assign-users')) { ?>
+				<li>
+					<a data-toggle='modal' href='#assign_role_users_modal'>
+						<i class="ace-icon fa fa-plus"></i>
+						Assign Users
+					</a>
+				</li>
+				<?php } ?>
+				<?php if($this->authorization()->isPermitted('Auth::Security', 'roles-assign-groups')) { ?>
+				<li>
+					<a data-toggle='modal' href='#assign_role_groups_modal'>
+						<i class="ace-icon fa fa-plus"></i>
+						Assign Groups
+					</a>
+				</li>
+				<?php } ?>
+				<?php if($this->authorization()->isPermitted('Auth::Security', 'roles-assign-exclude-roles')) { ?>
+				<li>
+					<a data-toggle='modal' href='#assign_role_exclude_roles_modal'>
+						<i class="ace-icon fa fa-plus"></i>
+						Assign Excluded Roles
+					</a>
+				</li>
+				<?php } ?>
+			</ul>
+		</div>
+		<ul class="nav nav-tabs" id="report-tab">
+			<li class="active">
+				<a data-toggle="tab" href="#permissions_pane" id="permissions_a">Permissions</a>
+			</li>
+			<li>
+				<a data-toggle="tab" href="#users_pane" id="users_a">Users</a>
+			</li>
+			<li>
+				<a data-toggle="tab" href="#groups_pane" id="groups_a">Groups</a>
+			</li>
+			<li>
+				<a data-toggle="tab" href="#exclude_roles_pane" id="exclude_roles_a">Excluded Roles</a>
+			</li>
+		</ul>
+		<div class="tab-content">
+			<div id="permissions_pane" class="tab-pane fade in active">
+				<?php include(__DIR__ . "/pane/role-permissions.phtml"); ?>
+			</div>
+			<div id="users_pane" class="tab-pane fade">
+				<?php include(__DIR__ . "/pane/role-users.phtml"); ?>
+			</div>
+			<div id="groups_pane" class="tab-pane fade">
+				<?php include(__DIR__ . "/pane/role-groups.phtml"); ?>
+			</div>
+			<div id="exclude_roles_pane" class="tab-pane fade">
+				<?php include(__DIR__ . "/pane/role-exclude-roles.phtml"); ?>
+			</div>
+		</div>
+	</div>
+</div>
+
+<?php if($this->authorization()->isPermitted('Auth::Security', 'roles-assign-permissions')) { ?>
+<?php include(__DIR__ . "/pane/assign-role-permissions.phtml"); ?>
+<?php } ?>
+
+<?php if($this->authorization()->isPermitted('Auth::Security', 'roles-assign-users')) { ?>
+<?php include(__DIR__ . "/pane/assign-role-users.phtml"); ?>
+<?php } ?>
+
+<?php if($this->authorization()->isPermitted('Auth::Security', 'roles-assign-users')) { ?>
+<?php include(__DIR__ . "/pane/assign-role-groups.phtml"); ?>
+<?php } ?>
+
+<?php if($this->authorization()->isPermitted('Auth::Security', 'roles-assign-exclude-roles')) { ?>
+<?php include(__DIR__ . "/pane/assign-role-exclude-roles.phtml"); ?>
+<?php } ?>
+
+<?php $this->placeholder('content')->captureEnd(); ?>

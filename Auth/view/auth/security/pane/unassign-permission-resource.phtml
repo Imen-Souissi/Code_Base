@@ -1,0 +1,69 @@
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript">	
+	function unassignPermissionResource(row) {
+		var data = $("#permission_resources").dataTable().fnGetData(row);
+		if (data) {
+			$("#unassign_permission_resource_modal").modal('show');
+			$("#unassign_permission_resource_message")
+				.show()
+				.removeClass("alert-success")
+				.removeClass("alert-danger")
+				.addClass("alert-info")
+				.html("Unassigning resource...");
+			
+			$.ajax({
+				type: 'POST',
+				url: '<?php echo $this->basePath('auth/security/permissions-unassign-resources/' . $this->id); ?>',
+				data: {
+					resource_id: data.id
+				}
+			}).done(function(data) {
+				$("#unassign_permission_resource_message")
+					.removeClass("alert-info")
+					.addClass("alert-success")
+					.html("Successfully unassignd resource");
+				
+				setTimeout(function() {
+					$("#unassign_permission_resource_message").hide();					
+					$("#unassign_permission_resource_modal").modal('hide');
+					
+					if ($.fn.DataTable.isDataTable('#permission_resources')) {
+						$("#permission_resources").dataTable().api().ajax.reload();
+					}
+				}, 1000);
+			}).fail(function(error) {
+				if (error.responseJSON && error.responseJSON['error']) {
+					error = error.responseJSON['error'];
+				} else {
+					error = 'Unable to unassign resource, try again';
+				}
+				
+				$("#unassign_permission_resource_message")
+					.removeClass("alert-info")
+					.addClass("alert-danger")
+					.html(error);
+			});
+		}
+	}
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<div id="unassign_permission_resource_modal" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header no-padding">
+				<div class="table-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						<span class="white">&times;</span>
+					</button>
+					Unassign Resource
+				</div>
+			</div>
+			<form id="unassign_resource" class="form-horizontal">
+				<div class="modal-body">
+					<div id="unassign_permission_resource_message" style="display: none;" class="alert alert-info no-margin"></div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
