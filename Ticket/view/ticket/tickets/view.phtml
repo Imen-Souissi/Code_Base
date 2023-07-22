@@ -1,0 +1,463 @@
+<?php include(__DIR__ . "/layout/layout.phtml"); ?>
+
+<?php
+$this->formElementErrors()
+	 ->setAttributes(array('class' => 'list-unstyled'));
+?>
+
+<?php $this->placeholder('heading')->captureStart(); ?>
+View Ticket (<?php echo $this->id; ?>)
+<?php $this->placeholder('heading')->captureEnd() ;?>
+
+<?php $this->placeholder('breadcrumb')->captureStart(); ?>
+<li class="<?php echo $routeactive; ?>">
+	<a href="<?php echo $this->basePath('ticket/tickets/view/' . $this->id); ?>">View Ticket (<?php echo $this->id; ?>)</a>
+</li>
+<?php $this->placeholder('breadcrumb')->captureEnd() ;?>
+
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$.validate_utils.create('#sync', {}, function(form) {
+			$('#sync_btn').prop('disabled', true);
+			$('#message').removeClass('alert-warning')
+						 .addClass('alert-info')
+						 .removeClass('hide')
+						 .html('<i class="ace-icon fa fa-spin fa-spinner"></i> Loading ticket details from Footprints');
+						 
+			$.ajax({
+				url: '<?php echo $this->basePath('ticket/tickets/sync/' . $this->id); ?>',
+			}).done(function(data) {
+				$('#sync_btn').prop('disabled', false);
+				$('#message').removeClass('alert-info')
+							 .addClass('alert-success')
+							 .html('Successfully synced ticket details from Footprints, reloading page');
+				setTimeout(function() {
+					window.location.reload();
+				}, 1000);
+			}).fail(function(error) {
+				$('#sync_btn').prop('disabled', false);
+				$('#message').removeClass('alert-info')
+							 .addClass('alert-danger')
+							 .html('Unable to sync ticket details from Footprints, please try again later.');
+			});
+			
+			return false;
+		});
+	});
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<?php $this->placeholder('header')->captureStart('SET'); ?>
+<div class="row">
+	<div class="col-sm-8">
+		<h1>
+			Footprints Tickets
+			<small>
+				<i class="ace-icon fa fa-angle-double-right"></i>
+				View Ticket (<?php echo $this->id; ?>)
+			</small>
+		</h1>
+	</div>
+	<div class="col-sm-4 align-right">
+		<div class="btn-toolbar" role="toolbar">
+			<div class="btn-group pull-right" role="group">
+				<?php if ($this->authorization()->isPermitted('Ticket::Tickets', 'sync')) { ?>
+					<form id="sync" method="post" action="<?php echo $this->basePath('ticket/tickets/sync/' . $this->id); ?>">
+						<button class="btn btn-xs btn-primary"
+								type="submit"
+								title="Load Footprints ticket information"
+								id="sync_btn">
+							<i class="ace-icon fa fa-database"></i>
+							Sync
+						</button>
+					</form>
+				<?php } ?>
+			</div>
+		</div>
+	</div>
+</div>
+<?php $this->placeholder('header')->captureEnd(); ?>
+
+<?php $this->placeholder('content')->captureStart('SET'); ?>
+<div class="row">
+	<div class="col-xs-12">
+		<div class="alert alert-warning <?php echo ($this->ticket) ? "hide" : ""; ?>" id="message">
+			Our cache database was not able to find this ticket.
+			<?php if ($this->authorization()->isPermitted('Ticket::Tickets', 'sync')) { ?>
+			If this is a recently created ticket, use the <strong>Load</strong> button at the top right to initiate a sync of this ticket from <strong>Footprints</strong>.
+			<?php } ?>
+		</div>
+	</div>
+</div>
+
+<?php if($this->ticket) { ?>
+<div class="row">
+	<div class="col-sm-12">
+		<div class="widget-body">
+			<div class="widget-main">
+				<div class="row">
+					<div class="col-xs-12 label label-lg label-default arrowed-in arrowed-right align-left">
+						<b>Ticket Detail</b>
+					</div>
+				</div>
+				<div>
+					<ul class="list-unstyled">
+						<li class="row no-padding no-margin">
+							<span class="col-sm-3 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Ticket</span>
+							<span class="col-sm-9"><?php echo $this->ticket['ticket']; ?></span>
+						</li>
+						<li class="row no-padding no-margin">
+							<span class="col-sm-3 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Title</span>
+							<span class="col-sm-9"><?php echo $this->formatter()->na($this->ticket['title']); ?></span>
+						</li>
+						<li class="row no-padding no-margin">
+							<span class="col-sm-3 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Contact</span>
+							<span class="col-sm-9"><?php echo $this->formatter()->na($this->ticket['contact_name']); ?></span>
+						</li>
+						<li class="row no-padding no-margin">
+							<span class="col-sm-3 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Submitter</span>
+							<span class="col-sm-9"><?php echo $this->formatter()->na($this->ticket['submit_by_name']); ?></span>
+						</li>
+						<li class="row no-padding no-margin">
+							<span class="col-sm-3 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Submitted On</span>
+							<span class="col-sm-9"><?php echo $this->formatter()->date($this->ticket['submit_on']); ?></span>
+						</li>
+						<li class="row no-padding no-margin">
+							<span class="col-sm-3 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Last Updated By</span>
+							<span class="col-sm-9"><?php echo $this->formatter()->na($this->ticket['status_by_name']); ?></span>
+						</li>
+						<li class="row no-padding no-margin">
+							<span class="col-sm-3 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Last Updated On</span>
+							<span class="col-sm-9"><?php echo $this->formatter()->date($this->ticket['status_date']); ?></span>
+						</li>
+						<li class="row no-padding no-margin">
+							<span class="col-sm-3 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Status</span>
+							<span class="col-sm-9">
+								<?php
+									$cls = 'default';
+									$status = $this->ticket['status'];
+									
+									if($status == '_DELETED_') {
+										$status = 'Deleted';
+									} else if($status == 'Resolved') {
+										$cls = 'success';
+									} else if($status == 'Update Received' || $status == 'Pending - Customer') {
+										$cls = 'warning';
+									} else if($status == 'Assigned' || $status == 'WIP' || $status == 'Open') {
+										$cls = 'primary';
+									} else if($status == '_REQUEST_') {
+										$status = 'Request';
+									}
+								?>
+								<span class="badge badge-<?php echo $cls; ?>"><?php echo $status; ?></span>
+							</span>
+						</li>
+					</ul>
+					<?php if($this->authorization()->isPermitted('Ticket::Tickets', 'view-private')) { ?>
+					<ul class="list-unstyled">
+						<li class="row no-padding no-margin">
+							<span class="col-sm-3 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Priority</span>
+							<span class="col-sm-9">
+								<?php
+									$cls = 'default';
+									$priority = $this->ticket['priority'];
+									
+									if($priority == 'P1 - Urgent') {
+										$cls = 'danger';
+									} else if($priority == 'P2 - High') {
+										$cls = 'warning';
+									} else if($priority == 'P3 - Medium') {
+										$cls = 'primary';
+									}
+								?>
+								<span class="badge badge-<?php echo $cls; ?>"><?php echo $priority; ?></span>
+							</span>
+						</li>
+						<li class="row no-padding no-margin">
+							<span class="col-sm-3 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Site</span>
+							<span class="col-sm-9"><?php echo $this->formatter()->na($this->ticket['site']); ?></span>
+						</li>
+						<li class="row no-padding no-margin">
+							<span class="col-sm-3 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Lab</span>
+							<span class="col-sm-9"><?php echo $this->formatter()->na($this->ticket['lab']); ?></span>
+						</li>
+						<li class="row no-padding no-margin">
+							<span class="col-sm-3 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Type</span>
+							<span class="col-sm-9"><?php echo $this->formatter()->na($this->ticket['type']); ?></span>
+						</li>
+						<li class="row no-padding no-margin">
+							<span class="col-sm-3 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Category</span>
+							<span class="col-sm-9"><?php echo $this->formatter()->na($this->ticket['category']); ?></span>
+						</li>
+						<li class="row no-padding no-margin">
+							<span class="col-sm-3 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Sub Category</span>
+							<span class="col-sm-9"><?php echo $this->formatter()->na($this->ticket['sub_category']); ?></span>
+						</li>
+						<li class="row no-padding no-margin">
+							<span class="col-sm-3 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Activity</span>
+							<span class="col-sm-9"><?php echo $this->formatter()->na($this->ticket['activity']); ?></span>
+						</li>
+						<li class="row no-padding no-margin">
+							<span class="col-sm-3 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Eng. Project</span>
+							<span class="col-sm-9"><?php echo $this->formatter()->na($this->ticket['eng_project']); ?></span>
+						</li>
+						<li class="row no-padding no-margin">
+							<span class="col-sm-3 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Weight</span>
+							<span class="col-sm-9"><?php echo $this->formatter()->na($this->ticket['weight']); ?></span>
+						</li>						
+					</ul>
+					<?php } ?>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row tabbable no-padding no-margin">
+	<ul class="nav nav-tabs">
+		<li class="active">
+			<a data-toggle="tab" href="#descriptions_pane" id="descriptions_a">Descriptions</a>
+		</li>
+		<?php if (!empty($this->ticket['resolutions'])) { ?>
+		<li>
+			<a data-toggle="tab" href="#resolutions_pane" id="resolutions_a">Resolutions</a>
+		</li>
+		<?php } ?>
+		<?php if($this->authorization()->isPermitted('Ticket::Tickets', 'view-private') && !empty($this->ticket['agent_logs'])) { ?>
+		<li>
+			<a data-toggle="tab" href="#agent_logs_pane" id="agent_logs_a">Agent Logs</a>
+		</li>
+		<?php } ?>
+		<?php if($this->masters > 0) { ?>
+		<li>
+			<a data-toggle="tab" href="#masters_pane" id="masters_a">Master Tasks</a>
+		</li>
+		<?php } ?>
+		<?php if($this->subtasks > 0) { ?>
+		<li>
+			<a data-toggle="tab" href="#subtasks_pane" id="subtasks_a">Subtasks</a>
+		</li>
+		<?php } ?>
+	</ul>
+	<div class="tab-content">
+		<div id="descriptions_pane" class="tab-pane fade in active">
+			<div class="timeline-container">
+				<?php
+					$descs = $this->ticket['all_descriptions'];
+					$descs = array_filter(preg_split("/\<\!/", $descs));
+					$descs = array_reverse($descs);
+				?>
+			
+				<?php foreach($descs as $desc) { ?>
+					<div class="timeline-items">
+						<?php
+							$desc = '<! ' . trim($desc);
+							$desc = str_replace(array('/*SC*/', '/*EC*/'), '', $desc);							
+							
+							$date = '';
+							$user = '';
+							if(preg_match("/^\<\! [\- ]*([0-9\-\: ]+) ([0-9a-zA-Z\@\.]+) [\- ]*\>/", $desc, $matches)) {
+								$date = $this->formatter()->date($matches[1]);
+								$user = strtolower($matches[2]);
+								if(strpos($user, '@') > -1) {
+									// this is an email
+									$user = array_shift(explode('@', $user));
+								}
+								
+								$desc = array_pop(preg_split("/>/", $desc, 2));
+							}
+							
+							// trim all tags
+							$desc = strip_tags($desc);
+							// decode all html entities
+							$desc = html_entity_decode($desc);
+							$desc = trim($desc);
+						?>
+						<div class="timeline-item clearfix">
+							<div class="timeline-info">
+								<i class="timeline-indicator ace-icon fa fa-commenting btn btn-success no-hover"></i>
+							</div>
+							
+							<div class="widget-box widget-color-grey">
+								<div class="widget-header">
+									<div class="widget-title smaller">
+										<?php echo $user; ?>
+									</div>
+									<div class="widget-toolbar no-border">
+										<?php echo $date; ?>
+									</div>
+								</div>
+								<div class="widget-body">
+									<div class="widget-main no-padding">
+										<pre class="transparent no-margin" style="border: none; white-space: pre-wrap; word-wrap: break-word; overflow: visible;"><?php echo $desc; ?></pre>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				<?php } ?>
+			</div>
+		</div>
+		<?php if (!empty($this->ticket['resolutions'])) { ?>
+		<div id="resolutions_pane" class="tab-pane fade">
+			<div class="timeline-container">
+				<?php
+					$descs = $this->ticket['resolutions'];
+					$descs = array_filter(preg_split("/Entered on/", $descs));
+					$descs = array_reverse($descs);
+				?>
+				
+				<?php foreach($descs as $desc) { ?>
+					<div class="timeline-items">
+						<?php
+							$desc = trim($desc);
+							$desc = str_replace(array('/*SC*/', '/*EC*/'), '', $desc);							
+							$desc = html_entity_decode($desc);
+							
+							$date = '';
+							$user = '';
+							if(preg_match("/^([0-9\-]+) at ([0-9\:]+) by ([0-9a-zA-Z\@\. ]+)/", $desc, $matches)) {
+								$date = $this->formatter()->date("{$matches[1]} {$matches[2]}");
+								$user = $matches[3];
+								if(strpos($user, '@') > -1) {
+									// this is an email
+									$user = array_shift(explode('@', strtolower($user)));
+								}
+								
+								$desc = split("\n", $desc, 2);
+								if(count($desc) > 1) {
+									$desc = array_pop($desc);
+								} else {
+									$desc = "";
+								}
+							}							
+							
+							// trim all tags
+							$desc = strip_tags($desc);
+							$desc = trim($desc);
+						?>
+						<div class="timeline-item clearfix">
+							<div class="timeline-info">
+								<i class="timeline-indicator ace-icon fa fa-commenting btn btn-primary no-hover"></i>
+							</div>
+							
+							<div class="widget-box widget-color-grey">
+								<div class="widget-header">
+									<div class="widget-title smaller">
+										<?php echo $user; ?>
+									</div>
+									<div class="widget-toolbar no-border">
+										<?php echo $date; ?>
+									</div>
+								</div>
+								<div class="widget-body">
+									<div class="widget-main no-padding">
+										<pre class="transparent no-margin" style="border: none; white-space: pre-wrap; word-wrap: break-word; overflow: visible;"><?php echo $desc; ?></pre>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				<?php } ?>
+			</div>
+		</div>
+		<?php } ?>
+		<?php if($this->authorization()->isPermitted('Ticket::Tickets', 'view-private')) { ?>
+		<div id="agent_logs_pane" class="tab-pane fade">
+			<div class="timeline-container">
+				<?php
+					$descs = $this->ticket['agent_logs'];
+					$descs = array_filter(preg_split("/Entered on/", $descs));
+					$descs = array_reverse($descs);
+				?>
+				
+				<?php if(count($descs) > 0) { ?>
+					<?php foreach($descs as $desc) { ?>
+						<div class="timeline-items">
+							<?php
+								$desc = trim($desc);
+								$desc = str_replace(array('/*SC*/', '/*EC*/'), '', $desc);							
+								$desc = html_entity_decode($desc);
+								
+								$date = '';
+								$user = '';
+								if(preg_match("/^([0-9\-]+) at ([0-9\:]+) by ([0-9a-zA-Z\@\. ]+)/", $desc, $matches)) {
+									$date = $this->formatter()->date("{$matches[1]} {$matches[2]}");
+									$user = $matches[3];
+									if(strpos($user, '@') > -1) {
+										// this is an email
+										$user = array_shift(explode('@', strtolower($user)));
+									}
+									
+									$desc = split("\n", $desc, 2);
+									if(count($desc) > 1) {
+										$desc = array_pop($desc);
+									} else {
+										$desc = "";
+									}
+								}							
+								
+								// trim all tags
+								$desc = strip_tags($desc);
+								$desc = trim($desc);
+							?>
+							<div class="timeline-item clearfix">
+								<div class="timeline-info">
+									<i class="timeline-indicator ace-icon fa fa-commenting btn btn-primary no-hover"></i>
+								</div>
+								
+								<div class="widget-box widget-color-grey">
+									<div class="widget-header">
+										<div class="widget-title smaller">
+											<?php echo $user; ?>
+										</div>
+										<div class="widget-toolbar no-border">
+											<?php echo $date; ?>
+										</div>
+									</div>
+									<div class="widget-body">
+										<div class="widget-main no-padding">
+											<pre class="transparent no-margin" style="border: none; white-space: pre-wrap; word-wrap: break-word; overflow: visible;"><?php echo $desc; ?></pre>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					<?php } ?>
+				<?php } else { ?>
+					<div class="timeline-items">				
+						<div class="timeline-item clearfix">
+							<div class="timeline-info">
+								<i class="timeline-indicator ace-icon fa fa-commenting btn btn-primary no-hover"></i>
+							</div>
+							
+							<div class="widget-box widget-color-grey">
+								<div class="widget-header">
+									<div class="widget-title smaller">
+										
+									</div>
+								</div>
+								<div class="widget-main no-padding">
+									<pre class="transparent no-margin" style="border: none; white-space: pre-wrap; word-wrap: break-word; overflow: visible;">No Agent Logs</pre>
+								</div>
+							</div>
+						</div>
+					</div>
+				<?php } ?>
+			</div>
+		</div>
+		<?php } ?>
+		<?php if ($this->masters > 0) { ?>
+		<div id="masters_pane" class="tab-pane fade">
+			<?php include(__DIR__ . "/pane/masters.phtml"); ?>
+		</div>
+		<?php } ?>
+		<?php if ($this->subtasks > 0) { ?>
+		<div id="subtasks_pane" class="tab-pane fade">
+			<?php include(__DIR__ . "/pane/subtasks.phtml"); ?>
+		</div>
+		<?php } ?>
+	</div>
+</div>
+<?php } ?>
+<?php $this->placeholder('content')->captureEnd(); ?>

@@ -1,0 +1,37 @@
+<?php include(__DIR__ . "/layout/layout.phtml"); ?>
+
+<?php $this->placeholder('heading')->captureStart(); ?>
+Service Requested
+<?php $this->placeholder('heading')->captureEnd() ;?>
+
+<?php $this->placeholder('breadcrumb')->captureStart(); ?>
+<li class="active">
+	<a href="javascript: void(0);">Service Requested</a>
+</li>
+<?php $this->placeholder('breadcrumb')->captureEnd() ;?>
+
+<?php $this->placeholder('header')->captureStart('SET'); ?>
+<h1>
+	Service Request
+	<small>
+		<i class="ace-icon fa fa-angle-double-right"></i>
+		Successful
+	</small>
+</h1>
+<?php $this->placeholder('header')->captureEnd(); ?>
+
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript">
+	$(document).ready(function() {
+		setTimeout(function() {
+			window.location.href = '<?php echo $this->basePath('ticket/service-requests/?filtering=1&hr_contact_id=' . $this->authentication()->getAuthenticatedUserId()); ?>';
+		}, 5000);
+	});
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<?php $this->placeholder('content')->captureStart('SET'); ?>
+<div class="alert alert-success">
+	The service request is complete.  The service request number <strong><?php echo $this->number; ?></strong> has been created for your request.  Redirecting...
+</div>
+<?php $this->placeholder('content')->captureEnd(); ?>

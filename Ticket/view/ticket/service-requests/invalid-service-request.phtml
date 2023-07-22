@@ -1,0 +1,27 @@
+<?php include(__DIR__ . "/layout/layout.phtml"); ?>
+
+<?php $this->placeholder('heading')->captureStart(); ?>
+Invalid Service Request
+<?php $this->placeholder('heading')->captureEnd() ;?>
+
+<?php $this->placeholder('breadcrumb')->captureStart(); ?>
+<li class="active">
+	<a href="javascript: void(0);">Invalid Service Request</a>
+</li>
+<?php $this->placeholder('breadcrumb')->captureEnd() ;?>
+
+<?php $this->placeholder('header')->captureStart('SET'); ?>
+<h1>
+	Invalid Service Request
+</h1>
+<?php $this->placeholder('header')->captureEnd(); ?>
+
+<?php $this->placeholder('content')->captureStart('SET'); ?>
+<div class="alert alert-danger alert-dismissible">
+	<?php if ($this->message) { ?>
+		<?php echo $this->message; ?>
+	<?php } else { ?>
+		Our system was not able to locate the service request you selected.
+	<?php } ?>
+</div>
+<?php $this->placeholder('content')->captureEnd(); ?>

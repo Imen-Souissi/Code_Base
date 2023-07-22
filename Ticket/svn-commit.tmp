@@ -1,0 +1,8 @@
+Added selection between facilities and lab ticket in the Service Request Module
+--This line, and those below, will be ignored--
+
+M    config/module.config.php
+M    src/Ticket/Controller/Script/SalesforceController.php
+M    src/Ticket/Controller/ServiceRequestsController.php
+M    src/Ticket/Salesforce/Api.php
+M    view/ticket/service-requests/request.phtml

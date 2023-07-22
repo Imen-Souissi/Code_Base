@@ -1,0 +1,63 @@
+<?php
+$route = $this->route()->getRouteName();
+$controller = $this->route()->getControllerName();
+$action = $this->route()->getAction();
+
+$routeactive = ($route == "ticket/default" && ($controller == 'tickets' || $controller == 'service-requests')) ? 'active' : '';
+$routeopen = ($routeactive == 'active') ? 'open' : '';
+$routearrow = ($routeopen == 'open') ? 'fa-angle-up' : 'fa-angle-down';
+
+// pull the hr_contact_id param from the sub-models since this is a menu and we may not have direct access to the sub-models
+$hr_contact_id = null;
+$rootModel = $this->viewModel()->getRoot();
+foreach ($rootModel as $model) {
+	if (!empty($model->hr_contact_id)) {
+		$hr_contact_id = $model->hr_contact_id;
+		break;
+	}
+}
+?>
+
+<?php if ($this->authorization()->isPermitted('Ticket::ServiceRequests', 'index')) { ?>
+	<?php if ($this->layout_type == 'h') { ?>
+	<li class="<?php echo $routeactive . ' ' . $routeopen . ' hover'; ?>">
+	<?php } else { ?>
+	<li class="<?php echo $routeactive; ?> <?php echo $routeopen; ?>">
+	<?php } ?>
+		<a href="#" class="dropdown-toggle">
+			<i class="menu-icon fa fa-wrench"></i>
+			<span class="menu-text">
+                Service Requests
+			</span>
+			<b class="arrow <?php echo ($this->layout_type != 'h') ? "fa {$routearrow}" : ''; ?>"></b>
+		</a>
+		<b class="arrow"></b>
+		<ul class="submenu">
+			<?php if ($this->authorization()->isPermitted('Ticket::ServiceRequests', 'index')) { ?>
+			<li class="<?php echo ($controller == "service-requests" && $action == "index" && $hr_contact_id == $this->authentication()->getAuthenticatedUserId()) ? $routeactive : ""; ?> <?php echo ($this->layout_type == 'h') ? "hover" : ''; ?>">
+				<a href="<?php echo $this->basePath('ticket/service-requests/?filtering=1&hr_contact_id=' . $this->authentication()->getAuthenticatedUserId()); ?>">
+					<i class="menu-icon fa fa-caret-right"></i>
+					View My Requests <?php echo $this->hr_contact_id; ?>
+				</a>
+				<b class="arrow"></b>
+			</li>
+			<li class="<?php echo ($controller == "service-requests" && $action == "index" && $hr_contact_id != $this->authentication()->getAuthenticatedUserId()) ? $routeactive : ""; ?> <?php echo ($this->layout_type == 'h') ? "hover" : ''; ?>">
+				<a href="<?php echo $this->basePath('ticket/service-requests/'); ?>">
+					<i class="menu-icon fa fa-caret-right"></i>
+					View All Requests
+				</a>
+				<b class="arrow"></b>
+			</li>
+			<?php } ?>
+			<?php if ($this->authorization()->isPermitted('Ticket::ServiceRequests', 'request')) { ?>
+			<li class="<?php echo ($controller == "service-requests" && $action == "request") ? $routeactive : ""; ?> <?php echo ($this->layout_type == 'h') ? "hover" : ''; ?>">
+				<a href="<?php echo $this->basePath('ticket/service-requests/request/'); ?>">
+					<i class="menu-icon fa fa-caret-right"></i>
+					Submit new Request
+				</a>
+				<b class="arrow"></b>
+			</li>
+			<?php } ?>
+		</ul>
+	</li>
+<?php } ?>

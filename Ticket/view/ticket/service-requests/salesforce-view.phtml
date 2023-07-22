@@ -1,0 +1,129 @@
+<?php include(__DIR__ . "/layout/layout.phtml"); ?>
+<?php
+$this->formElementErrors()
+	 ->setAttributes(array('class' => 'list-unstyled'));
+?>
+
+<?php $this->placeholder('heading')->captureStart(); ?>
+View Service Request (<?php echo $this->osr['name']; ?>)
+<?php $this->placeholder('heading')->captureEnd() ;?>
+
+<?php $this->placeholder('breadcrumb')->captureStart(); ?>
+<li class="active">
+	<a href="<?php echo $this->basePath('ticket/service-requests/view/' . $this->id); ?>">View Service Request (<?php echo $this->osr['name']; ?>)</a>
+</li>
+<?php $this->placeholder('breadcrumb')->captureEnd() ;?>
+
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript">
+	$(document).ready(function() {
+		fakewaffle.responsiveTabs(['xs']);
+	});	
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<?php $this->placeholder('header')->captureStart('SET'); ?>
+<div class="row">
+	<div class="col-xs-8">
+		<h1>
+			Service Request - <?php echo $this->osr['name']; ?>
+		</h1>
+	</div>
+	<!--
+	<div class="col-xs-4 align-right">
+		<div class="btn-group">
+			<button type="button" class="btn btn-xs btn-inverse dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				Actions
+				<span class="ace-icon fa fa-caret-down icon-only"></span>
+			</button>
+			<ul class="dropdown-menu dropdown-inverse dropdown-white dropdown-menu-right">
+				<?php if ($this->authorization()->isPermitted('Ticket::ServiceRequests', 'edit')) { ?>
+				<li>
+					<a href="<?php echo $this->basePath('ticket/service-requests/edit/' . $this->id); ?>">
+						<i class="ace-icon fa fa-edit"></i>
+						Edit
+					</a>
+				</li>
+				<?php } ?>
+			</ul>
+		</div>
+	</div>
+	-->
+</div>
+<?php $this->placeholder('header')->captureEnd(); ?>
+
+<?php $this->placeholder('content')->captureStart('SET'); ?>
+<div class="row">
+	<div class="col-sm-6">
+		<div class="widget-body">
+			<div class="widget-main padding-12">
+				<div class="row">
+					<div class="col-xs-12 label label-lg label-default align-left">
+						<b>Contact Details</b>
+					</div>
+				</div>
+				<div>
+					<dl class="dl-horizontal">
+						<dt>Contact</dt>
+						<dd><?php echo $this->formatter()->na($this->osr['contact']); ?></dd>
+						<dt>Email</dt>
+						<dd><?php echo $this->formatter()->na($this->osr['contact_email']); ?></dd>
+						<dt>Department</dt>
+						<dd><?php echo $this->formatter()->na($this->osr['contact_department']); ?></dd>
+						<!--
+						<dt>Owner</dt>
+						<dd><?php echo $this->formatter()->na($this->osr['owner']); ?></dd>
+						-->
+					</dl>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-sm-6">
+		<div class="widget-body">
+			<div class="widget-main padding-12">
+				<div class="row">
+					<div class="col-xs-12 label label-lg label-info align-left">
+						<b>Request Details</b>
+					</div>
+				</div>
+				<div>
+					<dl class="dl-horizontal">
+						<dt>Status</dt>
+						<dd><?php echo $this->formatter()->na($this->osr['status']); ?></dd>
+						<dt>Submitted On</dt>
+						<dd><?php echo $this->formatter()->date($this->osr['created_date']); ?></dd>
+						<dt>Last Modified By</dt>
+						<dd>
+							<?php if (!empty($this->osr['last_modified_by'])) { ?>
+								<?php echo $this->osr['last_modified_by']; ?>
+								( <?php echo $this->osr['last_modified_by_email']; ?> )
+							<?php } else { ?>
+								<?php echo 'N/A'; ?>
+							<?php } ?>
+						</dd>
+						<dt>Lab</dt>
+						<dd><?php echo $this->formatter()->na($this->osr['lab_location']); ?></dd>
+						<dt>Region</dt>
+						<dd><?php echo $this->formatter()->na($this->osr['region']); ?></dd>
+					</dl>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row tabbable">
+	<div class="col-xs-12">		
+		<ul class="nav nav-tabs responsive">
+			<li class="active">
+				<a data-toggle="tab" href="#request_pane" id="request_a">Request</a>
+			</li>
+		</ul>
+		<div class="tab-content responsive">
+			<div id="request_pane" class="tab-pane fade in active">
+                <?php echo $this->osr['testing_requirements']; ?>
+			</div>
+		</div>
+	</div>
+</div>
+<?php $this->placeholder('content')->captureEnd(); ?>

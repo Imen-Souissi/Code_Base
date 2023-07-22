@@ -1,0 +1,38 @@
+<?php include(__DIR__ . "/layout/layout.phtml"); ?>
+
+<?php $this->placeholder('heading')->captureStart(); ?>
+Sync Ticket & Incident
+<?php $this->placeholder('heading')->captureEnd() ;?>
+
+<?php $this->placeholder('breadcrumb')->captureStart(); ?>
+<li class="active">
+	<a href="javascript: void(0);">Sync Ticket & Incident</a>
+</li>
+<?php $this->placeholder('breadcrumb')->captureEnd() ;?>
+
+<?php $this->placeholder('header')->captureStart('SET'); ?>
+<h1>
+    Tickets
+	<small>
+		<i class="ace-icon fa fa-angle-double-right"></i>
+		Sync Ticket & Incident
+	</small>
+</h1>
+<?php $this->placeholder('header')->captureEnd(); ?>
+
+<?php $this->placeholder('content')->captureStart('SET'); ?>
+<div class="alert alert-danger">
+    <?php echo $this->error; ?>
+</div>
+
+<a href="<?php echo $this->basePath('ticket/tickets/sync/' . $this->id); ?>"
+   class="btn btn-sm btn-primary">
+    <i class="ace-icon fa fa-database"></i>
+    Resync
+</a>
+<a href="<?php echo $this->basePath('ticket/tickets/view/' . $this->id); ?>"
+   class="btn btn-sm btn-success">
+    <i class="ace-icon fa fa-image"></i>
+    View Ticket/Incident
+</a>
+<?php $this->placeholder('content')->captureEnd(); ?>

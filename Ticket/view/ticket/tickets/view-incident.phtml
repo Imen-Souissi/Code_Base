@@ -1,0 +1,232 @@
+<?php include(__DIR__ . "/layout/layout.phtml"); ?>
+
+<?php
+$this->formElementErrors()
+	 ->setAttributes(array('class' => 'list-unstyled'));
+?>
+
+<?php $this->placeholder('heading')->captureStart(); ?>
+View Incident (<?php echo ($this->incident['name']) ? 'IN' . $this->incident['name'] : ''; ?>)
+<?php $this->placeholder('heading')->captureEnd() ;?>
+
+<?php $this->placeholder('breadcrumb')->captureStart(); ?>
+<li class="<?php echo $routeactive; ?>">
+	<a href="<?php echo $this->basePath('ticket/tickets/view/' . $this->id); ?>">View Incident (<?php echo ($this->incident['name']) ? 'IN' . $this->incident['name'] : ''; ?>)</a>
+</li>
+<?php $this->placeholder('breadcrumb')->captureEnd() ;?>
+
+<?php $this->placeholder('header')->captureStart('SET'); ?>
+<div class="row">
+	<div class="col-sm-8">
+		<h1>
+			Remedyforce Incidents
+			<small>
+				<i class="ace-icon fa fa-angle-double-right"></i>
+				View Incident (<?php echo ($this->incident['name']) ? 'IN' . $this->incident['name'] : ''; ?>)
+			</small>
+		</h1>
+	</div>
+	<div class="col-sm-4 align-right">
+		<div class="btn-group">
+			<button type="button" class="btn btn-xs btn-inverse dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				Actions
+				<span class="ace-icon fa fa-caret-down icon-only"></span>
+			</button>
+			<ul class="dropdown-menu dropdown-inverse dropdown-white dropdown-menu-right">
+				<?php if($this->authorization()->isPermitted('Ticket::Tickets', 'sync')) { ?>
+					<li>
+						<a href="<?php echo $this->basePath('ticket/tickets/sync/' . $this->id); ?>">
+							<i class="ace-icon fa fa-database"></i>
+							Sync
+						</a>
+					</li>
+				<?php } ?>
+			</ul>
+		</div>
+	</div>
+</div>
+<?php $this->placeholder('header')->captureEnd(); ?>
+
+<?php $this->placeholder('content')->captureStart('SET'); ?>
+<?php if (empty($this->incident)) { ?>
+<div class="row">
+	<div class="col-xs-12">
+		<div class="alert alert-warning <?php echo ($this->ticket) ? "hide" : ""; ?>" id="message">
+			Our cache database was not able to find this ticket.
+			<?php if ($this->authorization()->isPermitted('Ticket::Tickets', 'sync')) { ?>
+			If this is a recently created ticket, use the <strong>Load</strong> button at the top right to initiate a sync of this ticket from <strong>Footprints</strong>.
+			<?php } ?>
+		</div>
+	</div>
+</div>
+<?php } ?>
+
+<?php if($this->incident) { ?>
+<div class="row">
+	<div class="col-sm-6">
+		<div class="widget-body">
+			<div class="widget-main">
+				<div class="row">
+					<div class="col-xs-12 label label-lg label-primary align-left">
+						<b>Incident Details</b>
+					</div>
+				</div>
+				<div>
+					<ul class="list-unstyled">
+						<li class="row no-padding no-margin">
+							<span class="col-sm-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Incident</span>
+							<span class="col-sm-8"><?php echo ($this->incident['name']) ? 'IN' . $this->incident['name'] : ''; ?></span>
+						</li>
+						<li class="row no-padding no-margin">
+							<span class="col-sm-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Short Description</span>
+							<span class="col-sm-8"><?php echo $this->formatter()->na($this->incident['short_description']); ?></span>
+						</li>
+						<li class="row no-padding no-margin">
+							<span class="col-sm-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Parent Category</span>
+							<span class="col-sm-8"><?php echo $this->formatter()->na($this->incident['parent_category']); ?></span>
+						</li>
+						<li class="row no-padding no-margin">
+							<span class="col-sm-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Category</span>
+							<span class="col-sm-8"><?php echo $this->formatter()->na($this->incident['category']); ?></span>
+						</li>
+						<li class="row no-padding no-margin">
+							<span class="col-sm-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Incident Source</span>
+							<span class="col-sm-8"><?php echo $this->formatter()->na($this->incident['incident_source']); ?></span>
+						</li>
+						<li class="row no-padding no-margin">
+							<span class="col-sm-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Status</span>
+							<span class="col-sm-8"><?php echo $this->formatter()->na($this->incident['status']); ?></span>
+						</li>
+					</ul>
+					<?php if($this->authorization()->isPermitted('Ticket::Tickets', 'view-private')) { ?>
+					<ul class="list-unstyled">
+						<li class="row no-padding no-margin">
+							<span class="col-sm-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Priority</span>
+							<span class="col-sm-8"><?php echo $this->formatter()->na($this->incident['priority']); ?></span>
+						</li>
+                        <li class="row no-padding no-margin">
+							<span class="col-sm-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Impact</span>
+							<span class="col-sm-8"><?php echo $this->formatter()->na($this->incident['impact']); ?></span>
+						</li>
+                        <li class="row no-padding no-margin">
+							<span class="col-sm-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Urgency</span>
+							<span class="col-sm-8"><?php echo $this->formatter()->na($this->incident['urgency']); ?></span>
+						</li>
+						<li class="row no-padding no-margin">
+							<span class="col-sm-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Closure Category</span>
+							<span class="col-sm-8"><?php echo $this->formatter()->na($this->incident['closure_category']); ?></span>
+						</li>							
+					</ul>
+					<?php } ?>
+				</div>
+			</div>
+		</div>
+	</div>
+    <div class="col-sm-6">
+		<div class="widget-body">
+			<div class="widget-main">
+				<div class="row">
+					<div class="col-xs-12 label label-lg label-default align-left">
+						<b>Client Details</b>
+					</div>
+				</div>
+				<div>
+					<ul class="list-unstyled">
+						<li class="row no-padding no-margin">
+							<span class="col-sm-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Client ID</span>
+							<span class="col-sm-8"><?php echo $this->incident['client_username']; ?></span>
+						</li>
+						<li class="row no-padding no-margin">
+							<span class="col-sm-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Name</span>
+							<span class="col-sm-8"><?php echo $this->formatter()->na($this->incident['client_full_name']); ?></span>
+						</li>
+						<li class="row no-padding no-margin">
+							<span class="col-sm-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Email</span>
+							<span class="col-sm-8"><?php echo $this->formatter()->na($this->incident['client_email']); ?></span>
+						</li>
+						<li class="row no-padding no-margin">
+							<span class="col-sm-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Title</span>
+							<span class="col-sm-8"><?php echo $this->formatter()->na($this->incident['client_title']); ?></span>
+						</li>
+						<li class="row no-padding no-margin">
+							<span class="col-sm-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Manager</span>
+							<span class="col-sm-8"><?php echo $this->formatter()->na($this->incident['client_manager_full_name']); ?></span>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row tabbable no-padding no-margin">
+	<ul class="nav nav-tabs">
+		<li class="active">
+			<a data-toggle="tab" href="#descriptions_pane" id="descriptions_a">Descriptions</a>
+		</li>
+		<?php if (!empty($this->incident['resolution'])) { ?>
+		<li>
+			<a data-toggle="tab" href="#resolutions_pane" id="resolutions_a">Resolutions</a>
+		</li>
+		<?php } ?>
+	</ul>
+	<div class="tab-content">
+		<div id="descriptions_pane" class="tab-pane fade in active">
+			<div class="timeline-container">
+				<div class="timeline-items">
+					<div class="timeline-item clearfix">
+						<div class="timeline-info">
+							<i class="timeline-indicator ace-icon fa fa-commenting btn btn-success no-hover"></i>
+						</div>
+						
+						<div class="widget-box widget-color-grey">
+							<div class="widget-header">
+								<div class="widget-title smaller">
+									<?php echo $this->incident['client_full_name']; ?>
+								</div>
+								<div class="widget-toolbar no-border">
+									<?php echo $this->formatter()->date($this->incident['created_date']); ?>
+								</div>
+							</div>
+							<div class="widget-body">
+								<div class="widget-main no-padding">
+									<pre class="transparent no-margin" style="border: none; white-space: pre-wrap; word-wrap: break-word; overflow: visible;"><?php echo $this->incident['description']; ?></pre>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>			
+		</div>
+		<?php if (!empty($this->incident['resolution'])) { ?>
+		<div id="resolutions_pane" class="tab-pane fade">
+			<div class="timeline-container">
+				<div class="timeline-items">
+					<div class="timeline-item clearfix">
+						<div class="timeline-info">
+							<i class="timeline-indicator ace-icon fa fa-commenting btn btn-success no-hover"></i>
+						</div>
+						
+						<div class="widget-box widget-color-grey">
+							<div class="widget-header">
+								<div class="widget-title smaller">
+									<?php echo $this->incident['staff_full_name']; ?>
+								</div>
+								<div class="widget-toolbar no-border">
+									<?php echo $this->formatter()->date($this->incident['closed_date']); ?>
+								</div>
+							</div>
+							<div class="widget-body">
+								<div class="widget-main no-padding">
+									<pre class="transparent no-margin" style="border: none; white-space: pre-wrap; word-wrap: break-word; overflow: visible;"><?php echo $this->incident['resolution']; ?></pre>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>	
+		</div>
+		<?php } ?>
+	</div>
+</div>
+<?php } ?>
+<?php $this->placeholder('content')->captureEnd(); ?>

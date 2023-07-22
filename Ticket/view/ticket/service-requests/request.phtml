@@ -1,0 +1,185 @@
+<?php include(__DIR__ . "/layout/layout.phtml"); ?>
+
+<?php
+$this->formElementErrors()
+	 ->setAttributes(array('class' => 'list-unstyled'));
+?>
+
+<?php $this->placeholder('heading')->captureStart(); ?>
+Submit new Request
+<?php $this->placeholder('heading')->captureEnd() ;?>
+
+<?php $this->placeholder('breadcrumb')->captureStart(); ?>
+<li class="<?php echo $routeactive; ?>">
+	<a href="<?php echo $this->basePath('ticket/service-requests/request/'); ?>">Submit new Request</a>
+</li>
+<?php $this->placeholder('breadcrumb')->captureEnd() ;?>
+
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript">
+	$(document).ready(function() {
+        // initialize the complex selects
+		var selects = [{
+			id: 'osr_type',
+			url: '<?php echo $this->basePath('ticket/rest/systems/' . $this->default_system_id . '/osr-types/'); ?>',
+			identifier: 'name'
+		}];
+
+		$.select2_utils.create(selects, 25);
+
+		var selects = [{
+			id: 'lab_location',
+			url: '<?php echo $this->basePath('ticket/rest/systems/' . $this->default_system_id . '/lab-locations/'); ?>',
+			identifier: 'name'
+		}];
+
+		$.select2_utils.create(selects, 25);
+
+		var selects = [{
+            id: 'products',
+            url: '<?php echo $this->basePath('ticket/rest/systems/' . $this->default_system_id . '/products/'); ?>',
+            identifier: 'name'
+		}];
+
+		$.select2_utils.create(selects, 25, {
+            multiple: true
+        });
+
+		var fields = {
+			request: {
+				required: true,
+				message: 'Please provide the request details'
+			}
+		};
+		$.validate_utils.create('#request', fields);
+
+		$('#osr_type').on('change', function(e){
+			if (e.currentTarget.value === 'Lab Ticket'){
+				$('#lab-osr-fields').show();
+			} else if (e.currentTarget.value === 'Facilities'){
+				$('#lab-osr-fields').hide();
+			}
+		});
+	});
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<?php $this->placeholder('header')->captureStart('SET'); ?>
+<h1>
+	Service Request
+	<small>
+		<i class="ace-icon fa fa-angle-double-right"></i>
+		Submit new Request
+	</small>
+</h1>
+<?php $this->placeholder('header')->captureEnd(); ?>
+
+<?php $this->placeholder('content')->captureStart('SET'); ?>
+	<form id="site" method="post" role="form" class="form-horizontal">
+		<?php if ($this->error) { ?>
+			<div class="alert alert-danger alert-dismissible">
+				<?php echo $this->error; ?>
+			</div>
+		<?php } ?>
+
+		<div class="alert alert-warning">
+			All fields with an <i class="ace-icon fa fa-asterisk red"></i> are required.
+		</div>
+
+		<div class="form-group">
+			<label class="col-sm-2 control-label no-padding-right" for="osr_type">OSR Type </label>
+			<div class="col-sm-5">
+				<span class="block input-icon input-icon-right">
+					<input type="text"
+						   id="osr_type"
+						   name="osr_type"
+						   placeholder="Type of OSR: Lab or Facilities"
+						   value="<?php echo $this->post['osr_type']; ?>"
+						   class="width-100" />
+			   	<i class="ace-icon fa fa-asterisk red" style="margin-right: 15px;"></i>
+
+				</span>
+				<span class="text-muted">
+					Select an OSR Type for the service request
+				</span>
+			</div>
+		</div>
+
+		<div id="lab-osr-fields" style="display: none">
+			<?php $error = ($this->form->has('lab_location')) ? $this->formElementErrors($this->form->get('lab_location')) : ""; ?>
+			<div class="form-group <?php echo ($error) ? "has-error" : ""; ?>">
+				<label class="col-sm-2 control-label no-padding-right" for="lab_location">Lab Location </label>
+				<div class="col-sm-5">
+					<span class="block input-icon input-icon-right">
+						<input type="text"
+							   id="lab_location"
+							   name="lab_location"
+							   placeholder="Lab location requesting"
+							   value="<?php echo $this->post['lab_location']; ?>"
+							   class="width-100" />
+					</span>
+	                <span class="text-muted">
+	                    Select a Lab Location for the service request
+	                </span>
+				</div>
+			</div>
+
+			<?php $error = ($this->form->has('products')) ? $this->formElementErrors($this->form->get('products')) : ""; ?>
+			<div class="form-group <?php echo ($error) ? "has-error" : ""; ?>">
+				<label class="col-sm-2 control-label no-padding-right" for="products">Products </label>
+				<div class="col-sm-5">
+					<span class="block input-icon input-icon-right">
+						<input type="text"
+							   id="products"
+							   name="products"
+							   placeholder="Products related to request"
+							   value="<?php echo $this->post['products']; ?>"
+							   class="width-100" />
+					</span>
+	                <span class="text-muted">
+	                    Select as many products as require
+	                </span>
+					<?php if ($error) { ?>
+					<div id="products-error" class="help-block">
+						<?php echo $error; ?>
+					</div>
+					<?php } ?>
+				</div>
+			</div>
+		</div>
+
+		<?php $error = ($this->form->has('abbr')) ? $this->formElementErrors($this->form->get('abbr')) : ""; ?>
+		<div class="form-group <?php echo ($error) ? "has-error" : ""; ?>">
+			<label class="col-sm-2 control-label no-padding-right" for="request">Request Details </label>
+			<div class="col-sm-5">
+				<span class="block input-icon input-icon-right">
+					<textarea id="request"
+                              name="request"
+                              placeholder="Detail description of request"
+						      class="width-100"><?php echo $this->post['request']; ?></textarea>
+					<i class="ace-icon fa fa-asterisk red" style="margin-right: 15px;"></i>
+				</span>
+				<?php if ($error) { ?>
+				<div id="request-error" class="help-block">
+					<?php echo $error; ?>
+				</div>
+				<?php } ?>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label class="col-sm-2"></label>
+			<div class="col-sm-9">
+				<a class="btn btn-sm" href="<?php echo $this->basePath('ticket/service-requests/'); ?>">
+					<i class="ace-icon fa fa-remove align-top bigger-125"></i>
+					Cancel
+				</a>
+				<button class="btn btn-sm btn-primary"
+						type="submit">
+					<i class="ace-icon fa fa-check align-top bigger-125"></i>
+					Submit
+				</button>
+			</div>
+		</div>
+	</form>
+<?php $this->placeholder('content')->captureEnd(); ?>
