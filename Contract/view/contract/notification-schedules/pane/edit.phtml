@@ -1,0 +1,162 @@
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#edit_schedule').on('submit', function() {
+			var id = $("#edit_schedule_id").val();
+			var name = $("#edit_schedule_name").val();
+			var days = $("#edit_schedule_days").val();
+			var active = $("#edit_schedule_active").prop('checked') ? 1 : 0;
+			
+			$("#edit_schedule_message")
+				.show()
+				.removeClass("label-success")
+				.removeClass("label-danger")
+				.addClass("label-default")
+				.html("Editing notification schedule...");
+			
+			$.ajax({
+				type: 'POST',
+				url: '<?php echo $this->basePath('contract/notification-schedules/edit/'); ?>',
+				data: { 
+					id: id,
+					name: name,
+					days: days,
+					active: active
+				}
+			}).done(function(data) {
+				if (data.status == 1) {
+					$("#edit_schedule_message")
+						.removeClass("label-default")
+						.addClass("label-success")
+						.html("Successfully edited notification schedule");
+					
+					setTimeout(function() {
+						$("#edit_schedule_message").hide();
+						
+						$("#edit-schedule-modal").modal('hide');
+						reloadSchedulesTable();
+					}, 1000);
+				} else {
+					$("#edit_schedule_message")
+						.removeClass("label-default")
+						.addClass("label-danger");
+						
+					if (data.error) {
+						if ($.isArray(data.error)) {
+							$("#edit_schedule_message").html(data.error.join('<br />'));
+						} else {
+							$("#edit_schedule_message").html(data.error);
+						}
+					} else {
+						$("#edit_schedule_message").html("Unable to edit notification schedule, please try again");
+					}
+				}
+			}).fail(function(error) {
+				$("#edit_schedule_message")
+					.removeClass("label-default")
+					.addClass("label-danger")
+					.html("Unable to edit notification schedule, please try again");
+			});
+			
+			// prevent the page submit
+			return false;
+		});
+	});
+	
+	function editSchedule(row) {
+		$("#edit_schedule_message").hide();
+		var data = $("#notification_schedules").dataTable().fnGetData(row);
+		if (data) {
+			$("#edit_schedule_id").val(data.id);
+			$("#edit_schedule_name").val(data.name);
+			$("#edit_schedule_days").val(data.days);
+			$("#edit_schedule_active").prop('checked', (data.active==1));
+
+			$('#edit-schedule-modal').modal('show');
+		}
+	}
+	
+	function reloadSchedulesTable() {
+		$("#notification_schedules").dataTable().api().ajax.reload();
+	}
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<div id="edit-schedule-modal" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header no-padding">
+				<div class="table-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						<span class="white">&times;</span>
+					</button>
+					Edit Notification Schedule
+				</div>
+			</div>
+			<form id="edit_schedule" class="form-horizontal">
+				<div class="modal-body no-padding">				
+					<div class="row no-padding no-margin">
+						<div class="alert alert-warning">
+							All fields with an <i class="ace-icon fa fa-asterisk red"></i> are required.
+						</div>
+					</div>
+					<input type='hidden' id='edit_schedule_id' name='edit_schedule_id'>
+					<div class="form-group">
+						<label class="col-sm-3 control-label no-padding-right" for="edit_schedule_name">Notification Schedule </label>
+						<div class="col-sm-8">
+							<span class="block input-icon input-icon-right">
+								<input type="text"
+									   id="edit_schedule_name"
+									   name="edit_schedule_name"
+									   placeholder="Notification Schedule Name"
+									   class="width-100" />
+							</span>
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<label class="col-sm-3 control-label no-padding-right" for="edit_schedule_days">Days </label>
+						<div class="col-sm-8">
+							<span class="block input-icon input-icon-right">
+								<input type="text"
+									   id="edit_schedule_days"
+									   name="edit_schedule_days"
+									   placeholder="Days"
+									   class="width-100" />
+							</span>
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<label class="col-sm-3 control-label no-padding-right" for="edit_schedule_active">Active? </label>
+						<div class="col-sm-8">
+							<span class="block input-icon input-icon-right">
+								<input name='edit_schedule_active'
+									id='edit_schedule_active'
+									type='checkbox'
+									class='ace ace-switch ace-switch-2'
+									value='1' />
+								<span class='lbl' style='vertical-align: text-top;'></span>
+							</span>
+						</div>
+					</div>
+				</div>
+				<div class="space-6"></div>
+				<div class="modal-footer">
+					<button class="btn btn-sm pull-left"
+							type="button"
+							data-dismiss="modal">
+						<i class="ace-icon fa fa-remove bigger-125"></i>
+						Cancel
+					</button>
+					<button class="btn btn-sm btn-primary pull-left"
+							type="submit">
+						<i class="ace-icon fa fa-check bigger-125"></i>
+						Submit
+					</button>
+					<div id="edit_schedule_message" style="display: none;" class="pull-right label label-default"></div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,164 @@
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#edit_status').on('submit', function() {
+			var id = $("#edit_status_id").val();
+			var name = $("#edit_status_name").val();
+			var user_selectable = $("#edit_status_selectable").prop('checked') ? 1 : 0;
+			var active = $("#edit_status_active").prop('checked') ? 1 : 0;
+			
+			$("#edit_status_message")
+				.show()
+				.removeClass("label-success")
+				.removeClass("label-danger")
+				.addClass("label-default")
+				.html("Editing contract status...");
+			
+			$.ajax({
+				type: 'POST',
+				url: '<?php echo $this->basePath('contract/statuses/edit/'); ?>',
+				data: { 
+					id: id,
+					name: name,
+					user_selectable: user_selectable,
+					active: active
+				}
+			}).done(function(data) {
+				if (data.status == 1) {
+					$("#edit_status_message")
+						.removeClass("label-default")
+						.addClass("label-success")
+						.html("Successfully edited contract status");
+					
+					setTimeout(function() {
+						$("#edit_status_message").hide();
+						
+						$("#edit-status-modal").modal('hide');
+						reloadStatusesTable();
+					}, 1000);
+				} else {
+					$("#edit_status_message")
+						.removeClass("label-default")
+						.addClass("label-danger");
+						
+					if (data.error) {
+						if ($.isArray(data.error)) {
+							$("#edit_status_message").html(data.error.join('<br />'));
+						} else {
+							$("#edit_status_message").html(data.error);
+						}
+					} else {
+						$("#edit_status_message").html("Unable to edit contract status, please try again");
+					}
+				}
+			}).fail(function(error) {
+				$("#edit_status_message")
+					.removeClass("label-default")
+					.addClass("label-danger")
+					.html("Unable to edit contract status, please try again");
+			});
+			
+			// prevent the page submit
+			return false;
+		});
+	});
+	
+	function editStatus(row) {
+		$("#edit_status_message").hide();
+		var data = $("#statuses").dataTable().fnGetData(row);
+		if (data) {
+			$("#edit_status_id").val(data.id);
+			$("#edit_status_name").val(data.name);
+			$("#edit_status_active").prop('checked', (data.active==1));
+			$("#edit_status_selectable").prop('checked', (data.user_selectable==1));
+
+			$('#edit-status-modal').modal('show');
+		}
+	}
+	
+	function reloadStatusesTable() {
+		$("#statuses").dataTable().api().ajax.reload();
+	}
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<div id="edit-status-modal" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header no-padding">
+				<div class="table-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						<span class="white">&times;</span>
+					</button>
+					Edit Contract Status
+				</div>
+			</div>
+			<form id="edit_status" class="form-horizontal">
+				<div class="modal-body no-padding">				
+					<div class="row no-padding no-margin">
+						<div class="alert alert-warning">
+							All fields with an <i class="ace-icon fa fa-asterisk red"></i> are required.  Provide the Contract Status name.
+						</div>
+					</div>
+					<input type='hidden' id='edit_status_id' name='edit_status_id'>
+					<div class="form-group">
+						<label class="col-sm-3 control-label no-padding-right" for="edit_status_name">Contract Status </label>
+						<div class="col-sm-8">
+							<span class="block input-icon input-icon-right">
+								<input type="text"
+									   id="edit_status_name"
+									   name="edit_status_name"
+									   placeholder="Contract Status Name"
+									   class="width-100" />
+							</span>
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<label class="col-sm-3 control-label no-padding-right" for="edit_status_selectable">User Selectable? </label>
+						<div class="col-sm-8">
+							<span class="block input-icon input-icon-right">
+								<input name='edit_status_selectable'
+									id='edit_status_selectable'
+									type='checkbox'
+									class='ace ace-switch ace-switch-2'
+									checked
+									value='1' />
+								<span class='lbl' style='vertical-align: text-top;'></span>
+							</span>
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<label class="col-sm-3 control-label no-padding-right" for="edit_status_active">Active? </label>
+						<div class="col-sm-8">
+							<span class="block input-icon input-icon-right">
+								<input name='edit_status_active'
+									id='edit_status_active'
+									type='checkbox'
+									class='ace ace-switch ace-switch-2'
+									value='1' />
+								<span class='lbl' style='vertical-align: text-top;'></span>
+							</span>
+						</div>
+					</div>
+				</div>
+				<div class="space-6"></div>
+				<div class="modal-footer">
+					<button class="btn btn-sm pull-left"
+							type="button"
+							data-dismiss="modal">
+						<i class="ace-icon fa fa-remove bigger-125"></i>
+						Cancel
+					</button>
+					<button class="btn btn-sm btn-primary pull-left"
+							type="submit">
+						<i class="ace-icon fa fa-check bigger-125"></i>
+						Submit
+					</button>
+					<div id="edit_status_message" style="display: none;" class="pull-right label label-default"></div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,133 @@
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#add_vendor').on('submit', function() {
+			var name = $("#add_vendor_name").val();
+			var notes = $("#add_vendor_notes").val();
+			
+			$("#add_vendor_message")
+				.show()
+				.removeClass("label-success")
+				.removeClass("label-danger")
+				.addClass("label-default")
+				.html("Adding new vendor...");
+			
+			$.ajax({
+				type: 'POST',
+				url: '<?php echo $this->basePath('contract/vendors/add/'); ?>',
+				data: { 
+					name: name,
+					notes: notes 
+				}
+			}).done(function(data) {
+				if (data.status == 1) {
+					$("#add_vendor_message")
+						.removeClass("label-default")
+						.addClass("label-success")
+						.html("Successfully added new vendor");
+					
+					setTimeout(function() {
+						$("#add_vendor_message").hide();
+						
+						$("#add-vendor-modal").modal('hide');
+						reloadVendorsTable();
+					}, 1000);
+				} else {
+					$("#add_vendor_message")
+						.removeClass("label-default")
+						.addClass("label-danger");
+						
+					if (data.error) {
+						if ($.isArray(data.error)) {
+							$("#add_vendor_message").html(data.error.join('<br />'));
+						} else {
+							$("#add_vendor_message").html(data.error);
+						}
+					} else {
+						$("#add_vendor_message").html("Unable to add new vendor, please try again");
+					}
+				}
+			}).fail(function(error) {
+				$("#add_vendor_message")
+					.removeClass("label-default")
+					.addClass("label-danger")
+					.html("Unable to add new vendor, please try again");
+			});
+			
+			// prevent the page submit
+			return false;
+		});
+	});
+	
+	function addVendor() {
+		$("#add_vendor_message").hide();
+		$("#add_vendor_name").val('');
+	}
+	
+	function reloadVendorsTable() {
+		$("#vendors").dataTable().api().ajax.reload();
+	}
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<div id="add-vendor-modal" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header no-padding">
+				<div class="table-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						<span class="white">&times;</span>
+					</button>
+					Add New Vendor
+				</div>
+			</div>
+			<form id="add_vendor" class="form-horizontal">
+				<div class="modal-body no-padding">				
+					<div class="row no-padding no-margin">
+						<div class="alert alert-warning">
+							All fields with an <i class="ace-icon fa fa-asterisk red"></i> are required.  Provide the Vendor name.
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-3 control-label no-padding-right" for="add_vendor_name">Vendor </label>
+						<div class="col-sm-8">
+							<span class="block input-icon input-icon-right">
+								<input type="text"
+									   id="add_vendor_name"
+									   name="add_vendor_name"
+									   placeholder="New Vendor Name"
+									   class="width-100" />
+							</span>
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<label class="col-sm-3 control-label no-padding-right" for="notes">Notes </label>
+						<div class="col-sm-8">
+							<textarea
+							   	id="add_vendor_notes"
+							   	name="add_vendor_notes"
+							   	placeholder="Notes"
+							   	class="width-100"></textarea>
+						</div>		
+					</div>
+				</div>
+				<div class="space-6"></div>
+				<div class="modal-footer">
+					<button class="btn btn-sm pull-left"
+							type="button"
+							data-dismiss="modal">
+						<i class="ace-icon fa fa-remove bigger-125"></i>
+						Cancel
+					</button>
+					<button class="btn btn-sm btn-primary pull-left"
+							type="submit">
+						<i class="ace-icon fa fa-plus bigger-125"></i>
+						Add
+					</button>
+					<div id="add_vendor_message" style="display: none;" class="pull-right label label-default"></div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

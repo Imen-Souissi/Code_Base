@@ -1,0 +1,135 @@
+<?php
+$route = $this->route()->getRouteName();
+$controller = $this->route()->getControllerName();
+$action = $this->route()->getAction();
+
+$routeactive = ($route == "contract/default") ? 'active' : '';
+$routeopen = ($routeactive == 'active') ? 'open' : '';
+$routearrow = ($routeopen == 'open') ? 'fa-angle-up' : 'fa-angle-down';
+?>
+
+<?php if ($this->authorization()->isPermitted('Contract::Contracts', 'index')) { ?>
+	<?php if ($this->layout_type == 'h') { ?>
+	<li class="<?php echo $routeactive . ' ' . $routeopen . ' hover'; ?>">
+	<?php } else { ?>
+	<li class="<?php echo $routeactive; ?> <?php echo $routeopen; ?>">
+	<?php } ?>
+		<a href="#" class="dropdown-toggle">
+			<i class="menu-icon fa fa-file-text-o"></i>
+			<span class="menu-text">
+				Contracts
+			</span>
+			<b class="arrow <?php echo ($this->layout_type != 'h') ? "fa {$routearrow}" : ''; ?>"></b>
+		</a>
+		<b class="arrow"></b>
+		<ul class="submenu">
+			<?php if ($this->authorization()->isPermitted('Contract::Contracts', 'index')) { ?>
+				<li class="<?php echo ($controller == "contracts" && $action == "index") ? $routeactive : ""; ?> <?php echo ($this->layout_type == 'h') ? "hover" : ''; ?>">
+					<a href="<?php echo $this->basePath('contract/contracts/'); ?>">
+						<i class="menu-icon fa fa-caret-right"></i>
+						Overview
+					</a>
+					<b class="arrow"></b>
+				</li>
+			<?php } ?>
+			<?php if ($this->authorization()->isPermitted('Contract::Contracts', 'by-quarter')) { ?>
+				<li class="<?php echo ($controller == "contracts" && $action == "by-quarter") ? $routeactive : ""; ?> <?php echo ($this->layout_type == 'h') ? "hover" : ''; ?>">
+					<a href="<?php echo $this->basePath('contract/contracts/by-quarter/'); ?>">
+						<i class="menu-icon fa fa-caret-right"></i>
+						Payment By Quarter
+					</a>
+					<b class="arrow"></b>
+				</li>
+			<?php } ?>
+			<?php if ($this->authorization()->isPermitted('Contract::Contracts', 'add')) { ?>
+				<li class="<?php echo ($controller == "contracts" && $action == "add") ? $routeactive : ""; ?> <?php echo ($this->layout_type == 'h') ? "hover" : ''; ?>">
+					<a href="<?php echo $this->basePath('contract/contracts/add/'); ?>">
+						<i class="menu-icon fa fa-caret-right"></i>
+						Add New Contract
+					</a>
+					<b class="arrow"></b>
+				</li>
+			<?php } ?>
+			<?php if ($this->authorization()->isPermitted('Contract::Vendors', 'index')
+					|| $this->authorization()->isPermitted('Contract::Statuses', 'index')
+					|| $this->authorization()->isPermitted('Contract::Types', 'index')
+					|| $this->authorization()->isPermitted('Contract::PaymentSchedules', 'index')
+					|| $this->authorization()->isPermitted('Contract::NotificationSchedules', 'index')
+					|| $this->authorization()->isPermitted('Contract::Contracts', 'user-lookup')
+					) { ?>
+			<li class="<?php echo ($controller == "vendors"
+					|| $controller == "statuses"
+					|| $controller == "types"
+					|| $controller == "payment-schedules"
+					|| $controller == "notification-schedules"
+					|| ($controller == "contracts" && $action == "user-lookup")
+					) ? $routeactive : ""; ?> <?php echo ($this->layout_type == 'h') ? "hover" : ''; ?>">
+				<a href="#" class="dropdown-toggle">
+					<i class="menu-icon fa fa-user-circle-o"></i>
+					<span class="menu-text">
+						Admin
+					</span>
+					<b class="arrow <?php echo ($this->layout_type != 'h') ? "fa fa-angle-down" : ''; ?>"></b>
+				</a>
+				<b class="arrow"></b>
+				<ul class="submenu">
+					<?php if ($this->authorization()->isPermitted('Contract::Vendors', 'index')) { ?>
+						<li class="<?php echo ($controller == "vendors") ? $routeactive : ""; ?> <?php echo ($this->layout_type == 'h') ? "hover" : ''; ?>">
+							<a href="<?php echo $this->basePath('contract/vendors/index'); ?>">
+								<i class="menu-icon fa fa-caret-right"></i>
+								Vendors
+							</a>
+							<b class="arrow"></b>
+						</li>
+					<?php } ?>
+					<?php if ($this->authorization()->isPermitted('Contract::Statuses', 'index')) { ?>
+					<li class="<?php echo ($controller == "statuses") ? $routeactive : ""; ?> <?php echo ($this->layout_type == 'h') ? "hover" : ''; ?>">
+						<a href="<?php echo $this->basePath('contract/statuses/index'); ?>">
+							<i class="menu-icon fa fa-caret-right"></i>
+							Contract Statuses
+						</a>
+						<b class="arrow"></b>
+					</li>
+					<?php } ?>
+					<?php if ($this->authorization()->isPermitted('Contract::Types', 'index')) { ?>
+					<li class="<?php echo ($controller == "types") ? $routeactive : ""; ?> <?php echo ($this->layout_type == 'h') ? "hover" : ''; ?>">
+						<a href="<?php echo $this->basePath('contract/types/index'); ?>">
+							<i class="menu-icon fa fa-caret-right"></i>
+							Contract Types
+						</a>
+						<b class="arrow"></b>
+					</li>
+					<?php } ?>
+					<?php if ($this->authorization()->isPermitted('Contract::PaymentSchedules', 'index')) { ?>
+					<li class="<?php echo ($controller == "payment-schedules") ? $routeactive : ""; ?> <?php echo ($this->layout_type == 'h') ? "hover" : ''; ?>">
+						<a href="<?php echo $this->basePath('contract/payment-schedules/index'); ?>">
+							<i class="menu-icon fa fa-caret-right"></i>
+							Payment Schedules
+						</a>
+						<b class="arrow"></b>
+					</li>
+					<?php } ?>
+					<?php if ($this->authorization()->isPermitted('Contract::NotificationSchedules', 'index')) { ?>
+					<li class="<?php echo ($controller == "notification-schedules") ? $routeactive : ""; ?> <?php echo ($this->layout_type == 'h') ? "hover" : ''; ?>">
+						<a href="<?php echo $this->basePath('contract/notification-schedules/index'); ?>">
+							<i class="menu-icon fa fa-caret-right"></i>
+							Notification Schedules
+						</a>
+						<b class="arrow"></b>
+					</li>
+					<?php } ?>
+					<?php if ($this->authorization()->isPermitted('Contract::Contracts', 'user-lookup')) { ?>
+					<li class="<?php echo ($controller == "contracts" && $action == "user-lookup") ? $routeactive : ""; ?> <?php echo ($this->layout_type == 'h') ? "hover" : ''; ?>">
+						<a href="<?php echo $this->basePath('contract/contracts/user-lookup/'); ?>">
+							<i class="menu-icon fa fa-caret-right"></i>
+							User Lookup
+						</a>
+						<b class="arrow"></b>
+					</li>
+					<?php } ?>
+				</ul>
+			</li>
+			<?php } ?>
+		</ul>
+	</li>
+<?php } ?>
