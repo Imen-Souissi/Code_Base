@@ -1,0 +1,53 @@
+<?php if($this->authentication()->isAuthenticated()) { ?>
+<li class="grey">
+	<a data-toggle="dropdown" class="dropdown-toggle" href="#">
+		<i class="ace-icon fa fa-bell icon-animated-bell"></i>
+		<span class="badge badge-important"><?php echo number_format($this->notification()->getTotal(), 0); ?></span>
+	</a>
+
+	<ul class="dropdown-menu-right dropdown-navbar dropdown-menu dropdown-caret dropdown-close">
+		<li class="dropdown-header">
+			<i class="ace-icon fa fa-exclamation-triangle"></i>
+			<?php echo number_format($this->notification()->getTotal(), 0); ?> Notifications
+		</li>
+
+
+		<li class="dropdown-content">
+			<ul class="dropdown-menu dropdown-navbar">
+				<?php foreach($this->notification()->getNotifications() as $notification) { ?>
+					<?php
+                        if($notification['level'] == 5) {
+                            $color = 'danger';
+                        } else if($notification['level'] == 4) {
+                            $color = 'warning';
+                        } else if($notification['level'] == 3) {
+                            $color = 'primary';
+                        } else if($notification['level'] == 2) {
+                            $color = 'success';
+                        } else {
+                            $color = 'default';
+                        }
+                    ?>
+                    <li>
+                        <a href="<?php echo (substr($notification['url'], 0, 1) == "/") ? $notification['url'] : $this->basePath($notification['url']); ?>">
+                            <div class="clearfix">
+                                <span class="pull-left">
+                                    <i class="btn btn-xs no-hover btn-<?php echo $color; ?> fa <?php echo $notification['icon']; ?>"></i>
+                                    <?php echo $notification['title']; ?>
+                                </span>
+                            </div>
+                        </a>
+                    </li>
+				<?php } ?>
+
+				<li class="dropdown-footer">
+					<a href="<?php echo $this->basePath('application/notifications/'); ?>">
+						See all <strong><?php echo $this->notification()->getTotal(); ?></strong> notifications
+						<i class="ace-icon fa fa-arrow-right"></i>
+					</a>
+				</li>
+			</ul>
+		</li>
+	</ul>
+</li>
+<?php } ?>

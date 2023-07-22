@@ -1,0 +1,372 @@
+<?php $this->placeholder('bodyclass')->set('no-skin'); ?>
+
+<?php $this->placeholder('prescript')->captureStart('SET'); ?>
+	<script type="text/javascript" src="<?php echo $this->basePath('assets/js/ace-extra.min.js'); ?>"></script>
+	<?php echo $this->placeholder('prescript'); ?>
+<?php $this->placeholder('prescript')->captureEnd(); ?>
+
+<?php $this->placeholder('style')->captureStart('SET'); ?>
+	<link href="<?php echo $this->basePath('assets/css/jquery-ui.custom.min.css'); ?>" rel="stylesheet" type="text/css" />
+	<link href="<?php echo $this->basePath('assets/css/chosen.min.css'); ?>" rel="stylesheet" type="text/css" />
+	<link href="<?php echo $this->basePath('assets/css/select2.min.css'); ?>" rel="stylesheet" type="text/css" />
+	<!--<link href="<?php echo $this->basePath('assets/css/dropzone.min.css'); ?>" rel="stylesheet" type="text/css" />-->
+	<link href="<?php echo $this->basePath('assets/els/css/override.css'); ?>" rel="stylesheet" type="text/css" />
+	<?php echo $this->placeholder('style'); ?>
+<?php $this->placeholder('style')->captureEnd(); ?>
+
+<?php $this->placeholder('script')->captureStart('SET'); ?>
+	<script type="text/javascript" src="<?php echo $this->basePath('assets/js/bootstrap.min.js'); ?>"></script>
+	<script type="text/javascript" src="<?php echo $this->basePath('assets/js/jquery.raty.min.js'); ?>"></script>
+	<script type="text/javascript" src="<?php echo $this->basePath('assets/js/jquery-ui.custom.min.js'); ?>"></script>
+	<script type="text/javascript" src="<?php echo $this->basePath('assets/js/jquery.ui.touch-punch.min.js'); ?>"></script>
+	<script type="text/javascript" src="<?php echo $this->basePath('assets/js/typeahead.jquery.min.js'); ?>"></script>
+	<script type="text/javascript" src="<?php echo $this->basePath('assets/js/bloodhound.min.js'); ?>"></script>
+	<script type="text/javascript" src="<?php echo $this->basePath('assets/js/jquery.validate.min.js'); ?>"></script>
+	<script type="text/javascript" src="<?php echo $this->basePath('assets/js/chosen.jquery.min.js'); ?>"></script>
+	<script type="text/javascript" src="<?php echo $this->basePath('assets/js/select2.min.js'); ?>"></script>
+	<script type="text/javascript" src="<?php echo $this->basePath('assets/js/bootstrap-tag.min.js'); ?>"></script>
+	<script type="text/javascript" src="<?php echo $this->basePath('assets/js/fuelux.spinner.min.js'); ?>"></script>
+	<script type="text/javascript" src="<?php echo $this->basePath('assets/js/jquery-dateFormat.min.js'); ?>"></script>
+	<script type="text/javascript" src="<?php echo $this->basePath('assets/js/jquery.number.min.js'); ?>"></script>
+	<!--<script type="text/javascript" src="<?php echo $this->basePath('assets/js/dropzone.min.js'); ?>"></script>-->
+
+	<?php echo $this->placeholder('pre-ace-script'); ?>
+
+	<script type="text/javascript" src="<?php echo $this->basePath('assets/js/ace-elements.min.js'); ?>"></script>
+	<script type="text/javascript" src="<?php echo $this->basePath('assets/js/ace.min.js'); ?>"></script>
+	<?php echo $this->placeholder('script'); ?>
+
+	<script type="text/javascript">
+		// make sure that the sidebar clicked will change the up/down icon
+		$(document).ready(function() {
+			// grab the current open li
+			var lastopen = $("#sidebar ul.nav li.open")[0];
+			var initialopen = lastopen;
+
+			$("#sidebar ul.nav > li > a").click(function(e) {
+				var disabled = $(this.parentNode).hasClass('disabled');
+				if (disabled) {
+					return;
+				}
+
+				var opened = $(this.parentNode).hasClass('open');
+				var active = $(this.parentNode).hasClass('active');
+				if (opened) {
+					$(e.currentTarget).find("b")
+									  .removeClass('fa-angle-up')
+									  .addClass('fa-angle-down');
+				} else {
+					$(e.currentTarget).find("b")
+									  .removeClass('fa-angle-down')
+									  .addClass('fa-angle-up');
+				}
+
+				if (active && opened) {
+					return;
+				}
+
+				if (lastopen && lastopen != this.parentNode && lastopen != initialopen) {
+					$(lastopen).find("b")
+							   .removeClass('fa-angle-up')
+							   .addClass('fa-angle-down');
+				}
+
+				lastopen = this.parentNode;
+			});
+		});
+	</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<?php
+$route = $this->route()->getRouteName();
+$routeactive = ($route == "application") ? 'active' : '';
+$routeopen = ($routeactive == 'active') ? 'open' : '';
+$routehover = ($routeactive == 'active') ? 'hover' : '';
+?>
+
+<?php echo $this->doctype(); ?>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <?php
+			$heading = $this->placeholder('heading')->getValue();
+			if(empty($heading)) {
+				$heading = '';
+			} else if(is_array($heading)) {
+				$heading = implode(" ", $heading);
+			}
+
+			echo $this->headTitle($this->translate($heading))->setSeparator(' - ')->setAutoEscape(false)
+		?>
+
+        <?php echo $this->headMeta()
+            ->appendName('viewport', 'width=device-width, initial-scale=1')
+            ->appendHttpEquiv('X-UA-Compatible', 'IE=edge')
+        ?>
+
+		<link href="<?php echo $this->basePath('images/favicon.ico'); ?>" rel="shortcut icon" type="image/vnd.microsoft.icon" />
+		<link href="<?php echo $this->basePath('assets/css/bootstrap.min.css'); ?>" media="screen" rel="stylesheet" type="text/css">
+		<?php
+			$font_awesome_version = $this->config()->getApplicationConfig('font_awesome');
+			$font_awesome_version = (empty($font_awesome_version)) ? '4.2.0' : $font_awesome_version;
+		?>
+		<link href="<?php echo $this->basePath('assets/font-awesome/' . $font_awesome_version . '/css/font-awesome.min.css'); ?>" media="screen" rel="stylesheet" type="text/css">
+		<link href="<?php echo $this->basePath('assets/fonts/fonts.googleapis.com.css'); ?>" media="screen" rel="stylesheet" type="text/css">
+
+		 <?php echo $this->placeholder('style'); ?>
+
+		<link href="<?php echo $this->basePath('assets/css/ace.min.css'); ?>" rel="stylesheet" type="text/css" class="ace-main-stylesheet" id="main-ace-style">
+
+		<!--[if lt IE 9]>
+		<link href="<?php echo $this->basePath('assets/css/ace-part2.min.css'); ?>" media="screen" rel="stylesheet" type="text/css">
+		<![endif]-->
+
+		<link href="<?php echo $this->basePath('assets/css/ace-rtl.min.css'); ?>" media="screen" rel="stylesheet" type="text/css">
+
+		<!--[if lte IE 9]>
+		<link href="<?php echo $this->basePath('/assets/css/ace-ie.min.css'); ?>" media="screen" rel="stylesheet" type="text/css">
+		<![endif]-->
+
+		<?php echo $this->placeholder('style2'); ?>
+
+		<style type="text/css">
+			.twitter-typeahead {
+				width: 100%;
+			}
+			.form-group .col-sm-5 .typeahead {
+				padding-left: 6px;
+			}
+		</style>
+		<?php echo $this->placeholder('prescript'); ?>
+
+		<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+		<!--[if lt IE 9]>
+		<script type="text/javascript" src="<?php echo $this->basePath('assets/js/html5shiv.min.js'); ?>"></script>
+		<script type="text/javascript" src="<?php echo $this->basePath('/assets/js/respond.min.js'); ?>"></script>
+		<![endif]-->
+    </head>
+	<body class="<?php echo $this->placeholder('bodyclass'); ?>">
+		<div id="navbar" class="navbar navbar-default layout_fullscreen">
+			<script type="text/javascript">
+				try{ace.settings.check('navbar' , 'fixed')}catch(e){}
+			</script>
+
+			<div class="navbar-container" id="navbar-container">
+				<button type="button" class="navbar-toggle menu-toggler pull-left collapsed" data-toggle="collapse" id="menu-toggler" data-target="#sidebar">
+					<span class="sr-only">Toggle sidebar</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+
+				<div class="navbar-header pull-left">
+					<a href="/brics/index/" class="navbar-brand">
+						<small>
+							<?php echo $this->config()->getApplicationConfig('app_name'); ?>
+						</small>
+					</a>
+				</div>
+
+				<div class="navbar-buttons navbar-header pull-right" role="navigation">
+					<ul class="nav ace-nav">
+						<?php
+							// output the topbar generated by the Application::Module::buildMenu
+							echo $this->topbar;
+						?>
+						<?php echo $this->placeholder('topbar'); ?>
+						<?php
+							$navcolor = $this->config()->getApplicationConfig('navbar_color');
+							$navcolor = (empty($navcolor)) ? 'light-red' : $navcolor;
+						?>
+						<li class="<?php echo $navcolor; ?>">
+							<a data-toggle="dropdown" href="#" class="dropdown-toggle">
+								<img class="nav-user-photo" src="<?php echo $this->basePath($this->profile()->getUserImageUrl()); ?>" alt="<?php echo $this->profile()->getFirstname(); ?>'s Photo" style="height: 20px;" />
+								<span class="user-info">
+									<small>Welcome,</small>
+									<?php
+										echo $this->profile()->getFirstname();
+									?>
+								</span>
+								<i class="ace-icon fa fa-caret-down"></i>
+							</a>
+							<ul class="user-menu dropdown-menu-right dropdown-menu dropdown-yellow dropdown-caret dropdown-close">
+								<li>
+									<a href="<?php echo $this->basePath('logout'); ?>">
+										<i class="ace-icon fa fa-power-off"></i>
+										Logout
+									</a>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</div><!-- /.navbar-container -->
+		</div>
+
+		<div class="main-container" id="main-container">
+			<script type="text/javascript">
+				try{ace.settings.check('main-container' , 'fixed')}catch(e){}
+			</script>
+
+			<?php if($this->layout_type == 'h') { ?>
+			<div id="sidebar" class="sidebar h-sidebar navbar-collapse collapse">
+			<?php } else { ?>
+			<div id="sidebar" class="sidebar responsive">
+			<?php } ?>
+
+				<script type="text/javascript">
+					try{ace.settings.check('sidebar' , 'fixed')}catch(e){}
+				</script>
+
+				<div class="sidebar-shortcuts" id="sidebar-shortcuts">
+					<div class="sidebar-shortcuts-large" id="sidebar-shortcuts-large">
+						<?php echo $this->shortcut; ?>
+					</div>
+
+					<div class="sidebar-shortcuts-mini" id="sidebar-shortcuts-mini">
+						<span class="btn btn-success"></span>
+
+						<span class="btn btn-info"></span>
+
+						<span class="btn btn-warning"></span>
+
+						<span class="btn btn-danger"></span>
+					</div>
+				</div><!-- /.sidebar-shortcuts -->
+
+				<?php
+					// output the presidebar generated by the Application::Module::buildMenu
+					echo $this->presidebar;
+				?>
+
+				<div class="sidebar-toggle sidebar-collapse" id="sidebar-collapse">
+					<i class="ace-icon fa fa-angle-double-left" data-icon1="ace-icon fa fa-angle-double-left" data-icon2="ace-icon fa fa-angle-double-right"></i>
+				</div>
+
+				<ul class="nav nav-list <?php echo $this->config()->getApplicationConfig('font_color'); ?>">
+					<li class="<?php echo $routeactive; ?> <?php echo ($this->layout_type == 'h') ? "hover" : ""; ?>">
+						<a href="<?php echo $this->basePath(''); ?>">
+							<i class="menu-icon fa fa-tachometer"></i>
+							<span class="menu-text"> Dashboard </span>
+						</a>
+						<b class="arrow"></b>
+					</li>
+					<?php
+						// output the sidebar generated by the Application::Module::buildMenu
+						echo $this->sidebar;
+					?>
+					<?php echo $this->placeholder('sidebar'); ?>
+				</ul><!-- /.nav-list -->
+
+				<script type="text/javascript">
+					try{ace.settings.check('sidebar' , 'collapsed')}catch(e){}
+				</script>
+			</div>
+
+			<div class="main-content">
+				<div class="main-content-inner">
+					<?php if ($this->layout_type != 'h') { ?>
+					<div class="breadcrumbs" id="breadcrumbs">
+						<script type="text/javascript">
+							try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+						</script>
+
+						<ul class="breadcrumb">
+							<li>
+								<i class="ace-icon fa fa-tachometer"></i>
+								<a href="<?php echo $this->basePath(''); ?>">Dashboard</a>
+							</li>
+							<?php echo $this->placeholder('breadcrumb'); ?>
+						</ul><!-- /.breadcrumb -->
+
+						<?php echo $this->breadcrumb; ?>
+					</div>
+					<?php } ?>
+
+					<div class="page-content <?php echo ($this->layout_type == 'h') ? '': ''; ?>">
+						<?php if($this->layout_type == 'h') { ?>
+						<div>
+							<script type="text/javascript">
+								try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+							</script>
+
+							<ul class="breadcrumb" style="margin-left: 0px;">
+								<li class="<?php echo $routeactive; ?>">
+									<i class="ace-icon fa fa-tachometer"></i>
+									<a href="<?php echo $this->basePath(''); ?>">Dashboard</a>
+								</li>
+								<?php echo $this->placeholder('breadcrumb'); ?>
+							</ul><!-- /.breadcrumb -->
+
+							<?php echo $this->breadcrumb; ?>
+						</div>
+						<?php } ?>
+
+						<?php $header = $this->placeholder('header')->toString(); ?>
+						<?php if (!empty($header)) { ?>
+						<div class="page-header">
+							<?php echo $header; ?>
+						</div>
+						<?php } ?>
+						<div class="row">
+							<div class="col-xs-12">
+								<!-- PAGE CONTENT BEGINS -->
+								<?php echo $this->placeholder('error-content'); ?>
+								<!-- PAGE CONTENT ENDS -->
+							</div><!-- /.col -->
+						</div><!-- /.row -->
+					</div><!-- /.page-content -->
+				</div>
+			</div><!-- /.main-content -->
+
+			<div class="footer">
+				<div class="footer-inner">
+					<div class="footer-content">
+						<span class="bigger-120">
+							<?php echo $this->config()->getApplicationConfig('footer_app_name'); ?> By <a href="https://arris365.sharepoint.com/sites/CSS/wwie/SitePages/Home.aspx" target="_blank" class="lighter red">WWIE</a> &copy;
+							<?php echo (date('Y') == '2015') ? '2015' : '2015-' . date('Y'); ?>
+						</span>
+						<?php $version = $this->config()->getApplicationConfig('version'); ?>
+						<?php if($version) { ?>
+						<span class="pull-right text-muted">
+							<?php echo $version; ?>
+						</span>
+						<?php } ?>
+					</div>
+				</div>
+			</div>
+
+			<a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
+				<i class="ace-icon fa fa-angle-double-up icon-only bigger-110"></i>
+			</a>
+		</div><!-- /.main-container -->
+
+		<!--[if !IE]> -->
+		<script type="text/javascript" src="<?php echo $this->basePath('assets/js/jquery.2.1.1.min.js'); ?>"></script>
+		<!-- <![endif]-->
+
+		<!--[if IE]>
+		<script type="text/javascript" src="<?php echo $this->basePath('assets/js/jquery.1.11.1.min.js'); ?>"></script>
+		<![endif]-->
+
+		<!--[if !IE]> -->
+		<script type="text/javascript">
+			window.jQuery || document.write("<script src='<?php echo $this->basePath('assets/js/jquery.min.js'); ?>'>"+"<"+"/script>");
+		</script>
+		<!-- <![endif]-->
+
+		<!--[if IE]>
+		<script type="text/javascript">
+			window.jQuery || document.write("<script src='<?php echo $this->basePath('assets/js/jquery1x.min.js'); ?>'>"+"<"+"/script>");
+		</script>
+		<![endif]-->
+
+		<script type="text/javascript">
+			if('ontouchstart' in document.documentElement) document.write("<script src='<?php echo $this->basePath('assets/js/jquery.mobile.custom.min.js'); ?>'>"+"<"+"/script>");
+		</script>
+
+		<!-- Scripts -->
+		<?php echo $this->placeholder('script'); ?>
+	</body>
+</html>

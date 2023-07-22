@@ -1,0 +1,153 @@
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$.validate_utils.create('#edit_service_method', {
+			method: {
+				required: true,
+				message: 'Please provide a Method'
+			}
+		}, function(form) {
+			$("#edit_service_method_message")
+				.show()
+				.removeClass("label-success")
+				.removeClass("label-danger")
+				.addClass("label-default")
+				.html("Updating service method...");
+			
+			$.ajax({
+				type: 'POST',
+				url: '<?php echo $this->basePath('api/services/edit-method/' . $this->id); ?>',
+				data: $(form).serializeArray()
+			}).done(function(data) {
+				$("#edit_service_method_message")
+					.removeClass("label-default")
+					.addClass("label-success")
+					.html("Successfully updated service method");
+					
+				setTimeout(function() {
+					$("#edit_service_method_message").hide();					
+					$("#edit_service_method_modal").modal('hide');
+					
+					if ($.fn.DataTable.isDataTable('#methods')) {
+						$("#methods").dataTable().api().ajax.reload();
+					}					
+				}, 1000);
+			}).fail(function(error) {
+				if (error.responseJSON && error.responseJSON['error']) {
+					error = error.responseJSON['error'];
+				} else {
+					error = 'Unable to update service method, try again';
+				}
+				
+				$("#edit_service_method_message")
+					.removeClass("label-default")
+					.addClass("label-danger")
+					.html(error);
+			});
+			
+			// prevent the page submit
+			return false;
+		});
+	});
+    
+    function editServiceMethod(row) {
+        $("#edit_service_method_message").hide();
+		var data = $("#methods").dataTable().fnGetData(row);
+		if (data) {
+			$("#edit_service_method_id").val(data.id);
+			$("#edit_service_method_method").val(data.method);
+            
+            if (!$('#edit_service_method_security_resource').data('select2')) {
+                $.select2_utils.create([{
+                    id: 'edit_service_method_security_resource',
+                    url: '<?php echo $this->basePath('/auth/rest/resources/'); ?>',
+					onData: function(data) {
+						data['order'] = [{
+							column: 'controller',
+							dir: 'asc'
+						}, {
+							column: 'action',
+							dir: 'asc'
+						}];
+						data['controller|action'] = data['name'];
+						delete data['name'];
+					},
+					onResult: function(item) {
+						return {
+							id: item.id,
+							text: item.controller + ' >> ' + item.action
+						};
+					}
+                }], 25);
+            }
+            
+			$("#edit_service_method_security_resource").select2('val', data.security_resource_id);
+            
+			$('#edit_service_method_modal').modal('show');
+		}
+    }
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<div id="edit_service_method_modal" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header no-padding">
+				<div class="table-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						<span class="white">&times;</span>
+					</button>
+					Add Service Method
+				</div>
+			</div>
+			<form id="edit_service_method" class="form-horizontal">
+                <input type="hidden" name="method_id" id="edit_service_method_id" value="" />
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="alert alert-warning">
+								All fields with an <i class="ace-icon fa fa-asterisk red"></i> are required.
+							</div>
+							<div class="form-group">                                
+								<label class="col-sm-3 control-label no-padding-right" for="edit_service_method_method">Method </label>
+								<div class="col-sm-8">
+									<span class="block input-icon input-icon-right">
+										<input type="text"
+											   id="edit_service_method_method"
+											   name="method"
+											   placeholder="Service method"
+											   class="width-100" />
+										<i class="ace-icon fa fa-asterisk red" style="margin-right: 15px;"></i>
+									</span>
+								</div>
+							</div>
+                            
+                            <div class="form-group">
+								<label class="col-sm-3 control-label no-padding-right" for="edit_service_method_security_resource">Security Resource </label>
+								<div class="col-sm-8">
+                                    <input type="text"
+                                           id="edit_service_method_security_resource"
+                                           name="security_resource_id"
+                                           placeholder="Service Resource"
+                                           class="width-100" />
+								</div>
+							</div>	
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer align-left">
+					<a class="btn btn-sm" href="#" data-dismiss="modal" aria-hidden="true">
+						<i class="ace-icon fa fa-remove bigger-125"></i>
+						Cancel
+					</a>
+					<button class="btn btn-sm btn-primary"
+							type="submit">
+						<i class="ace-icon fa fa-check bigger-125"></i>
+						Update
+					</button>
+					<div id="edit_service_method_message" style="display: none;" class="pull-right label label-default"></div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,13 @@
+<?php
+$route = $this->route()->getRouteName();
+$controller = $this->route()->getControllerName();
+$action = $this->route()->getAction();
+?>
+
+<?php $this->placeholder('heading')->captureStart('APPEND'); ?>
+Dashboard
+<?php $this->placeholder('heading')->captureEnd() ;?>
+
+<?php $this->placeholder('content')->captureStart('SET'); ?>
+<?php echo $this->layout()->dashboard_widgets; ?>
+<?php $this->placeholder('content')->captureEnd(); ?>

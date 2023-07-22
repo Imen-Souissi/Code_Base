@@ -1,0 +1,139 @@
+<?php
+$route = $this->route()->getRouteName();
+$controller = $this->route()->getControllerName();
+$action = $this->route()->getAction();
+
+$is_view_service = false;
+if($route == 'api/default' && $controller == 'services' && $action == 'view') {
+	$is_view_service = true;
+}
+?>
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript">
+	$(document).ready(function() {		
+		$.validate_utils.create('#edit_service', {
+			name: {
+				required: true,
+				message: 'Please provide a Name'
+			}
+		}, function(form) {
+			$("#edit_service_message")
+				.show()
+				.removeClass("label-success")
+				.removeClass("label-danger")
+				.addClass("label-default")
+				.html("Updating service...");
+			
+			$.ajax({
+				type: 'POST',
+				url: '<?php echo $this->basePath('api/services/edit/'); ?>' + $('#edit_service_id').val(),
+				data: $(form).serializeArray()
+			}).done(function(data) {
+				$("#edit_service_message")
+					.removeClass("label-default")
+					.addClass("label-success")
+					.html("Successfully updated service");
+				
+				setTimeout(function() {
+					$("#edit_service_message").hide();					
+					$("#edit_service_modal").modal('hide');
+					
+					if ($.fn.DataTable.isDataTable('#services')) {
+						$("#services").dataTable().api().ajax.reload();
+					}
+				}, 1000);
+			}).fail(function(error) {
+				if (error.responseJSON && error.responseJSON['error']) {
+					error = error.responseJSON['error'];
+				} else {
+					error = 'Unable to update service, try again';
+				}
+				
+				$("#edit_service_message")
+					.removeClass("label-default")
+					.addClass("label-danger")
+					.html(error);
+			});
+			
+			// prevent the page submit
+			return false;
+		});
+	});
+    
+    function editService(row) {
+        $("#edit_service_message").hide();
+		var data = $("#services").dataTable().fnGetData(row);
+		if (data) {
+			$("#edit_service_id").val(data.id);
+			$("#edit_service_name").val(data.name);
+            $("#edit_service_version").val(data.version);
+			
+			$("#edit_service_modal").modal('show');
+		}
+    }
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<div id="edit_service_modal" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header no-padding">
+				<div class="table-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						<span class="white">&times;</span>
+					</button>
+					Edit Service
+				</div>
+			</div>
+			<form id="edit_service" class="form-horizontal">
+                <input type="hidden" name="id" id="edit_service_id" value="<?php echo ($is_view_service) ? $this->id : ''; ?>" />
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="alert alert-warning">
+								All fields with an <i class="ace-icon fa fa-asterisk red"></i> are required.
+							</div>
+							<div class="form-group">
+								<label class="col-sm-2 control-label no-padding-right" for="edit_service_name">Name </label>
+								<div class="col-sm-9">
+									<span class="block input-icon input-icon-right">
+										<input type="text"
+											   id="edit_service_name"
+											   name="name"
+											   value="<?php echo ($is_view_service) ? $this->service['name'] : ''; ?>"
+											   placeholder="Service name"
+											   class="width-100" />
+										<i class="ace-icon fa fa-asterisk red" style="margin-right: 15px;"></i>
+									</span>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-2 control-label no-padding-right" for="edit_service_version">Version </label>
+								<div class="col-sm-9">
+									<input type="text"
+										   id="edit_service_version"
+										   name="version"
+										   value="<?php echo ($is_view_service) ? $this->service['version'] : ''; ?>"
+										   placeholder="Service version"
+										   class="width-100" />
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer align-left">
+					<a class="btn btn-sm" href="#" data-dismiss="modal" aria-hidden="true">
+						<i class="ace-icon fa fa-remove bigger-125"></i>
+						Cancel
+					</a>
+					<button class="btn btn-sm btn-primary"
+							type="submit">
+						<i class="ace-icon fa fa-check bigger-125"></i>
+						Update
+					</button>
+					<div id="edit_service_message" style="display: none;" class="pull-right label label-default"></div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

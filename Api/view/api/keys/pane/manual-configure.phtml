@@ -1,0 +1,161 @@
+<?php
+$route = $this->route()->getRouteName();
+$controller = $this->route()->getControllerName();
+$action = $this->route()->getAction();
+
+$is_view_key = false;
+if($route == 'api/default' && $controller == 'keys' && $action == 'view') {
+	$is_view_key = true;
+}
+?>
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("#manual_configure_key").on('submit', function() {
+			$("#manual_configure_key_message")
+				.show()
+				.removeClass("label-success")
+				.removeClass("label-danger")
+				.addClass("label-default")
+				.html("Enabling auto configure...");
+			
+			$.ajax({
+				type: 'POST',
+                <?php if ($is_view_key) { ?>
+				url: '<?php echo $this->basePath('api/keys/auto-configure/'); ?>' + $("#manual_configure_key_id").val(),
+                <?php } else { ?>
+                url: '<?php echo $this->basePath('api/keys/auto-configure/'); ?>',
+                <?php } ?>
+                data: {
+                    <?php if (!$is_view_key) { ?>
+                    id: $('#manual_configure_key_id').val(),
+                    <?php } ?>
+                    auto_configure: 0
+                }
+			}).done(function(data) {
+				$("#manual_configure_key_message")
+					.removeClass("label-default")
+					.addClass("label-success")
+					.html("Successfully enable manual configure");
+				
+				<?php if ($is_view_key) { ?>
+                // reload this page
+				window.location = window.location.href;
+                setTimeout(function() {
+                    // if we do not redirect, we will reload
+                    window.location.reload();
+                }, 1000);
+				<?php } else { ?>
+				setTimeout(function() {
+					$("#manual_configure_key_message").hide();
+					$("#manual_configure_key_modal").modal('hide');
+					
+					if($.fn.DataTable.isDataTable('#keys')) {
+                        // reload the keys table
+                        $("#keys").dataTable().api().ajax.reload();
+                    }
+				}, 1000);
+				<?php } ?>
+			}).fail(function(error) {
+                if (error.responseJSON && error.responseJSON['error']) {
+                    error = error.responseJSON['error'];
+                } else {
+                    error = 'Unable to enable manual configure, try again';
+                }
+				
+				$("#manual_configure_key_message")
+					.removeClass("label-default")
+					.addClass("label-danger")
+					.html(error);
+			});
+			
+			// prevent the page submit
+			return false;
+		});
+	});
+	
+	function enableAutoConfigureKey(row) {
+		$("#manual_configure_key_message").hide();
+		var data = $("#keys").dataTable().fnGetData(row);
+		if (data) {
+			$("#manual_configure_key_id").val(data.id);
+			$("#manual_configure_key_key_value").html(data.key);
+			$("#manual_configure_key_key_container").show();
+            
+			$('#manual_configure_key_modal').modal('show');
+		}
+	}
+    
+    function enableAutoConfigureKeyAll() {
+        var keys = [];
+        
+		$("#keys input.cb:checked").each(function(i, ele) {			
+			keys.push($(ele).val());
+		});
+		
+		if (keys.length > 0) {
+			$("#manual_configure_key_id").val(keys.join(','));			
+			$("#manual_configure_key_key_container").hide();            
+            
+			// show the modal
+			$("#manual_configure_key_modal").modal('show');
+		}
+    }
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<div id="manual_configure_key_modal" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header no-padding">
+				<div class="table-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						<span class="white">&times;</span>
+					</button>
+					Manual Configure
+				</div>
+			</div>
+			<form id="manual_configure_key" class="form-horizontal">
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="alert alert-warning">
+                                <?php if ($is_view_key) { ?>
+								Click <strong>Enable</strong> to enable manual configure for this key.
+                                <?php } else { ?>
+                                Click <strong>Enable</strong> to enable manual configure for the selected keys.
+                                <?php } ?>
+							</div>
+							<input type="hidden" id="manual_configure_key_id" name="id" value="<?php echo ($is_view_key) ? $this->id : ''; ?>" />
+							<div class="profile-user-info" id="manual_configure_key_key_container">
+								<div class="profile-info-row">
+									<div class="profile-info-name"> Key </div>
+									<div class="profile-info-value">
+										<span id="manual_configure_key_key_value">
+											<?php echo ($is_view_key) ? $this->key['key'] : ''; ?>
+										</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="space-6"></div>
+				<div class="modal-footer">
+					<button class="btn btn-sm pull-left"
+							type="button"
+							data-dismiss="modal">
+						<i class="ace-icon fa fa-remove bigger-125"></i>
+						Cancel
+					</button>
+					<button class="btn btn-sm btn-primary pull-left"
+							type="submit">
+						<i class="ace-icon fa fa-check bigger-125"></i>
+						Enable
+					</button>
+					<div id="manual_configure_key_message" style="display: none;" class="pull-right label label-default"></div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

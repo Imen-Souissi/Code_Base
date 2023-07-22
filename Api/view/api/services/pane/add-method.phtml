@@ -1,0 +1,150 @@
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$.validate_utils.create('#add_service_method', {
+			method: {
+				required: true,
+				message: 'Please provide a Method'
+			}
+		}, function(form) {
+			$("#add_service_method_message")
+				.show()
+				.removeClass("label-success")
+				.removeClass("label-danger")
+				.addClass("label-default")
+				.html("Adding service method...");
+			
+			$.ajax({
+				type: 'POST',
+				url: '<?php echo $this->basePath('api/services/add-method/' . $this->id); ?>',
+				data: $(form).serializeArray()
+			}).done(function(data) {
+				$("#add_service_method_message")
+					.removeClass("label-default")
+					.addClass("label-success")
+					.html("Successfully added service method");
+				
+				if (window.refreshStats) {
+					window.refreshStats();
+				}
+					
+				setTimeout(function() {
+					$("#add_service_method_message").hide();					
+					$("#add_service_method_modal").modal('hide');
+					
+					if ($.fn.DataTable.isDataTable('#methods')) {
+						$("#methods").dataTable().api().ajax.reload();
+					}					
+				}, 1000);
+			}).fail(function(error) {
+				if (error.responseJSON && error.responseJSON['error']) {
+					error = error.responseJSON['error'];
+				} else {
+					error = 'Unable to add service method, try again';
+				}
+				
+				$("#add_service_method_message")
+					.removeClass("label-default")
+					.addClass("label-danger")
+					.html(error);
+			});
+			
+			// prevent the page submit
+			return false;
+		});
+		
+		$('#add_service_method_modal').on('show.bs.modal', function(e) {
+			// reset the form
+			$("#add_service_method")[0].reset();
+            
+            if (!$('#add_service_method_security_resource').data('select2')) {
+                $.select2_utils.create([{
+                    id: 'add_service_method_security_resource',
+                    url: '<?php echo $this->basePath('/auth/rest/resources/'); ?>',
+					onData: function(data) {
+						data['order'] = [{
+							column: 'controller',
+							dir: 'asc'
+						}, {
+							column: 'action',
+							dir: 'asc'
+						}];
+						data['controller|action'] = data['name'];
+						delete data['name'];
+					},
+					onResult: function(item) {
+						return {
+							id: item.id,
+							text: item.controller + ' >> ' + item.action
+						};
+					}
+                }], 25);
+            } else {
+				$('#add_service_method_security_resource').select2('val', null);
+			}
+		});
+	});
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<div id="add_service_method_modal" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header no-padding">
+				<div class="table-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						<span class="white">&times;</span>
+					</button>
+					Add Service Method
+				</div>
+			</div>
+			<form id="add_service_method" class="form-horizontal">
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="alert alert-warning">
+								All fields with an <i class="ace-icon fa fa-asterisk red"></i> are required.
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label no-padding-right" for="add_service_method_method">Method </label>
+								<div class="col-sm-8">
+									<span class="block input-icon input-icon-right">
+										<input type="text"
+											   id="add_service_method_method"
+											   name="method"
+											   placeholder="Service method"
+											   class="width-100" />
+										<i class="ace-icon fa fa-asterisk red" style="margin-right: 15px;"></i>
+									</span>
+								</div>
+							</div>
+                            
+                            <div class="form-group">
+								<label class="col-sm-3 control-label no-padding-right" for="add_service_method_security_resource">Security Resource </label>
+								<div class="col-sm-8">
+                                    <input type="text"
+                                           id="add_service_method_security_resource"
+                                           name="security_resource_id"
+                                           placeholder="Service Resource"
+                                           class="width-100" />
+								</div>
+							</div>	
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer align-left">
+					<a class="btn btn-sm" href="#" data-dismiss="modal" aria-hidden="true">
+						<i class="ace-icon fa fa-remove bigger-125"></i>
+						Cancel
+					</a>
+					<button class="btn btn-sm btn-primary"
+							type="submit">
+						<i class="ace-icon fa fa-plus bigger-125"></i>
+						Add
+					</button>
+					<div id="add_service_method_message" style="display: none;" class="pull-right label label-default"></div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

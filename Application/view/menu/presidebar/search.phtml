@@ -1,0 +1,11 @@
+<?php if ($this->layout_type != 'h') { ?>
+<div class="nav-search" style="text-align: center; min-height: 30px; padding: 0px;">
+	<form class="form-search" action="<?php echo $this->basePath('search'); ?>" method="get">
+		<span class="input-icon">
+			<input type="hidden" name="filtering" value="1" />
+			<input type="text" placeholder="Search ..." class="nav-search-input" name="keywords" autocomplete="off" style="width: 186px;" />
+			<i class="ace-icon fa fa-search nav-search-icon"></i>
+		</span>
+	</form>
+</div>
+<?php } ?>

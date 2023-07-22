@@ -1,0 +1,62 @@
+<?php
+$route = $this->route()->getRouteName();
+$controller = $this->route()->getControllerName();
+$action = $this->route()->getAction();
+
+$routeactive = ($route == "api/default" && ($controller == 'keys' || $controller == 'services')) ? 'active' : '';
+$routeopen = ($routeactive == 'active') ? 'open' : '';
+$routearrow = ($routeopen == 'open') ? 'fa-angle-up' : 'fa-angle-down';
+?>
+
+<?php if ($this->authorization()->isPermitted('Api::Keys', 'index')) { ?>
+	<?php if ($this->layout_type == 'h') { ?>
+	<li class="<?php echo $routeactive . ' ' . $routeopen . ' hover'; ?>">
+	<?php } else { ?>
+	<li class="<?php echo $routeactive; ?> <?php echo $routeopen; ?>">
+	<?php } ?>
+		<a href="#" class="dropdown-toggle">
+			<i class="menu-icon fa fa-adn"></i>
+			<span class="menu-text">
+				API
+			</span>
+			<b class="arrow <?php echo ($this->layout_type != 'h') ? "fa {$routearrow}" : ''; ?>"></b>
+		</a>
+		<b class="arrow"></b>
+		<ul class="submenu">
+
+			<?php if ($this->authorization()->isPermitted('Api::Keys', 'index')) { ?>
+
+			<li class="<?php echo ($controller == "keys" && $action == "index") ? $routeactive : ""; ?> <?php echo ($this->layout_type == 'h') ? "hover" : ''; ?>">
+				<a href="<?php echo $this->basePath('api/keys/'); ?>">
+					<i class="menu-icon fa fa-caret-right"></i>
+					Keys
+				</a>
+				<b class="arrow"></b>
+			</li>
+			<?php } ?>
+
+            <?php if ($this->authorization()->isPermitted('Api::Services', 'index')) { ?>
+
+			<li class="<?php echo ($controller == "services" && $action == "index") ? $routeactive : ""; ?> <?php echo ($this->layout_type == 'h') ? "hover" : ''; ?>">
+				<a href="<?php echo $this->basePath('api/services/'); ?>">
+					<i class="menu-icon fa fa-caret-right"></i>
+					Services
+				</a>
+				<b class="arrow"></b>
+			</li>
+			<?php } ?>
+
+
+            <?php if ($this->authorization()->isPermitted('Api::Keys', 'add')) { ?>
+			<li class="<?php echo ($controller == "keys" && $action == "add") ? $routeactive : ""; ?> <?php echo ($this->layout_type == 'h') ? "hover" : ''; ?> <?php echo ($need_divider) ? 'separator' : ''; ?>">
+				<a href="<?php echo $this->basePath('api/keys/?add=1'); ?>">
+					<i class="menu-icon fa fa-caret-right"></i>
+					Add New Key
+				</a>
+				<b class="arrow"></b>
+			</li>
+
+			<?php } ?>
+		</ul>
+	</li>
+<?php } ?>

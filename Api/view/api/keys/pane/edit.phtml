@@ -1,0 +1,187 @@
+<?php
+$route = $this->route()->getRouteName();
+$controller = $this->route()->getControllerName();
+$action = $this->route()->getAction();
+
+$is_view_key = false;
+if($route == 'api/default' && $controller == 'keys' && $action == 'view') {
+	$is_view_key = true;
+}
+?>
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$.validate_utils.create('#edit_key', {
+			name: {
+				required: true,
+				message: 'Please provide a Name'
+			}
+		}, function(form) {
+			$("#edit_key_message")
+				.show()
+				.removeClass("label-success")
+				.removeClass("label-danger")
+				.addClass("label-default")
+				.html("Updating key...");
+			
+			$.ajax({
+				type: 'POST',
+				url: '<?php echo $this->basePath('api/keys/edit/'); ?>' + $('#edit_key_id').val(),
+				data: $(form).serializeArray()
+			}).done(function(data) {
+				$("#edit_key_message")
+					.removeClass("label-default")
+					.addClass("label-success")
+					.html("Successfully updated key");
+				
+				<?php if ($is_view_key) { ?>
+				// reload this page
+				window.location = window.location.href;
+                setTimeout(function() {
+                    // if we do not redirect, we will reload
+                    window.location.reload();
+                }, 1000);
+				<?php } else { ?>
+				setTimeout(function() {
+					$("#edit_key_message").hide();					
+					$("#edit_key_modal").modal('hide');
+					
+					if ($.fn.DataTable.isDataTable('#keys')) {
+						$("#keys").dataTable().api().ajax.reload();
+					}
+				}, 1000);
+				<?php } ?>
+			}).fail(function(error) {
+				if (error.responseJSON && error.responseJSON['error']) {
+					error = error.responseJSON['error'];
+				} else {
+					error = 'Unable to update key, try again';
+				}
+				
+				$("#edit_key_message")
+					.removeClass("label-default")
+					.addClass("label-danger")
+					.html(error);
+			});
+			
+			// prevent the page submit
+			return false;
+		});
+		
+		<?php if ($is_view_key) { ?>
+		$('#edit_key_modal').on('show.bs.modal', function(e) {
+			if (!$('#edit_key_user').data('select2')) {
+				$.select2_utils.create([{
+					id: 'edit_key_user',
+					url: '<?php echo $this->basePath('hr/rest/hr-users/'); ?>',
+					display: 'display_name',
+					onData: function(d) {
+						d['terminated'] = 0;
+					}
+				}], 25);
+			}
+		});
+		<?php } ?>
+	});
+    
+    function editKey(row) {
+        $("#edit_key_message").hide();
+		var data = $("#keys").dataTable().fnGetData(row);
+		if (data) {
+			$("#edit_key_id").val(data.id);
+            
+            if(!$("#edit_key_user").data('select2')) {
+                $.select2_utils.create([{
+                    id: 'edit_key_user',
+                    url: '<?php echo $this->basePath('hr/rest/hr-users/'); ?>',
+                    display: 'display_name',
+					onData: function(d) {
+						d['terminated'] = 0;
+					}
+                }], 25);
+            }
+            
+            $('#edit_key_user').select2('val', data.user_id);
+            $('#edit_key_description').val(data.description);
+			$('#edit_key_auto_configure').prop('checked', (parseInt(data.auto_configure, 10) == 1));
+            
+			$("#edit_key_modal").modal('show');
+		}
+    }
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<div id="edit_key_modal" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header no-padding">
+				<div class="table-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						<span class="white">&times;</span>
+					</button>
+					Edit Key
+				</div>
+			</div>
+			<form id="edit_key" class="form-horizontal">
+                <input type="hidden" name="id" id="edit_key_id" value="<?php echo ($is_view_key) ? $this->key['id'] : ''; ?>" />
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="alert alert-warning">
+								All fields with an <i class="ace-icon fa fa-asterisk red"></i> are required.
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label no-padding-right" for="edit_key_user">User </label>
+								<div class="col-sm-8">
+									<span class="block input-icon input-icon-right">
+										<input type="text"
+											   id="edit_key_user"
+											   name="user_id"
+											   placeholder="User"
+											   value="<?php echo ($is_view_key) ? $this->key['user_id'] : ""; ?>"
+											   class="width-100" />
+										<i class="ace-icon fa fa-asterisk red" style="margin-right: 15px;"></i>
+									</span>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label no-padding-right" for="edit_key_description">Description </label>
+								<div class="col-sm-8">
+									<textarea id="edit_key_description"
+                                              name="description"
+                                              placeholder="Description"
+                                              class="width-100"><?php echo ($is_view_key) ? $this->key['description'] : ""; ?></textarea>
+								</div>
+							</div>
+                            <div class="form-group">
+								<label class="col-sm-3 control-label no-padding-right" for="edit_key_auto_configure">Auto Configure </label>
+								<div class="col-sm-8">
+                                    <div class="space-4"></div>
+									<input type="checkbox"
+                                           name="auto_configure"
+                                           id="edit_key_auto_configure"
+                                           value="1"
+										   <?php echo ($is_view_key && intval($this->key['auto_configure']) == 1) ? 'checked="checked"' : ''; ?>
+                                           class="ace ace-switch ace-switch-2" />
+                                    <span class="lbl"> &nbsp; Allow our system to auto-configure API access</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer align-left">
+					<a class="btn btn-sm" href="#" data-dismiss="modal" aria-hidden="true">
+						<i class="ace-icon fa fa-remove bigger-125"></i>
+						Cancel
+					</a>
+					<button class="btn btn-sm btn-primary"
+							type="submit">
+						<i class="ace-icon fa fa-check bigger-125"></i>
+						Update
+					</button>
+					<div id="edit_key_message" style="display: none;" class="pull-right label label-default"></div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

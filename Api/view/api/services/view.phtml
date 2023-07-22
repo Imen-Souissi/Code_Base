@@ -1,0 +1,183 @@
+<?php include(__DIR__ . "/layout/layout.phtml"); ?>
+
+<?php
+$this->formElementErrors()
+	 ->setAttributes(array('class' => 'list-unstyled'));
+?>
+
+<?php $this->placeholder('heading')->captureStart(); ?>
+View Service (<?php echo $this->formatter()->na($this->service['name']); ?>)
+<?php $this->placeholder('heading')->captureEnd() ;?>
+
+<?php $this->placeholder('breadcrumb')->captureStart(); ?>
+<li class="active">
+	<a href="<?php echo $this->basePath('api/services/view/' . $this->id); ?>">View Service (<?php echo $this->formatter()->na($this->service['name']); ?>)</a>
+</li>
+<?php $this->placeholder('breadcrumb')->captureEnd() ;?>
+
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript">
+	$(document).ready(function() {
+		fakewaffle.responsiveTabs(['xs']);
+	});
+	
+	function refreshStats() {
+		$('.stats-loading').html('<i class="ace-icon fa fa-spin fa-spinner"></i>');
+		
+		$.ajax({
+			url: '<?php echo $this->basePath('api/rest/services/' . $this->id); ?>?_=' + (new Date()).getTime()
+		}).done(function(result) {
+			if (result) {
+				var total_methods = parseInt(result['total_methods'], 10);
+				total_methods = (isNaN(total_methods)) ? 0 : total_methods;
+				
+				$('#total_methods_display').html(total_methods);				
+			}
+		}).error(function(error) {
+			$('.stats-loading').html('<i class="ace-icon fa fa-warning red"></i>');
+		});
+	}
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<?php $this->placeholder('header')->captureStart('SET'); ?>
+<div class="row">
+	<div class="col-xs-8">
+		<h1>			
+			<?php echo $this->formatter()->na($this->service['name']); ?>
+		</h1>
+	</div>
+	<div class="col-xs-4 align-right">
+		<div class="btn-group">
+			<button type="button" class="btn btn-xs btn-inverse dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				Actions
+				<span class="ace-icon fa fa-caret-down icon-only"></span>
+			</button>
+			<ul class="dropdown-menu dropdown-inverse dropdown-white dropdown-menu-right">
+				<?php if ($this->authorization()->isPermitted('Api::Services', 'edit')) { ?>
+				<li>
+					<a href="#edit_service_modal"
+					   data-toggle="modal">
+						<i class="ace-icon fa fa-edit"></i>
+						Edit
+					</a>
+				</li>
+				<?php } ?>
+				<?php if ($this->authorization()->isPermitted('Api::Services', 'delete')) { ?>
+				<li>
+					<a href="#delete_service_modal"
+					   data-toggle="modal">
+						<i class="ace-icon fa fa-trash"></i>
+						Delete
+					</a>
+				</li>
+				<?php } ?>
+			</ul>
+		</div>
+	</div>
+</div>
+<?php $this->placeholder('header')->captureEnd(); ?>
+
+<?php $this->placeholder('content')->captureStart('SET'); ?>
+<div class="row">
+	<div class="col-sm-6">
+		<div class="widget-body">
+			<div class="widget-main padding-12">
+				<div class="row">
+					<div class="col-xs-12 label label-lg label-default align-left">
+						<b>Details</b>
+					</div>
+				</div>
+				<div>
+					<dl class="dl-horizontal">
+						<dt>Name</dt>
+						<dd><?php echo $this->formatter()->na($this->service['name']); ?></dd>
+						<dt>Version</dt>
+						<dd>
+							<?php
+								if(empty($this->service['version'])) {
+									echo '0';
+								} else {
+									echo $this->service['version'];
+								}
+							?>							
+						</dd>
+						<dt>Created</dt>
+						<dd>
+							<?php echo $this->formatter()->date($this->service['ctime']); ?>
+						</dd>
+						<dt>Base URL</dt>
+						<dd>
+							<?php
+								echo $this->url('api/services', array(
+									'service' => $this->service['name'],
+									'version' => (empty($this->service['version'])) ? 0 : $this->service['version']
+								));
+							?>
+						</dd>
+					</dl>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-sm-6">
+		<div class="widget-body">
+			<div class="widget-main padding-12">
+				<div class="row">
+					<div class="col-xs-12 label label-lg label-info align-left">
+						<b>Statistics</b>
+					</div>
+				</div>
+				<div>
+					<dl class="dl-horizontal">
+						<dt># Methods</dt>
+						<dd>
+							<?php echo number_format($this->service['total_methods'], 0); ?>
+						</dd>
+					</dl>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row tabbable">
+	<div class="col-xs-12">
+		<div class="btn-group pull-right bring-front">
+			<button type="button" class="btn btn-xs btn-inverse dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				Tab Actions
+				<span class="ace-icon fa fa-caret-down icon-only"></span>
+			</button>
+			<ul class="dropdown-menu dropdown-inverse dropdown-white dropdown-menu-right">								
+				<?php if ($this->authorization()->isPermitted('Api::ServiceMethods', 'add')) { ?>
+				<li>
+					<a href="#add_service_method_modal" data-toggle="modal">
+						<i class="ace-icon fa fa-plus"></i>
+						Add Method
+					</a>
+				</li>
+				<?php } ?>
+			</ul>
+		</div>
+		
+		<ul class="nav nav-tabs responsive">
+			<li>
+				<a data-toggle="tab" href="#methods_pane" id="methods_a">Methods</a>
+			</li>
+		</ul>
+		<div class="tab-content responsive">
+			<div id="methods_pane" class="tab-pane fade in">
+				<?php include(__DIR__ . "/pane/methods.phtml"); ?>
+			</div>
+		</div>
+	</div>
+</div>
+<?php if ($this->authorization()->isPermitted('Api::Services', 'edit')) { ?>
+<?php include(__DIR__ . "/pane/edit.phtml"); ?>
+<?php } ?>
+<?php if ($this->authorization()->isPermitted('Api::Services', 'delete')) { ?>
+<?php include(__DIR__ . "/pane/delete.phtml"); ?>
+<?php } ?>
+<?php if ($this->authorization()->isPermitted('Api::ServiceMethods', 'add')) { ?>
+<?php include(__DIR__ . "/pane/add-method.phtml"); ?>
+<?php } ?>
+<?php $this->placeholder('content')->captureEnd(); ?>

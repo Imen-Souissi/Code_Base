@@ -1,0 +1,73 @@
+<?php
+$route = $this->route()->getRouteName();
+$controller = $this->route()->getControllerName();
+$action = $this->route()->getAction();
+
+$escaper = new Zend\Escaper\Escaper('utf-8');
+$formatter = $this->formatter();
+?>
+
+<?php $this->placeholder('breadcrumb')->captureStart('APPEND'); ?>
+<li>
+	<a href="<?php echo $this->basePath('search'); ?>">
+		Global Search Result
+	</a>
+</li>
+<?php $this->placeholder('breadcrumb')->captureEnd() ;?>
+
+<?php $this->placeholder('heading')->captureStart('APPEND'); ?>
+Global Search Results
+<?php $this->placeholder('heading')->captureEnd() ;?>
+
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/iframeResizer.min.js'); ?>"></script>
+<!--[if lt IE 9]>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/ie8.polyfils.min.js'); ?>"></script>
+<![endif]-->
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#main_search_tabs li a').first().tab('show');
+	});
+	
+	function focusSearch(name, formname) {
+		formname = formname || 'filter';
+		
+		var iframe = $('#main_search_contents iframe[name="' + name + '"]');
+		$(iframe).contents().find('#keywords').val($('#keywords').val());
+		$(iframe).contents().find('#' + formname).submit();
+	}
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<?php $this->placeholder('content')->captureStart('SET'); ?>
+<div class="row">
+    <div class="col-xs-12">
+        <form action="<?php echo $this->basePath('search'); ?>" class="form-horizontal" method="get">
+            <div class="input-group">
+				<input type="hidden" name="filtering" value="1" />
+                <input type="text" class="keyword form-control" name="keywords" id="keywords" value="<?php echo $escaper->escapeHtml($this->keywords); ?>" placeholder="Search keywords" />
+                <span class="input-group-btn">
+                    <div class="btn-group" style="width: 100px;">
+                        <button class="btn btn-sm btn-primary" type="submit" style="padding: 7px; border-width: 1px;">Search</button>
+						<button data-toggle="dropdown" class="btn btn-sm btn-primary dropdown-toggle" style="padding: 7px; border-width: 1px;">
+							<span class="ace-icon fa fa-caret-down icon-only bigger-110"></span>
+						</button>
+						<ul class="dropdown-menu dropdown-blue" style="right: 0; left: auto;">
+							<?php echo $this->placeholder('search_options'); ?>
+						</ul>
+                    </div>
+                </span>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="space-4"></div>
+
+<ul class="nav nav-tabs" id="main_search_tabs">
+    <?php echo $this->placeholder('search_headers'); ?>
+</ul>
+<div class="tab-content" id="main_search_contents" style="border: none; padding: 5px 0px 0px 0px;">
+    <?php echo $this->layout()->search_widgets; ?>
+</div>
+<?php $this->placeholder('content')->captureEnd(); ?>

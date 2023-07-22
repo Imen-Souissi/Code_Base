@@ -1,0 +1,23 @@
+The API Module provides the capabilities to allow Admins and Users access to manage and view API Keys and Services.  The API Module also makes available any services defined.  Use this guide to help familiar yourself with the API Module and the services it offers.
+
+## Requirements
+The requirements listed here are only needed if you are utilizing the **API** in the same manner as the examples listed under each services.  The requirements here are specifically for **PHP** and **Perl** only.  If you are using a different programming language or set of libraries, you may have to consult with the language and library for further requirements.
+
+### PHP
+- **Zend Framework 2.2.5** - ZF2 library to be use in conjunction with PHP 5.3 or newer
+
+### Perl
+- **perl-libwww-perl** - Provides HTTP and LWP modules
+- **perl-IO-Socket-SSL** - Provides support for SSL (HTTPS).  Will require version newer than 1.31.  To ensure latest version, use the installation command below.
+~~~~
+perl -MCPAN -e 'install IO::Socket::SSL'
+~~~~
+
+## Services
+[content]
+
+[include "documentation/sections/error.txt"]
+
+## Viewing API Keys
+
+## Managing API Keys and Services

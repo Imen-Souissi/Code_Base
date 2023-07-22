@@ -1,0 +1,6 @@
+<?php
+foreach($this->viewModel()->getCurrent()->getChildren() as $menu) {
+	$name = $menu->captureTo();
+	echo $this->{$name};
+}
+?>

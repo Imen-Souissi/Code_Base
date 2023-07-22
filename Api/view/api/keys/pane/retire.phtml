@@ -1,0 +1,132 @@
+<?php
+$route = $this->route()->getRouteName();
+$controller = $this->route()->getControllerName();
+$action = $this->route()->getAction();
+
+$is_view_key = false;
+if($route == 'api/default' && $controller == 'keys' && $action == 'view') {
+	$is_view_key = true;
+}
+?>
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("#retire_key").on('submit', function() {
+			$("#retire_key_message")
+				.show()
+				.removeClass("label-success")
+				.removeClass("label-danger")
+				.addClass("label-default")
+				.html("Retiring key...");
+			
+			$.ajax({
+				type: 'POST',
+				url: '<?php echo $this->basePath('api/keys/retire/'); ?>' + $("#retire_key_id").val()
+			}).done(function(data) {
+				$("#retire_key_message")
+					.removeClass("label-default")
+					.addClass("label-success")
+					.html("Successfully retired key");
+				
+				<?php if ($is_view_key) { ?>
+				// reload this page
+				window.location = '<?php echo $this->basePath('api/keys/'); ?>';
+				<?php } else { ?>
+				setTimeout(function() {
+					$("#retire_key_message").hide();						
+					$("#retire_key_modal").modal('hide');
+					
+					if ($.fn.DataTable.isDataTable('#keys')) {
+						$("#keys").dataTable().api().ajax.reload();
+					}
+				}, 1000);
+				<?php } ?>
+			}).fail(function(error) {
+				if (error.responseJSON && error.responseJSON['error']) {
+					error = error.responseJSON['error'];
+				} else {
+					error = 'Unable to retire key, try again';
+				}
+				
+				$("#retire_key_message")
+					.removeClass("label-default")
+					.addClass("label-danger")
+					.html(error);
+			});
+			
+			// prevent the page submit
+			return false;
+		});
+	});
+	
+	function retireKey(row) {
+		$("#retire_key_message").hide();
+		var data = $("#keys").dataTable().fnGetData(row);
+		if (data) {
+			$("#retire_key_id").val(data.id);
+            $('#retire_key_user_value').html(data.user);
+			$("#retire_key_key_value").html(data.key);
+			
+			$('#retire_key_modal').modal('show');
+		}
+	}
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<div id="retire_key_modal" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header no-padding">
+				<div class="table-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						<span class="white">&times;</span>
+					</button>
+					Retire Key
+				</div>
+			</div>
+			<form id="retire_key" class="form-horizontal">
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="alert alert-warning">
+								Are you sure?  Click <strong>Retire</strong> to proceed and retire this key.
+							</div>
+							<input type="hidden" id="retire_key_id" name="id" value="<?php echo ($is_view_key) ? $this->key['id'] : ''; ?>" />
+                            <div class="profile-user-info">
+								<div class="profile-info-row">
+									<div class="profile-info-name"> User </div>
+									<div class="profile-info-value">
+										<span id="retire_key_user_value"><?php echo ($is_view_key) ? $this->key['user'] : ''; ?></span>
+									</div>
+								</div>
+							</div>
+							<div class="profile-user-info">
+								<div class="profile-info-row">
+									<div class="profile-info-name"> Key </div>
+									<div class="profile-info-value">
+										<span id="retire_key_key_value"><?php echo ($is_view_key) ? $this->key['key'] : ''; ?></span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="space-6"></div>
+				<div class="modal-footer">
+					<button class="btn btn-sm pull-left"
+							type="button"
+							data-dismiss="modal">
+						<i class="ace-icon fa fa-remove bigger-125"></i>
+						Cancel
+					</button>
+					<button class="btn btn-sm btn-danger pull-left"
+							type="submit">
+						<i class="ace-icon fa fa-eye-slash bigger-125"></i>
+						Retire
+					</button>
+					<div id="retire_key_message" style="display: none;" class="pull-right label label-default"></div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

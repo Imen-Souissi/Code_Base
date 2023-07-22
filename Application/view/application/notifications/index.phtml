@@ -1,0 +1,87 @@
+<?php include(__DIR__ . "/layout/layout.phtml"); ?>
+
+<?php $this->placeholder('header')->captureStart('SET'); ?>
+<h1>Notifications</h1>
+<?php $this->placeholder('header')->captureEnd(); ?>
+
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("#select_all").on('click', function(e) {
+			if ($(this).is(':checked')) {
+				$("#notifications .notif-cb").prop('checked', true);
+			} else {
+				$("#notifications .notif-cb").prop('checked', false);
+			}
+		});
+
+		// convert all date to local timezone
+		$('.local-date').each(function(i, ele) {
+			$(ele).text(moment.tz($(ele).text(), 'America/Los_Angeles').local().format('MMM D, YYYY h:00 A')).removeClass('hidden');
+		});
+	});
+
+	function removeNotification(id) {
+		$("#notifications .notif-cb").prop('checked', false);
+		$('#remove_' + id).prop('checked', true);
+		$("#notifications").submit();
+	}
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<?php $this->placeholder('content')->captureStart('SET'); ?>
+<div class="widget-body">
+	<div class="widget-main padding-4">
+		<h4 class="smaller lighter blue">
+			<i class="ace-icon fa fa-bell"></i>
+			Showing all <?php echo $this->notifications->count(); ?> notifications
+		</h4>
+
+		<div class="table-header">
+			<input type="checkbox" class="ace" id="select_all" /> <span class="lbl">Select All</span>
+		</div>
+		<form id="notifications" action="<?php echo $this->basePath('application/notifications/'); ?>" method="post">
+			<ul class="item-list">
+				<?php foreach($this->notifications as $notification) { ?>
+                    <?php
+                        if($notification->level == 5) {
+                            $color = 'red';
+                        } else if($notification->level == 4) {
+                            $color = 'orange';
+                        } else if($notification->level == 3) {
+                            $color = 'blue';
+                        } else if($notification->level == 2) {
+                            $color = 'green';
+                        } else {
+                            $color = 'grey';
+                        }
+                    ?>
+                    <li class="item-<?php echo $color; ?> clearfix">
+						<input type="checkbox" class="ace notif-cb" id="remove_<?php echo $notification->id; ?>" name="remove[]" value="<?php echo $notification->id; ?>" />
+						<span class="lbl">
+							<a href="<?php echo (substr($notification->url, 0, 1) == "/") ? $notification->url : $this->basePath($notification->url);?>" class="<?php echo $color; ?>">
+                                <?php echo $notification->title; ?>
+								on
+								<span class="local-date hidden"><?php echo $this->formatter()->date($notification->ctime); ?></span>
+							</a>
+						</span>
+						<div class="pull-right action-buttons">
+							<a href="javascript: removeNotification('<?php echo $notification->id; ?>')" title="Remove" class="red">
+								<i class="ace-icon fa fa-close bigger-130"></i>
+							</a>
+						</div>
+					</li>
+				<?php } ?>
+			</ul>
+
+			<div class="space-4"></div>
+
+			<div class="row no-padding no-margin">
+				<button class="btn btn-sm btn-danger" <?php echo ($this->notifications->count() == 0) ? "disabled" : ""; ?>>
+					Remove Selected
+				</button>
+			</div>
+		</form>
+	</div>
+</div>
+<?php $this->placeholder('content')->captureEnd(); ?>

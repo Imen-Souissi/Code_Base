@@ -1,0 +1,53 @@
+<?php $this->placeholder('bodyclass')->set('no-skin'); ?>
+
+<?php $this->placeholder('prescript')->captureStart('SET'); ?>
+	<script type="text/javascript" src="<?php echo $this->basePath('assets/js/ace-extra.min.js'); ?>"></script>
+	<?php echo $this->placeholder('prescript'); ?>
+<?php $this->placeholder('prescript')->captureEnd(); ?>
+
+<?php $this->placeholder('style')->captureStart('SET'); ?>
+	<link href="<?php echo $this->basePath('d-assets/all.css'); ?>" rel="stylesheet" type="text/css" />
+	<?php echo $this->placeholder('style'); ?>
+<?php $this->placeholder('style')->captureEnd(); ?>
+
+<?php $this->placeholder('script')->captureStart('SET'); ?>
+	<script type="text/javascript" src="<?php echo $this->basePath('d-assets/all.js'); ?>"></script>
+	
+	<?php echo $this->placeholder('pre-ace-script'); ?>
+	
+	<script type="text/javascript" src="<?php echo $this->basePath('assets/js/ace-elements.min.js'); ?>"></script>
+	<script type="text/javascript" src="<?php echo $this->basePath('assets/js/ace.min.js'); ?>"></script>
+	<?php echo $this->placeholder('script'); ?>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<?php
+$route = $this->route()->getRouteName();
+$routeactive = ($route == "application") ? 'active' : '';
+$routeopen = ($routeactive == 'active') ? 'open' : '';
+$routehover = ($routeactive == 'active') ? 'hover' : '';
+?>
+
+<?php $this->placeholder('content')->captureStart('SET'); ?>
+<div class="main-container" id="main-container">
+	<script type="text/javascript">
+		try{ace.settings.check('main-container' , 'fixed')}catch(e){}
+	</script>
+	
+	<div class="main-content">
+		<div class="main-content-inner">
+			<?php echo $this->placeholder('settings'); ?>
+			<div class="page-content <?php echo ($this->layout_type == 'h') ? '': ''; ?>">
+				<div class="row">
+					<div class="col-xs-12">
+						<!-- PAGE CONTENT BEGINS -->
+						<?php echo $this->placeholder('content'); ?>
+						<!-- PAGE CONTENT ENDS -->
+					</div><!-- /.col -->
+				</div><!-- /.row -->
+			</div><!-- /.page-content -->
+		</div>		
+	</div><!-- /.main-content -->
+</div><!-- /.main-container -->
+<?php $this->placeholder('content')->captureEnd(); ?>
+
+<?php include("base.phtml"); ?>
