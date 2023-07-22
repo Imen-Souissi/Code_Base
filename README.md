@@ -1,6 +1,6 @@
 # Code_Base
 Project Code
-
+The following modules has been added : API, Application, Auth, Contract, Brics, Ticket and Power
 ======================================
 
 Improved Notes:
@@ -8,9 +8,9 @@ Improved Notes:
 ======================================
 Landing Page:
 - Two different navbars: 
-  1. For the landing page: simple.phtml
-  2. For the dashboard page: layout.phtml
-- Landing page content: indexLandPAGE.PHTML
+  1. For the landing page: refer to the view layer: simple.phtml
+  2. For the dashboard page: refer to the view layer layout.phtml
+- Landing page content: refer to the view layer indexLandPAGE.PHTML
 
 Dashboard:
 - Created dashboard and necessary REST files.
