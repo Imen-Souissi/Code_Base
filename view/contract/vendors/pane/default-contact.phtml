@@ -1,0 +1,151 @@
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("#default_contact").on('submit', function() {
+			$("#default_contact_message")
+				.show()
+				.removeClass("label-success")
+				.removeClass("label-danger")
+				.addClass("label-default")
+				.html("Marking as default contact...");
+			
+			$.ajax({
+				type: 'POST',
+				url: '<?php echo $this->basePath('contract/vendors/default-contact/'); ?>',
+				data: { id: $("#default_contact_id").val() }
+			}).done(function(data) {
+				$("#default_contact_message")
+					.removeClass("label-default")
+					.addClass("label-success")
+					.html("Successfully marked as default contact");
+				
+				setTimeout(function() {
+					$("#default_contact_message").hide();					
+					$("#default-contact-modal").modal('hide');
+					
+					if($.fn.DataTable.isDataTable('#contacts')) {
+                        // reload the contacts table
+                        $("#contacts").dataTable().api().ajax.reload();
+                    }
+				}, 1000);
+			}).fail(function(error) {
+                if (error.responseJSON && error.responseJSON['error']) {
+                    error = error.responseJSON['error'];
+                } else {
+                    error = 'Unable to mark as default contact, try again';
+                }
+				
+				$("#default_contact_message")
+					.removeClass("label-default")
+					.addClass("label-danger")
+					.html(error);
+			});
+			
+			// prevent the page submit
+			return false;
+		});
+	});
+	
+	function defaultContact(row) {
+		$("#default_contact_message").hide();
+		var data = $("#contacts").dataTable().fnGetData(row);
+		if (data) {
+			$("#default_contact_id").val(data.id);
+			$("#default_contact_description").html(data.description);
+			$("#default_contact_phone_number").html(data.phone_number);
+			$("#default_contact_email").html(data.email);
+			$("#default_contact_url").html(data.url);
+			$("#default_contact_notes").html(data.notes);
+			
+			$('#default-contact-modal').modal('show');
+		}
+	}
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<div id="default-contact-modal" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header no-padding">
+				<div class="table-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						<span class="white">&times;</span>
+					</button>
+					Mark as Default Support Contact
+				</div>
+			</div>
+			<form id="default_contact" class="form-horizontal">
+				<div class="modal-body">				
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="alert alert-warning">
+								Are you sure?  Click <strong>Mark as Default</strong> to proceed and mark as default this support contact.
+							</div>
+							<input type="hidden" id="default_contact_id" name="default_contact_id" value="" />
+							<div class="profile-user-info">
+								<div class="profile-info-row">
+									<div class="profile-info-name"> Description </div>
+									<div class="profile-info-value">
+										<span id="default_contact_description">
+										</span>
+									</div>
+								</div>
+							</div>
+							<div class="profile-user-info">
+								<div class="profile-info-row">
+									<div class="profile-info-name"> Phone Number </div>
+									<div class="profile-info-value">
+										<span id="default_contact_phone_number">
+										</span>
+									</div>
+								</div>
+							</div>
+							<div class="profile-user-info">
+								<div class="profile-info-row">
+									<div class="profile-info-name"> Email </div>
+									<div class="profile-info-value">
+										<span id="default_contact_email">
+										</span>
+									</div>
+								</div>
+							</div>
+							<div class="profile-user-info">
+								<div class="profile-info-row">
+									<div class="profile-info-name"> URL </div>
+									<div class="profile-info-value">
+										<span id="default_contact_url">
+										</span>
+									</div>
+								</div>
+							</div>
+							<div class="profile-user-info">
+								<div class="profile-info-row">
+									<div class="profile-info-name"> Notes </div>
+									<div class="profile-info-value">
+										<span id="default_contact_notes">
+										</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="space-6"></div>
+				<div class="modal-footer">
+					<button class="btn btn-sm pull-left"
+							type="button"
+							data-dismiss="modal">
+						<i class="ace-icon fa fa-remove bigger-125"></i>
+						Cancel
+					</button>
+					<button class="btn btn-sm btn-success pull-left"
+							type="submit">
+						<i class="ace-icon fa fa-check bigger-125"></i>
+						Mark as Default
+					</button>
+					<div id="default_contact_message" style="display: none;" class="pull-right label label-default"></div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

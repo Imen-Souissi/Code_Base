@@ -1,0 +1,155 @@
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("#remove_device").on('submit', function() {
+			$("#remove_device_message")
+				.show()
+				.removeClass("label-success")
+				.removeClass("label-danger")
+				.addClass("label-default")
+				.html("Removing device...");
+			
+			$.ajax({
+				type: 'POST',
+				url: '<?php echo $this->basePath('contract/contracts/remove-device/'); ?>',
+				data: { id: $("#remove_device_id").val() }
+			}).done(function(data) {
+				$("#remove_device_message")
+					.removeClass("label-default")
+					.addClass("label-success")
+					.html("Successfully removed device");
+				
+				setTimeout(function() {
+					$("#remove_device_message").hide();					
+					$("#remove-device-modal").modal('hide');
+					
+					if($.fn.DataTable.isDataTable('#devices')) {
+                        // reload the devices table
+                        $("#devices").dataTable().api().ajax.reload();
+                    }
+				}, 1000);
+			}).fail(function(error) {
+                if (error.responseJSON && error.responseJSON['error']) {
+                    error = error.responseJSON['error'];
+                } else {
+                    error = 'Unable to remove device, try again';
+                }
+				
+				$("#remove_device_message")
+					.removeClass("label-default")
+					.addClass("label-danger")
+					.html(error);
+			});
+			
+			// prevent the page submit
+			return false;
+		});
+	});
+	
+	function removeDevice(row) {
+		$("#remove_device_message").hide();
+		var data = $("#devices").dataTable().fnGetData(row);
+		if (data) {
+			var infodot = data.infodot;
+			var serial = data.serial;
+			var asset = data.asset;
+
+			if(infodot == null || infodot == '') {
+				infodot = 'N/A';
+			}
+			if(serial == null || serial == '') {
+				serial = 'N/A';
+			}
+			if(asset == null || asset == '') {
+				asset = 'N/A';
+			}
+			
+			$("#remove_device_id").val(data.id);
+			$("#remove_device_infodot").html(infodot);
+			$("#remove_device_serial").html(serial);
+			$("#remove_device_asset").html(asset);
+			$("#remove_device_notes").html(data.notes);
+			
+			$('#remove-device-modal').modal('show');
+		}
+	}
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<div id="remove-device-modal" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header no-padding">
+				<div class="table-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						<span class="white">&times;</span>
+					</button>
+					Remove Device
+				</div>
+			</div>
+			<form id="remove_device" class="form-horizontal">
+				<div class="modal-body">				
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="alert alert-warning">
+								Are you sure?  Click <strong>Remove</strong> to proceed and remove this device.
+							</div>
+							<input type="hidden" id="remove_device_id" name="id" value="" />
+							<div class="profile-user-info">
+								<div class="profile-info-row">
+									<div class="profile-info-name"> Infodot </div>
+									<div class="profile-info-value">
+										<span id="remove_device_infodot">
+										</span>
+									</div>
+								</div>
+							</div>
+							<div class="profile-user-info">
+								<div class="profile-info-row">
+									<div class="profile-info-name"> Serial </div>
+									<div class="profile-info-value">
+										<span id="remove_device_serial">
+										</span>
+									</div>
+								</div>
+							</div>
+							<div class="profile-user-info">
+								<div class="profile-info-row">
+									<div class="profile-info-name"> Asset Tag </div>
+									<div class="profile-info-value">
+										<span id="remove_device_asset">
+										</span>
+									</div>
+								</div>
+							</div>
+							<div class="profile-user-info">
+								<div class="profile-info-row">
+									<div class="profile-info-name"> Notes </div>
+									<div class="profile-info-value">
+										<span id="remove_device_notes">
+										</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="space-6"></div>
+				<div class="modal-footer">
+					<button class="btn btn-sm pull-left"
+							type="button"
+							data-dismiss="modal">
+						<i class="ace-icon fa fa-remove bigger-125"></i>
+						Cancel
+					</button>
+					<button class="btn btn-sm btn-danger pull-left"
+							type="submit">
+						<i class="ace-icon fa fa-trash bigger-125"></i>
+						Remove
+					</button>
+					<div id="remove_device_message" style="display: none;" class="pull-right label label-default"></div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

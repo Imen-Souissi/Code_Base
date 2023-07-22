@@ -1,0 +1,189 @@
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#edit_contact').on('submit', function() {
+			var id = $("#edit_contact_id").val();
+			var description = $("#edit_contact_description").val();
+			var phone_number = $("#edit_contact_phone_number").val();
+			var email = $("#edit_contact_email").val();
+			var url = $("#edit_contact_url").val();
+			var notes = $("#edit_contact_notes").val();
+			
+			$("#edit_contact_message")
+				.show()
+				.removeClass("label-success")
+				.removeClass("label-danger")
+				.addClass("label-default")
+				.html("Editing support contact...");
+			
+			$.ajax({
+				type: 'POST',
+				url: '<?php echo $this->basePath('contract/vendors/edit-contact/'); ?>',
+				data: { 
+					id: id, 
+					description: description,
+					phone_number: phone_number,
+					email: email,
+					url: url,
+					notes: notes
+				}
+			}).done(function(data) {
+				if (data.status == 1) {
+					$("#edit_contact_message")
+						.removeClass("label-default")
+						.addClass("label-success")
+						.html("Successfully edited support contact");
+					
+					setTimeout(function() {
+						$("#edit_contact_message").hide();
+						
+						$("#edit-contact-modal").modal('hide');
+						reloadContactsTable();
+					}, 1000);
+				} else {
+					$("#edit_contact_message")
+						.removeClass("label-default")
+						.addClass("label-danger");
+						
+					if (data.error) {
+						if ($.isArray(data.error)) {
+							$("#edit_contact_message").html(data.error.join('<br />'));
+						} else {
+							$("#edit_contact_message").html(data.error);
+						}
+					} else {
+						$("#edit_contact_message").html("Unable to edit support contact, please try again");
+					}
+				}
+			}).fail(function(error) {
+				$("#edit_contact_message")
+					.removeClass("label-default")
+					.addClass("label-danger")
+					.html("Unable to edit support contact, please try again");
+			});
+			
+			// prevent the page submit
+			return false;
+		});
+	});
+	
+	function editContact(row) {
+		$("#edit_contact_message").hide();
+		var data = $("#contacts").dataTable().fnGetData(row);
+		if (data) {
+			$("#edit_contact_id").val(data.id);
+			$("#edit_contact_description").val(data.description);
+			$("#edit_contact_phone_number").val(data.phone_number);
+			$("#edit_contact_email").val(data.email);
+			$("#edit_contact_url").val(data.url);
+			$("#edit_contact_notes").val(data.notes);
+					
+			$('#edit-contact-modal').modal('show');
+		}
+	}
+	
+	function reloadContactsTable() {
+		$("#contacts").dataTable().api().ajax.reload();
+	}
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<div id="edit-contact-modal" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header no-padding">
+				<div class="table-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						<span class="white">&times;</span>
+					</button>
+					Edit Support Contact
+				</div>
+			</div>
+			<form id="edit_contact" class="form-horizontal">
+				<div class="modal-body no-padding">				
+					<div class="row no-padding no-margin">
+						<div class="alert alert-warning">
+							All fields with an <i class="ace-icon fa fa-asterisk red"></i> are required.
+						</div>
+					</div>
+					<input type='hidden' id='edit_contact_id' name='edit_contact_id'>
+					<div class="form-group">
+						<label class="col-sm-3 control-label no-padding-right" for="edit_contact_description">Description </label>
+						<div class="col-sm-8">
+							<span class="block input-icon input-icon-right">
+								<input type="text"
+									   id="edit_contact_description"
+									   name="edit_contact_description"
+									   placeholder="Description"
+									   class="width-100" />
+							</span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-3 control-label no-padding-right" for="edit_contact_phone_number">Phone Number </label>
+						<div class="col-sm-8">
+							<span class="block input-icon input-icon-right">
+								<input type="text"
+									   id="edit_contact_phone_number"
+									   name="edit_contact_phone_number"
+									   placeholder="Phone Number"
+									   class="width-100" />
+							</span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-3 control-label no-padding-right" for="edit_contact_email">Email </label>
+						<div class="col-sm-8">
+							<span class="block input-icon input-icon-right">
+								<input type="text"
+									   id="edit_contact_email"
+									   name="edit_contact_email"
+									   placeholder="Email"
+									   class="width-100" />
+							</span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-3 control-label no-padding-right" for="edit_contact_url">URL </label>
+						<div class="col-sm-8">
+							<span class="block input-icon input-icon-right">
+								<input type="text"
+									   id="edit_contact_url"
+									   name="edit_contact_url"
+									   placeholder="Support portal"
+									   class="width-100" />
+							</span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-3 control-label no-padding-right" for="edit_contact_notes">Notes </label>
+						<div class="col-sm-8">
+							<span class="block input-icon input-icon-right">
+								<textarea
+									   id="edit_contact_notes"
+									   name="edit_contact_notes"
+									   placeholder="Notes"
+									   class="width-100"></textarea>
+							</span>
+						</div>
+					</div>
+				</div>
+				<div class="space-6"></div>
+				<div class="modal-footer">
+					<button class="btn btn-sm pull-left"
+							type="button"
+							data-dismiss="modal">
+						<i class="ace-icon fa fa-remove bigger-125"></i>
+						Cancel
+					</button>
+					<button class="btn btn-sm btn-primary pull-left"
+							type="submit">
+						<i class="ace-icon fa fa-check bigger-125"></i>
+						Submit
+					</button>
+					<div id="edit_contact_message" style="display: none;" class="pull-right label label-default"></div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

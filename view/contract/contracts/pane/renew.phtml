@@ -1,0 +1,93 @@
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript">
+	function renewContract(row) {
+		$("#renew_contract_message").hide();
+		
+		var data = $("#contracts").dataTable().fnGetData(row);
+		$("#renew_contract_type").html(data.type);
+		$("#renew_contract_vendor").html(data.vendor);
+		$("#renew_contract_description").html(data.description);
+		$("#renew_submit").attr("href",'<?php echo $this->basePath('contract/contracts/renew/'); ?>'+data.id);
+
+		$('#renew-contract-modal').modal('show');
+	}
+
+	function renewContractView() {
+		$("#renew_contract_message").hide();
+		
+		$("#renew_contract_type").html('<?php echo htmlspecialchars($this->type); ?>');
+		$("#renew_contract_vendor").html('<?php echo htmlspecialchars($this->vendor); ?>');
+		$("#renew_contract_description").html('<?php echo htmlspecialchars($this->description); ?>');
+		$("#renew_submit").attr("href",'<?php echo $this->basePath('contract/contracts/renew/'.$this->id); ?>');
+
+		$('#renew-contract-modal').modal('show');
+	}
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<div id="renew-contract-modal" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header no-padding">
+				<div class="table-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						<span class="white">&times;</span>
+					</button>
+					Renew Contract
+				</div>
+			</div>
+			<div class="modal-body">				
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="alert alert-warning">
+							Are you sure?  Click <strong>Renew</strong> to proceed and renew this contract.
+						</div>
+						<div class="profile-user-info">
+							<div class="profile-info-row">
+								<div class="profile-info-name"> Type </div>
+								<div class="profile-info-value">
+									<span id="renew_contract_type">
+									</span>
+								</div>
+							</div>
+						</div>
+						<div class="profile-user-info">
+							<div class="profile-info-row">
+								<div class="profile-info-name"> Vendor </div>
+								<div class="profile-info-value">
+									<span id="renew_contract_vendor">
+									</span>
+								</div>
+							</div>
+						</div>
+						<div class="profile-user-info">
+							<div class="profile-info-row">
+								<div class="profile-info-name"> Description </div>
+								<div class="profile-info-value">
+									<span id="renew_contract_description">
+									</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="space-6"></div>
+			<div class="modal-footer">
+				<button class="btn btn-sm pull-left"
+						type="button"
+						data-dismiss="modal">
+					<i class="ace-icon fa fa-remove bigger-125"></i>
+					Cancel
+				</button>
+				<a class="btn btn-sm btn-success pull-left"
+						href="#"
+						id="renew_submit">
+					<i class="ace-icon fa fa-check bigger-125"></i>
+					Renew
+				</a>
+				<div id="renew_contract_message" style="display: none;" class="pull-right label label-default"></div>
+			</div>
+		</div>
+	</div>
+</div>

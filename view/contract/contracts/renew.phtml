@@ -1,0 +1,496 @@
+<?php include(__DIR__ . "/layout/layout.phtml"); ?>
+
+<?php $this->placeholder('breadcrumb')->captureStart('APPEND'); ?>
+<li>
+	<a href="<?php echo $this->basePath('contract/contracts/view/'.$this->id); ?>"><?php echo "{$this->contract_number} ({$this->vendor})" ; ?></a>
+</li>
+<?php $this->placeholder('breadcrumb')->captureEnd(); ?>
+
+<?php $this->placeholder('header')->captureStart('SET'); ?>
+<div class="row">
+	<div class="col-sm-8">
+		<h1>
+			Contracts
+			<small>
+				<i class="ace-icon fa fa-angle-double-right"></i>
+				Renew Contract
+			</small>
+		</h1>
+	</div>
+</div>
+<?php $this->placeholder('header')->captureEnd(); ?>
+
+<?php $this->placeholder('style')->captureStart(); ?>
+<style type="text/css">
+	div.hide-on-start {
+		display: none;
+	}
+</style>
+<?php $this->placeholder('style')->captureEnd(); ?>
+
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/jquery-ui.custom.min.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/jquery.ui.touch-punch.min.js'); ?>"></script>
+<script type="text/javascript">
+	var status_id_active = 1;
+
+	$(document).ready(function() {
+		// initialize the complex selects
+		var renew_contract_selects = [{
+			id: 'type_id',
+			url: '<?php echo $this->basePath("contract/rest/contract-types/"); ?>',
+			display: 'name',
+			onData: function(data) {
+				data['active'] = 1;
+			}
+		}, {
+			id: 'vendor_id',
+			url: '<?php echo $this->basePath("contract/rest/vendors/"); ?>',
+			display: 'name',
+			onData: function(data) {
+				data['active'] = 1;
+			}
+		}, {
+			id: 'status_id',
+			url: '<?php echo $this->basePath("contract/rest/contract-statuses/"); ?>',
+			display: 'name',
+			onData: function(data) {
+				data['active'] = 1;
+				data['user_selectable'] = 1;
+			}
+		}, {
+			id: 'payment_schedule_id',
+			url: '<?php echo $this->basePath("contract/rest/payment-schedules/"); ?>',
+			display: 'name',
+			onData: function(data) {
+			}
+		}, {
+			id: 'notification_schedule_id',
+			url: '<?php echo $this->basePath("contract/rest/notification-schedules/"); ?>',
+			display: 'name',
+			onData: function(data) {
+			}
+		}, {
+			id: 'department_id',
+			url: '<?php echo $this->basePath("hr/rest/hr-depts/"); ?>',
+            display: 'display_name'
+		}, {
+			id: 'requestor_id',
+			url: '<?php echo $this->basePath('hr/rest/hr-users/'); ?>',
+			display: 'display_name',
+			onData: function(d) {
+				d['terminated'] = 0;
+			}
+		}];
+
+		$.select2_utils.create(renew_contract_selects, 25);
+
+		$("#status_id").select2('val', status_id_active);
+
+		var renew_contract_selects_2 = [{
+			id: 'notification_users',
+			url: '<?php echo $this->basePath('hr/rest/hr-users/'); ?>',
+			display: 'display_name',
+			onData: function(d) {
+				d['terminated'] = 0;
+			}
+		}];
+		
+		$.select2_utils.create(renew_contract_selects_2, 25, {
+			multiple: true
+		});
+
+		$("#end_date_add_year").click(function() {
+			endDateYearIncrement(1);
+		});
+
+		$("#end_date_subtract_year").click(function() {
+			endDateYearIncrement(-1);
+		});
+
+		$('.date-picker').datepicker({
+			autoclose: true,
+			todayHighlight: true,
+			format: 'M d, yyyy'
+		});
+
+		var date1 = '<?php echo $this->start_date; ?>';
+		if(date1 !== '') {
+			date1 = new Date(date1);
+			date1.setDate(date1.getDate() + 1);
+			$('#start_date').datepicker('setDate', date1);
+		}
+		
+		var date2 = '<?php echo $this->end_date; ?>';
+		if(date2 !== '') {
+			date2 = new Date(date2);
+			date2.setDate(date2.getDate() + 1);
+			$('#end_date').datepicker('setDate', date2);
+		}
+		
+		$('#renew_contract').on('submit', function() {
+			var vendor_id = $('#vendor_id').val();
+			var type_id = $('#type_id').val();
+			var status_id = $('#status_id').val();
+			var department_id = $('#department_id').val();
+			var start_date = $('#start_date').val();
+			var end_date = $('#end_date').val();
+			var payment_schedule_id = $('#payment_schedule_id').val();
+			
+			var isError = 0;
+
+			var errors = "<ul>";
+			if(vendor_id=='') {
+				errors += "<li>Missing Vendor</li>";
+				isError = 1;
+			}
+			if(type_id=='') {
+				errors += "<li>Missing Contract Type</li>";
+				isError = 1;
+			}
+			if(status_id=='') {
+				errors += "<li>Missing Contract Status</li>";
+				isError = 1;
+			}
+			if(department_id=='') {
+				errors += "<li>Missing Department</li>";
+				isError = 1;
+			}
+			if(start_date=='') {
+				errors += "<li>Missing Start Date</li>";
+				isError = 1;
+			}
+			if(end_date=='') {
+				errors += "<li>Missing End Date</li>";
+				isError = 1;
+			}
+			if(payment_schedule_id=='') {
+				errors += "<li>Missing Payment Schedule</li>";
+				isError = 1;
+			}
+			
+			errors += '</ul>';
+
+			if(isError == 1) {
+				$("#error_msg_body").html(errors);
+				$("#error_msg").show();
+				return false;
+			}
+			else {
+				$("#error_msg").hide();
+			}
+		});
+	});
+
+	function endDateYearIncrement(years) {
+		var date;
+
+		if($('#end_date').val() != '') {
+			date = new Date($('#end_date').datepicker('getDate'));
+		}
+		else if($('#start_date').val() != '') {
+			date = new Date($('#start_date').datepicker('getDate'));
+			date.setDate(date.getDate() - 1);
+		}
+		else {
+			date = new Date();
+			date.setDate(date.getDate() - 1);
+		}
+
+		date.setFullYear(date.getFullYear()+years);
+
+		$('#end_date').datepicker('setDate', date);
+	}
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<?php $this->placeholder('content')->captureStart('SET'); ?>
+<div class="row no-margin">
+	<div class="widget-body no-padding">
+		<div class="widget-table no-padding">
+			<div class="alert alert-danger hide-on-start" id='error_msg'>
+				<strong>
+					<i class="ace-icon fa fa-times"></i>
+					Error
+				</strong>
+				<span id='error_msg_body'></span>
+			</div>
+			
+			<div class="alert alert-info">
+				Values have been copied over from previous contract where applicable. Please verify and make any necessary changes.
+			</div>
+			
+			<form id="renew_contract" method="POST" class="form-horizontal">
+				<div class="form-group">
+					<label class="col-sm-3 control-label no-padding-right" for="vendor_id">Vendor </label>
+					<div class="col-sm-5" style="padding-top:7px;">
+						<span class="block input-icon input-icon-right">
+							<input type="text"
+								   name="vendor_id"
+								   id="vendor_id"
+								   placeholder="Vendor"
+								   value="<?php echo $this->vendor_id; ?>"
+								   class="width-100" />
+							<i class="ace-icon fa fa-asterisk red" style="margin-right: 15px;"></i>
+						</span>
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<label class="col-sm-3 control-label no-padding-right" for="type_id">Type </label>
+					<div class="col-sm-5" style="padding-top:7px;">
+						<span class="block input-icon input-icon-right">
+							<input type="text"
+								   name="type_id"
+								   id="type_id"
+								   placeholder="Contract Type"
+								   value="<?php echo $this->type_id; ?>"
+								   class="width-100" />
+							<i class="ace-icon fa fa-asterisk red" style="margin-right: 15px;"></i>
+						</span>
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<label class="col-sm-3 control-label no-padding-right" for="status_id">Status </label>
+					<div class="col-sm-5" style="padding-top:7px;">
+						<span class="block input-icon input-icon-right">
+							<input type="text"
+								   name="status_id"
+								   id="status_id"
+								   placeholder="Status"
+								   value="<?php echo $this->status_id; ?>"
+								   class="width-100" />
+							<i class="ace-icon fa fa-asterisk red" style="margin-right: 15px;"></i>
+						</span>
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<label class="col-sm-3 control-label no-padding-right" for="contract_number">Account Number </label>
+					<div class="col-sm-5">
+						<input type="text" 
+							   name="account_number"
+							   id="account_number"
+							   placeholder="Account Number"
+							   value="<?php echo $this->account_number; ?>"
+							   class="width-100" />
+					</div>		
+				</div>
+
+				<div class="form-group">
+					<label class="col-sm-3 control-label no-padding-right" for="contract_number">Contract Number </label>
+					<div class="col-sm-5">
+						<input type="text" 
+							   name="contract_number"
+							   id="contract_number"
+							   placeholder="Contract Number"
+							   value="<?php echo $this->contract_number; ?>"
+							   class="width-100" />
+					</div>		
+				</div>
+
+				<div class="form-group">
+					<label class="col-sm-3 control-label no-padding-right" for="pr">PR </label>
+					<div class="col-sm-5">
+						<input type="text" 
+							   name="pr"
+							   id="pr"
+							   placeholder="PR"
+							   value="<?php echo $this->pr; ?>"
+							   class="width-100" />
+					</div>		
+				</div>
+
+				<div class="form-group">
+					<label class="col-sm-3 control-label no-padding-right" for="po">PO </label>
+					<div class="col-sm-5">
+						<input type="text" 
+							   name="po"
+							   id="po"
+							   placeholder="PO"
+							   value="<?php echo $this->po; ?>"
+							   class="width-100" />
+					</div>		
+				</div>
+
+				<div class="form-group">
+					<label class="col-sm-3 control-label no-padding-right" for="ppd_category">PPD Category </label>
+					<div class="col-sm-5">
+						<input type="text" 
+							   name="ppd_category"
+							   id="ppd_category"
+							   placeholder="PPD Category"
+							   value="<?php echo $this->ppd_category; ?>"
+							   class="width-100" />
+					</div>		
+				</div>
+													
+				<div class="form-group">
+					<label class="col-sm-3 control-label no-padding-right" for="department_id">Department </label>
+					<div class="col-sm-5" style="padding-top:7px;">
+						<span class="block input-icon input-icon-right">
+							<input type="text"
+								   id="department_id"
+								   name="department_id"
+								   placeholder="Department"
+								   value="<?php echo $this->department_id; ?>"
+								   class="width-100" />
+							<i class="ace-icon fa fa-asterisk red" style="margin-right: 15px;"></i>
+						</span>
+					</div>
+				</div>
+								
+				<div class="form-group">
+					<label class="col-sm-3 control-label no-padding-right" for="requestor_id">Requestor </label>
+					<div class="col-sm-5" style="padding-top:7px;">
+						<span class="block input-icon input-icon-right">
+							<input type="text"
+								   id="requestor_id"
+								   name="requestor_id"
+								   placeholder="Requestor"
+								   value="<?php echo $this->requestor_id; ?>"
+								   class="width-100" />
+						</span>
+					</div>
+				</div>
+								
+				<div class="form-group">
+					<label class="col-sm-3 control-label no-padding-right" for="project">Project </label>
+					<div class="col-sm-5" style="padding-top:7px;">
+						<span class="block input-icon input-icon-right">
+							<input type="text"
+								   id="project"
+								   name="project"
+								   placeholder="Project"
+								   value="<?php echo $this->project; ?>"
+								   class="width-100" />
+						</span>
+					</div>
+				</div>
+			
+				<div class="form-group">
+					<label class="col-sm-3 control-label no-padding-right" for="description">Description </label>
+					<div class="col-sm-5">
+						<input type="text" 
+							   name="description"
+							   id="description"
+							   placeholder="Description"
+							   value="<?php echo $this->description; ?>"
+							   class="width-100" />
+					</div>		
+				</div>
+				
+				<div class="form-group">
+					<label class="col-sm-3 control-label no-padding-right" for="notes">Notes </label>
+					<div class="col-sm-5">
+						<textarea type="text" 
+							   name="notes"
+							   id="notes"
+							   placeholder="Notes"
+							   class="width-100"><?php echo $this->notes; ?></textarea>
+					</div>		
+				</div>
+
+				<div class="form-group">
+					<label class="col-sm-3 control-label no-padding-right" for="notification_users">Notification Users </label>
+					<div class="col-sm-5">
+						<input type="text"
+							   id="notification_users"
+							   name="notification_users"
+							   placeholder="Users"
+							   value='<?php echo $this->notification_users; ?>'
+							   class="width-100" />
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<label class="col-sm-3 control-label no-padding-right" for="notification_schedule_id">Notification Schedule </label>
+					<div class="col-sm-5" style="padding-top:7px;">
+						<input type="text"
+							   name="notification_schedule_id"
+							   id="notification_schedule_id"
+							   placeholder="Notification Schedule"
+							   value="<?php echo $this->notification_schedule_id; ?>"
+							   class="width-100" />
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label class="col-sm-3 control-label no-padding-right" for="payment_schedule_id">Payment Schedule </label>
+					<div class="col-sm-5" style="padding-top:7px;">
+						<span class="block input-icon input-icon-right">
+							<input type="text"
+								   name="payment_schedule_id"
+								   id="payment_schedule_id"
+								   placeholder="Payment Schedule"
+								   value="<?php echo $this->payment_schedule_id; ?>"
+								   class="width-100" />
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label class="col-sm-3 control-label no-padding-right" for="start_date">Start Date </label>
+					<div class="col-sm-5" style="padding-top:7px;">
+						<div class="input-group">
+							<span class="block input-icon input-icon-right">
+								<input type="text"
+									   name="start_date"
+									   id="start_date"
+									   placeholder="Date"
+									   value=""
+									   class="form-control date-picker" />
+								<i class="ace-icon fa fa-asterisk red" style="margin-right: 15px;"></i>
+							</span>
+							<span class="input-group-addon">
+								<label for="start_date"><i class="fa fa-calendar bigger-110"></i></label>
+							</span>
+						</div>
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<label class="col-sm-3 control-label no-padding-right" for="end_date">End Date </label>
+					<div class="col-sm-5" style="padding-top:7px;">
+						<div class="input-group">
+							<span class="block input-icon input-icon-right">
+								<input type="text"
+									   name="end_date"
+									   id="end_date"
+									   placeholder="Date"
+									   value=""
+									   class="form-control date-picker" />
+								<i class="ace-icon fa fa-asterisk red" style="margin-right: 15px;"></i>
+							</span>
+							<span class="input-group-addon">
+								<label for="end_date"><i class="fa fa-calendar bigger-110"></i></label>
+							</span>
+						</div>
+						
+					</div>
+					<div class="col-sm-3">
+						<i id='end_date_add_year' class='btn btn-sm'>+1 Year</i> / <i id='end_date_subtract_year' class='btn btn-sm'>-1 Year</i>
+					</div>
+				</div>
+
+				<div class="space-6"></div>
+				
+				<div class="form-group">
+					<label class="col-sm-3"></label>
+					<div class="col-sm-9">
+						<a class="btn btn-sm" href="<?php echo $this->wizard()->getRedirect('contracts', $this->basePath('contract/contracts/')); ?>">
+							<i class="ace-icon fa fa-remove align-top bigger-125"></i>
+							Cancel
+						</a>
+						<button class="btn btn-sm btn-primary"
+							type="submit">
+							<i class="ace-icon fa fa-check align-top bigger-125"></i>
+							Submit
+						</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<?php $this->placeholder('content')->captureEnd(); ?>

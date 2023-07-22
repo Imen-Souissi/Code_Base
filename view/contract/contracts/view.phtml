@@ -1,0 +1,400 @@
+<?php include(__DIR__ . "/layout/layout.phtml"); ?>
+
+<?php
+	$payment_type_text_renewal = 'Renewal';
+
+	$renew_li_class = ($this->can_renew) ? '' : 'hide-on-start';
+	$archive_li_class = ($this->can_archive) ? '' : 'hide-on-start';
+	$next_payment_label = ($this->next_payment_type == $payment_type_text_renewal) ? ' (Renewal)' : '';
+?>
+
+<?php $this->placeholder('style')->captureStart(); ?>
+<style type="text/css">
+	#vendor-logo {
+		max-height: 80px;
+		max-width: 200px;
+	}
+	.hide-on-start {
+		display: none;
+	}
+</style>
+<?php $this->placeholder('style')->captureEnd(); ?>
+
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript">
+	$(document).ready(function() {
+		<?php if($this->incomplete != '') { ?>
+		$("#error_msg").removeClass("hide-on-start");
+		<?php }?>
+	});
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<?php $this->placeholder('breadcrumb')->captureStart('APPEND'); ?>
+<li>
+	<a href="<?php echo $this->basePath('contract/contracts/view/'.$this->id); ?>"><?php echo "{$this->contract_number} ({$this->vendor})" ; ?></a>
+</li>
+<?php $this->placeholder('breadcrumb')->captureEnd(); ?>
+
+<?php $this->placeholder('header')->captureStart('SET'); ?>
+<div class="row">
+	<div class="col-sm-8">
+		<h1>
+			Contracts
+			<small>
+				<i class="ace-icon fa fa-angle-double-right"></i>
+				View Contract
+			</small>
+		</h1>
+	</div>
+	<div class="col-sm-4 align-right">
+		<div class="btn-group">
+			<button type="button" class="btn btn-xs btn-inverse dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				Actions
+				<span class="ace-icon fa fa-caret-down icon-only"></span>
+			</button>
+			<ul class="dropdown-menu dropdown-inverse dropdown-white dropdown-menu-right">
+				<li>
+			<?php if ($this->authorization()->isPermitted('Contract::Contracts', 'edit')) { ?>
+				<?php if($this->can_edit) { ?>
+					<a href="<?php echo $this->basePath('contract/contracts/edit/' . $this->id); ?>">
+						<i class="ace-icon fa fa-edit"></i>
+						Edit
+					</a>
+				</li>
+				<?php } ?>
+			<?php } ?>
+				<?php if ($this->authorization()->isPermitted('Contract::Contracts', 'renew')) { ?>
+				<li id='renew_link' class='<?php echo $renew_li_class; ?>'>
+					<a href="<?php echo $this->basePath('contract/contracts/renew/' . $this->id); ?>">
+						<i class="ace-icon fa fa-share"></i>
+						Renew
+					</a>
+				</li>
+				<?php } ?>
+				<?php if ($this->authorization()->isPermitted('Contract::Contracts', 'archive')) { ?>
+				<li id='archive_link' class='<?php echo $archive_li_class; ?>'>
+					<a data-toggle='modal' data-target='#archive-contract-modal'  href='#' onclick='archiveContractView()'>
+						<i class="ace-icon fa fa-archive"></i>
+						Archive
+					</a>
+				</li>
+				<?php } ?>
+			<?php if ($this->authorization()->isPermitted('Contract::Contracts', 'delete')) { ?>
+				<?php if($this->can_delete) { ?>
+				<li>
+					<a data-toggle='modal' data-target='#delete-contract-modal'  href='#' onclick='deleteContractView()'>
+						<i class="ace-icon fa fa-trash"></i>
+						Delete
+					</a>
+				</li>
+				<?php } ?>
+			<?php } ?>
+				<?php if ($this->authorization()->isPermitted('Contract::Contracts', 'export')) { ?>
+				<li>
+					<a href="<?php echo $this->basePath('contract/contracts/export/' . $this->id); ?>">
+						<i class="ace-icon fa fa-file-excel-o"></i>
+						Export
+					</a>
+				</li>
+				<?php } ?>
+			</ul>
+		</div>
+	</div>
+</div>
+<?php $this->placeholder('header')->captureEnd(); ?>
+
+<?php $this->placeholder('content')->captureStart('SET'); ?>
+<div class="widget-body">
+	<div class="widget-main padding-12">
+		<div class="row">
+			<div class="col-xs-12">
+				<div class="alert alert-danger hide-on-start" id='error_msg'>
+					<strong>
+						<i class="ace-icon fa fa-times"></i>
+						Notice
+					</strong>
+					<span id='error_msg_body'><?php echo $this->incomplete; ?></span>
+				</div>
+				<?php if($this->vendor_id) { ?>
+				<a href="<?php echo $this->basePath('contract/vendors/view/' . $this->vendor_id); ?>">
+					<img id='vendor-logo' src="<?php echo $this->basePath($this->vendor_logo); ?>" onerror="this.style.display='none'">
+				</a>
+				<?php } ?>
+			</div>
+		</div>
+		<div class="space-6"></div>
+		<div class="row">
+			<div class="col-sm-5">
+				<div class="row">
+					<div class="col-xs-12 label label-lg label-default align-left">
+						<b>Contract Details</b>
+					</div>
+				</div>
+				<div>
+					<ul class="list-unstyled">
+						<li class="row">
+							<span class="col-xs-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Vendor</span>
+							<span class="col-xs-8" id='contract_vendor'><?php echo $this->vendor; ?></span>
+						</li>
+						<li class="row">
+							<span class="col-xs-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Type</span>
+							<span class="col-xs-8" id='contract_type'><?php echo $this->type; ?></span>
+						</li>
+						<li class="row">
+							<span class="col-xs-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Units</span>
+							<span class="col-xs-8" id='contract_units'><?php echo $this->units; ?></span>
+						</li>
+						<li class="row">
+							<span class="col-xs-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Status</span>
+							<span class="col-xs-8"><?php echo $this->status; ?></span>
+						</li>
+						<li class="row">
+							<span class="col-xs-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Account Number</span>
+							<span class="col-xs-8"><?php echo $this->formatter()->na($this->account_number); ?></span>
+						</li>
+						<li class="row">
+							<span class="col-xs-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Contract Number</span>
+							<span class="col-xs-8"><?php echo $this->formatter()->na($this->contract_number); ?></span>
+						</li>
+						<li class="row">
+							<span class="col-xs-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> PR</span>
+							<span class="col-xs-8"><?php echo $this->formatter()->na($this->pr); ?></span>
+						</li>
+						<li class="row">
+							<span class="col-xs-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> PO</span>
+							<span class="col-xs-8"><?php echo $this->formatter()->na($this->po); ?></span>
+						</li>
+						<li class="row">
+							<span class="col-xs-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> PPD Category</span>
+							<span class="col-xs-8"><?php echo $this->formatter()->na($this->ppd_category); ?></span>
+						</li>
+						<li class="row">
+							<span class="col-xs-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Department</span>
+							<span class="col-xs-8"><?php echo $this->formatter()->na($this->department); ?></span>
+						</li>
+						<li class="row">
+							<span class="col-xs-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Requestor</span>
+							<span class="col-xs-8"><?php echo $this->formatter()->na($this->requestor_name); ?></span>
+						</li>
+						<li class="row">
+							<span class="col-xs-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Project</span>
+							<span class="col-xs-8"><?php echo $this->formatter()->na($this->project); ?></span>
+						</li>
+						<li class="row">
+							<span class="col-xs-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Description</span>
+							<span class="col-xs-8" id='contract_description'><?php echo $this->formatter()->na($this->description); ?></span>
+						</li>
+						<li class="row">
+							<span class="col-xs-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Notes</span>
+							<span class="col-xs-8" id='contract_description'><?php echo $this->formatter()->na($this->notes); ?></span>
+						</li>
+					</ul>
+				</div>
+			</div>
+			<div class="col-sm-5 col-sm-offset-2">
+				<div class="row">
+					<div class="col-xs-12 label label-lg label-default align-left">
+						<b>Dates</b>
+					</div>
+				</div>
+				<div>
+					<ul class="list-unstyled">
+						<li class="row">
+							<span class="col-xs-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Start Date</span>
+							<span class="col-xs-8"><?php echo $this->formatter()->dateonly($this->start_date); ?></span>
+						</li>
+						<li class="row">
+							<span class="col-xs-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> End Date</span>
+							<span class="col-xs-8"><?php echo $this->formatter()->dateonly($this->end_date); ?></span>
+						</li>
+						<li class="row">
+							<span class="col-xs-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Next Payment Date</span>
+							<span class="col-xs-8" id="next_payment_date"><?php echo ($this->next_payment_date!='') ? $this->formatter()->dateonly($this->next_payment_date) : 'N/A'; ?>
+							<?php echo $next_payment_label; ?>
+							</span>
+						</li>
+						<li class="row">
+							<span class="col-xs-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Payment Schedule</span>
+							<span class="col-xs-8"><?php echo $this->payment_schedule; ?></span>
+						</li>
+						<li class="row">
+							<span class="col-xs-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Notification Users</span>
+							<span class="col-xs-8"><?php echo $this->formatter()->na($this->notification_users); ?></span>
+						</li>
+						<li class="row">
+							<span class="col-xs-4 bolder"><i class="ace-icon fa fa-caret-right blue"></i> Notification Schedule</span>
+							<span class="col-xs-8"><?php echo $this->formatter()->na($this->notification_schedule); ?></span>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<br />
+<div class="row tabbable">
+	<div class="col-xs-12">
+		<div class="btn-group pull-right bring-front">
+			<button type="button" class="btn btn-xs btn-inverse dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				Tab Actions
+				<span class="ace-icon fa fa-caret-down icon-only"></span>
+			</button>
+			<ul class="dropdown-menu dropdown-inverse dropdown-white dropdown-menu-right">
+				<?php if ($this->authorization()->isPermitted('Contract::Contracts', 'add-devices')) { ?>
+				<li>
+					<a data-toggle='modal' data-target='#add-device-modal'  href='#'>
+						<i class="ace-icon fa fa-plus"></i>
+						Add Device
+					</a>
+				</li>
+				<?php } ?>
+				<?php if ($this->authorization()->isPermitted('Contract::Contracts', 'add-documents')) { ?>
+				<li>
+					<a href='<?php echo $this->basePath('contract/contracts/add-documents/'.$this->id); ?>'>
+						<i class="ace-icon fa fa-plus"></i>
+						Add Documents
+					</a>
+				</li>
+				<?php } ?>
+				<?php if ($this->authorization()->isPermitted('Contract::Contracts', 'assign-users')) { ?>
+				<li>
+					<a data-toggle='modal' data-target='#assign-users-modal'  href='#'>
+						<i class="ace-icon fa fa-plus"></i>
+						Assign Users
+					</a>
+				</li>
+				<?php } ?>
+				<?php if ($this->authorization()->isPermitted('Contract::Contracts', 'assign-contacts')) { ?>
+				<li>
+					<a data-toggle='modal' data-target='#assign-contacts-modal'  href='#'>
+						<i class="ace-icon fa fa-plus"></i>
+						Assign Support Contacts
+					</a>
+				</li>
+				<?php } ?>
+				<?php if ($this->authorization()->isPermitted('Contract::Contracts', 'edit-payments')) { ?>
+				<li>
+					<a href='<?php echo $this->basePath('contract/contracts/edit-payments/'.$this->id); ?>'>
+						<i class="ace-icon fa fa-edit"></i>
+						Edit Payments
+					</a>
+				</li>
+				<?php } ?>
+				<?php if ($this->authorization()->isPermitted('Contract::Contracts', 'assign-labviews')) { ?>
+				<li>
+					<a data-toggle='modal' data-target='#assign-labviews-modal'  href='#'>
+						<i class="ace-icon fa fa-plus"></i>
+						Assign Labviews
+					</a>
+				</li>
+				<?php } ?>
+			</ul>
+		</div>
+
+		<ul class="nav nav-tabs responsive">
+			<li>
+				<a data-toggle="tab" href="#devices_pane" id="devices_a">Devices</a>
+			</li>
+			<li>
+				<a data-toggle="tab" href="#payments_pane" id="payments_a">Payments</a>
+			</li>
+			<li>
+				<a data-toggle="tab" href="#documents_pane" id="documents_a">Documents</a>
+			</li>
+			<li>
+				<a data-toggle="tab" href="#users_pane" id="users_a">Notify Users</a>
+			</li>
+			<li>
+				<a data-toggle="tab" href="#run_rate_pane" id="run_rate_a">Run Rate</a>
+			</li>
+			<li>
+				<a data-toggle="tab" href="#contacts_pane" id="contacts_a">Support Contacts</a>
+			</li>
+			<li>
+				<a data-toggle="tab" href="#labviews_pane" id="labviews_a">Labviews</a>
+			</li>
+		</ul>
+		<div class="tab-content responsive">
+			<div id="devices_pane" class="tab-pane fade">
+				<?php include(__DIR__ . "/pane/devices.phtml"); ?>
+			</div>
+			<div id="payments_pane" class="tab-pane fade">
+				<?php include(__DIR__ . "/pane/payments.phtml"); ?>
+			</div>
+			<div id="documents_pane" class="tab-pane fade">
+				<?php include(__DIR__ . "/pane/documents.phtml"); ?>
+			</div>
+			<div id="users_pane" class="tab-pane fade">
+				<?php include(__DIR__ . "/pane/users.phtml"); ?>
+			</div>
+			<div id="run_rate_pane" class="tab-pane fade">
+				<?php include(__DIR__ . "/pane/run-rate.phtml"); ?>
+			</div>
+			<div id="contacts_pane" class="tab-pane fade">
+				<?php include(__DIR__ . "/pane/contacts.phtml"); ?>
+			</div>
+			<div id="labviews_pane" class="tab-pane fade">
+				<?php include(__DIR__ . "/pane/labviews.phtml"); ?>
+			</div>
+		</div>
+	</div>
+</div>
+<?php if($this->authorization()->isPermitted('Contract::Contracts', 'add-devices')) { ?>
+<?php include(__DIR__ . "/pane/add-device.phtml"); ?>
+<?php } ?>
+<?php if($this->authorization()->isPermitted('Contract::Contracts', 'edit-device')) { ?>
+<?php include(__DIR__ . "/pane/edit-device.phtml"); ?>
+<?php } ?>
+<?php if($this->authorization()->isPermitted('Contract::Contracts', 'remove-device')) { ?>
+<?php include(__DIR__ . "/pane/remove-device.phtml"); ?>
+<?php } ?>
+<?php if($this->authorization()->isPermitted('Contract::Contracts', 'assign-users')) { ?>
+<?php include(__DIR__ . "/pane/assign-users.phtml"); ?>
+<?php } ?>
+<?php if($this->authorization()->isPermitted('Contract::Contracts', 'unassign-user')) { ?>
+<?php include(__DIR__ . "/pane/unassign-user.phtml"); ?>
+<?php } ?>
+<?php if($this->authorization()->isPermitted('Contract::Contracts', 'assign-contacts')) { ?>
+<?php include(__DIR__ . "/pane/assign-contacts.phtml"); ?>
+<?php } ?>
+<?php if($this->authorization()->isPermitted('Contract::Contracts', 'unassign-contact')) { ?>
+<?php include(__DIR__ . "/pane/unassign-contact.phtml"); ?>
+<?php } ?>
+<?php if($this->authorization()->isPermitted('Contract::Contracts', 'assign-labviews')) { ?>
+<?php include(__DIR__ . "/pane/assign-labviews.phtml"); ?>
+<?php } ?>
+<?php if($this->authorization()->isPermitted('Contract::Contracts', 'unassign-labview')) { ?>
+<?php include(__DIR__ . "/pane/unassign-labview.phtml"); ?>
+<?php } ?>
+<?php if($this->authorization()->isPermitted('Contract::Contracts', 'edit-payment')) { ?>
+<?php include(__DIR__ . "/pane/edit-payment.phtml"); ?>
+<?php } ?>
+<?php if($this->authorization()->isPermitted('Contract::Contracts', 'make-payment')) { ?>
+<?php include(__DIR__ . "/pane/make-payment.phtml"); ?>
+<?php } ?>
+<?php if($this->authorization()->isPermitted('Contract::Contracts', 'renew')) { ?>
+<?php include(__DIR__ . "/pane/renew.phtml"); ?>
+<?php } ?>
+<?php if($this->authorization()->isPermitted('Contract::Contracts', 'archive')) { ?>
+<?php include(__DIR__ . "/pane/archive.phtml"); ?>
+<?php } ?>
+<?php if($this->authorization()->isPermitted('Contract::Contracts', 'delete')) { ?>
+<?php include(__DIR__ . "/pane/delete.phtml"); ?>
+<?php } ?>
+<?php if($this->authorization()->isPermitted('Contract::ContractDocuments', 'delete')) { ?>
+<?php include(__DIR__ . "/../contract-documents/pane/delete.phtml"); ?>
+<?php } ?>
+<?php $this->placeholder('content')->captureEnd(); ?>
+
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript">
+	$(document).ready(function() {
+		<?php if($this->pane != '') { ?>
+		$('#<?php echo $this->pane; ?>_a').tab('show');
+		<?php } else { ?>
+		$('#devices_a').tab('show');
+		<?php } ?>
+	});
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>

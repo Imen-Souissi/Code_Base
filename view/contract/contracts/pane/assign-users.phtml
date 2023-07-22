@@ -1,0 +1,119 @@
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript">
+	$(document).ready(function() {
+		var selects = [{
+			id: 'assign_users_users',
+			url: '<?php echo $this->basePath('hr/rest/hr-users/'); ?>',
+			display: 'display_name',
+			onData: function(d) {
+				d['terminated'] = 0;
+			}
+		}];
+		$.select2_utils.create(selects, 25, {
+			multiple: true
+		});
+		
+		$.validate_utils.create('#assign_users', {
+			users: {
+				required: true,
+				message: 'Please select a user'
+			}
+		}, function(form) {
+			$("#assign_users_message")
+				.show()
+				.removeClass("label-success")
+				.removeClass("label-danger")
+				.addClass("label-default")
+				.html("Assigning users...");
+			
+			$.ajax({
+				type: 'POST',
+				url: '<?php echo $this->basePath('contract/contracts/assign-users/' . $this->id); ?>',
+				data: $(form).serializeArray()
+			}).done(function(data) {
+				$("#assign_users_message")
+					.removeClass("label-default")
+					.addClass("label-success")
+					.html("Successfully assigned users");
+				
+				setTimeout(function() {
+					$("#assign_users_message").hide();						
+					$("#assign-users-modal").modal('hide');
+					
+					if ($.fn.DataTable.isDataTable('#users')) {
+						$("#users").dataTable().api().ajax.reload();
+					}
+				}, 1000);
+			}).fail(function(error) {
+				if (error.responseJSON && error.responseJSON['error']) {
+					error = error.responseJSON['error'];
+				} else {
+					error = 'Unable to assign users, try again';
+				}
+				
+				$("#assign_users_message")
+					.removeClass("label-default")
+					.addClass("label-danger")
+					.html(error);
+			});
+			return false;
+		});
+		
+		$('#assign-users-modal').on('show.bs.modal', function(e) {
+			// reset the fields
+			$("#assign_users_users").select2('val', null);
+		});
+	});
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<div id="assign-users-modal" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header no-padding">
+				<div class="table-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						<span class="white">&times;</span>
+					</button>
+					Assign Users
+				</div>
+			</div>
+			<form id="assign_users" class="form-horizontal">
+				<div class="modal-body">				
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="alert alert-warning">
+								All fields with an <i class="ace-icon fa fa-asterisk red"></i> are required.  Select as many <strong>Users</strong> as desired.
+							</div>
+							<div class="form-group">
+								<label class="col-sm-2 control-label no-padding-right" for="assign_users_users">Users </label>
+								<div class="col-sm-9">
+									<span class="block input-icon input-icon-right">
+										<input type="text"
+											   id="assign_users_users"
+											   name="assign_users_users"
+											   placeholder="Users"
+											   class="width-100" />
+										<i class="ace-icon fa fa-asterisk red" style="margin-right: 15px;"></i>
+									</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer align-left">
+					<a class="btn btn-sm" href="#" data-dismiss="modal" aria-hidden="true">
+						<i class="ace-icon fa fa-remove bigger-125"></i>
+						Cancel
+					</a>
+					<button class="btn btn-sm btn-primary"
+							type="submit">
+						<i class="ace-icon fa fa-plus bigger-125"></i>
+						Assign
+					</button>
+					<div id="assign_users_message" style="display: none;" class="pull-right label label-default"></div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

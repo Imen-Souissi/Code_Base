@@ -1,0 +1,294 @@
+<?php $this->placeholder('style')->captureStart(); ?>
+<style type="text/css">
+	div.hide-on-start {
+		display: none;
+	}
+</style>
+<?php $this->placeholder('style')->captureEnd(); ?>
+
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript">
+	$(document).ready(function() {
+		var selects = [{
+			id: 'add_device_infodot',
+			url: '<?php echo $this->basePath('gem/rest/devices/'); ?>',
+			display: 'name',
+			onResult: function(item) {
+                var text  = [item.identifier, item.manufacturer, item.model];
+                
+				return {
+					id: item.id,
+					text: text.join(' / ')
+				};
+			},
+			onData: function(data) {
+				data['identifier'] = data['name'];
+				delete data['name'];
+			}
+		}, {
+			id: 'add_device_serial',
+			url: '<?php echo $this->basePath('gem/rest/devices/'); ?>',
+			display: 'name',
+			onResult: function(item) {
+                var text  = [item.serial, item.manufacturer, item.model];
+                
+				return {
+					id: item.id,
+					text: text.join(' / ')
+				};
+			},
+			onData: function(data) {
+				data['serial'] = data['name'];
+				delete data['name'];
+			}
+		}, {
+			id: 'add_device_asset',
+			url: '<?php echo $this->basePath('gem/rest/devices/'); ?>',
+			display: 'name',
+			onResult: function(item) {
+                var text  = [item.asset, item.manufacturer, item.model];
+                
+				return {
+					id: item.id,
+					text: text.join(' / ')
+				};
+			},
+			onData: function(data) {
+				data['asset'] = data['name'];
+				delete data['name'];
+			}
+		}];
+		
+		$.select2_utils.create(selects, 25, {
+			multiple: true
+		});
+		
+		$('#add_device_identify_by').change(function() {
+			var val = $(this).val();
+			if(val == 'infodot') {
+				$('#add_device_infodot_input').show();
+				$('#add_device_serial_input').hide();
+				$('#add_device_asset_input').hide();
+
+				$("#add_device_serial").select2('val', null);
+				$("#add_device_asset").select2('val', null);
+			}
+			else if(val == 'serial') {
+				$('#add_device_infodot_input').hide();
+				$('#add_device_serial_input').show();
+				$('#add_device_asset_input').hide();
+
+				$("#add_device_infodot").select2('val', null);
+				$("#add_device_asset").select2('val', null);
+			}
+			else {
+				$('#add_device_infodot_input').hide();
+				$('#add_device_serial_input').hide();
+				$('#add_device_asset_input').show();
+
+				$("#add_device_serial").select2('val', null);
+				$("#add_device_infodot").select2('val', null);
+			}
+		});
+
+		$('#add_device').on('submit', function() {
+			var contract_id = <?php echo $this->id; ?>;
+			var identify_by = $("#add_device_identify_by").val();
+			var notes = $("#add_device_notes").val();
+
+			var device_id = '';
+			if(identify_by == 'infodot') {
+				device_id = $("#add_device_infodot").val();
+			}
+			else if(identify_by == 'serial') {
+				device_id = $("#add_device_serial").val();
+			}
+			else if(identify_by == 'asset') {
+				device_id = $("#add_device_asset").val();
+			}
+			
+			$("#add_device_message")
+				.show()
+				.removeClass("label-success")
+				.removeClass("label-danger")
+				.addClass("label-default")
+				.html("Adding new device...");
+			
+			$.ajax({
+				type: 'POST',
+				url: '<?php echo $this->basePath('contract/contracts/add-devices/'); ?>',
+				data: { 
+					contract_id: contract_id,
+					device_id: device_id,
+					notes: notes
+				}
+			}).done(function(data) {
+				if (data.status == 1) {
+					$("#add_device_message")
+						.removeClass("label-default")
+						.addClass("label-success")
+						.html("Successfully added new device");
+					
+					setTimeout(function() {
+						$("#add_device_message").hide();
+						
+						$("#add-device-modal").modal('hide');
+						reloadDevicesTable();
+					}, 1000);
+				} else {
+					$("#add_device_message")
+						.removeClass("label-default")
+						.addClass("label-danger");
+						
+					if (data.error) {
+						if ($.isArray(data.error)) {
+							$("#add_device_message").html(data.error.join('<br />'));
+						} else {
+							$("#add_device_message").html(data.error);
+						}
+					} else {
+						$("#add_device_message").html("Unable to add new device, please try again");
+					}
+				}
+			}).fail(function(error) {
+				$("#add_device_message")
+					.removeClass("label-default")
+					.addClass("label-danger")
+					.html("Unable to add new device, please try again");
+			});
+			
+			// prevent the page submit
+			return false;
+		});
+	});
+
+	$('#add-device-modal').on('show.bs.modal', function(e) {
+		// reset the fields
+		$("#add_device_message").hide();
+		$("#add_device_infodot").select2('val', null);
+		$("#add_device_serial").select2('val', null);
+		$("#add_device_asset").select2('val', null);
+		$("#add_device_notes").val('');
+	});
+
+	function reloadDevicesTable() {
+		$("#devices").dataTable().api().ajax.reload();
+	}
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<div id="add-device-modal" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header no-padding">
+				<div class="table-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						<span class="white">&times;</span>
+					</button>
+					Add New Device
+				</div>
+			</div>
+			<form id="add_device" class="form-horizontal">
+				<div class="modal-body no-padding">				
+					<div class="row no-padding no-margin">
+						<div class="alert alert-warning">
+							All fields with an <i class="ace-icon fa fa-asterisk red"></i> are required.  Provide Infodot, S/N or Asset Tag.
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<label class="col-sm-3 control-label no-padding-right" for="add_device_identify_by">Identifier </label>
+						<div class="col-sm-8">
+							<select id='add_device_identify_by' name='add_device_identify_by'>
+								<option value='infodot' selected>Infodot</option>
+								<option value='serial'>S/N</option>
+								<option value='asset'>Asset Tag</option>
+							</select>
+						</div>
+					</div>
+					
+					<div class="form-group" id='add_device_infodot_input'>
+						<label class="col-sm-3 control-label no-padding-right" for="add_device_infodot">Infodot </label>
+						<div class="col-sm-8">
+							<span class="block input-icon input-icon-right">
+								<input type="text"
+									   name="add_device_infodot"
+									   id="add_device_infodot"
+									   placeholder="Infodot"
+									   value=""
+									   class="typeahead scrollable width-100" />
+								<i class="ace-icon fa fa-asterisk red" style="margin-right: 17px;"></i>
+							</span>
+						</div>
+					</div>
+					
+					<div class="form-group hide-on-start" id='add_device_serial_input'>
+						<label class="col-sm-3 control-label no-padding-right" for="add_device_serial">S/N </label>
+						<div class="col-sm-8">
+							<span class="block input-icon input-icon-right">
+								<input type="text"
+									   name="add_device_serial"
+									   id="add_device_serial"
+									   placeholder="Serial Number"
+									   value=""
+									   class="typeahead scrollable width-100" />
+								<i class="ace-icon fa fa-asterisk red" style="margin-right: 17px;"></i>
+							</span>
+						</div>
+					</div>
+										
+					<div class="form-group hide-on-start" id='add_device_asset_input'>
+						<label class="col-sm-3 control-label no-padding-right" for="add_device_asset">Asset Tag </label>
+						<div class="col-sm-8">
+							<span class="block input-icon input-icon-right">
+								<input type="text"
+									   name="add_device_asset"
+									   id="add_device_asset"
+									   placeholder="Asset Tag"
+									   value=""
+									   class="typeahead scrollable width-100" />
+								<i class="ace-icon fa fa-asterisk red" style="margin-right: 17px;"></i>
+							</span>
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<label class="col-sm-3 control-label no-padding-right" for="add_device_notes">Notes </label>
+						<div class="col-sm-8">
+							<span class="block input-icon input-icon-right">
+								<textarea
+									   name="add_device_notes"
+									   id="add_device_notes"
+									   placeholder="Notes"
+									   class="scrollable width-100"></textarea>
+							</span>
+						</div>
+					</div>
+					
+				</div>
+				<div class="space-6"></div>
+				<div class="modal-footer">
+					<button class="btn btn-sm pull-left"
+							type="button"
+							data-dismiss="modal">
+						<i class="ace-icon fa fa-remove bigger-125"></i>
+						Cancel
+					</button>
+					<button class="btn btn-sm btn-primary pull-left"
+							type="submit">
+						<i class="ace-icon fa fa-plus bigger-125"></i>
+						Add
+					</button>
+					
+					<a href="<?php echo $this->basePath('gem/devices/'); ?>"
+					   class="btn btn-sm btn-success pull-right"
+					   id="bulk_add">
+						<i class="ace-icon fa fa-search bigger-125"></i>
+						Detail Search
+					</a>
+					<div id="add_device_message" style="display: none;" class="pull-right label label-default"></div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

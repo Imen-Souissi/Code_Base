@@ -1,0 +1,288 @@
+<?php include(__DIR__ . "/layout/layout.phtml"); ?>
+
+<?php $this->placeholder('header')->captureStart('SET'); ?>
+<div class="row">
+	<div class="col-sm-8">
+		<h1>
+			Contracts
+				<small>
+					<i class="ace-icon fa fa-angle-double-right"></i>
+					Update Payments
+				</small>
+		</h1>
+	</div>
+	<div class="col-sm-4">
+		<div class="align-right">
+			<div class="btn-group" role="group">
+				<a data-toggle='modal' data-target='#payment-calculator-modal'  href='#' onclick="" class="btn btn-sm btn-success btn-bold align-top">
+					<i class="ace-icon fa fa-calculator"></i>
+				</a>
+			</div>
+			<div class="btn-group" role="group">
+				<a href='<?php echo $this->basePath('contract/contracts/edit-payments/'.$this->id.'?recalc_payments=1&extend_payments=1&renew='.$this->renew); ?>'
+				   class="btn btn-sm btn-primary">
+					Refresh Payment Dates
+				</a>
+			</div>
+		</div>
+	</div>
+</div>
+<?php $this->placeholder('header')->captureEnd(); ?>
+
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/jquery-ui.custom.min.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/jquery.ui.touch-punch.min.js'); ?>"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('.date-picker').datepicker({
+			autoclose: true,
+			todayHighlight: true,
+			format: 'M d, yyyy'
+		});
+
+		<?php echo setPayments($this->payments); ?>
+
+		$(document).on('click', "#cascade_amount", function() {
+			var amount = $("input.payment_amount_cascade").val();
+			$("input.payment_amount_cascadable").val(amount);
+
+			var renewal = amount*1.1;
+			renewal = renewal.toFixed(2);
+			$("input.payment_amount_cascadable_renewal").val(renewal);
+		});
+
+		$(document).on('click', "#include_renewal", function() {
+			var is_checked = $(this).is(':checked');
+			if(is_checked) {
+				$("#renewal").show();
+			}
+			else {
+				$("#renewal").hide();
+			}
+		});
+
+		$(document).on('click', "#include_final", function() {
+			var is_checked = $(this).is(':checked');
+			if(is_checked) {
+				$("#final").show();
+			}
+			else {
+				$("#final").hide();
+			}
+		});
+		
+		$(document).on('click', ".payment_made_checkbox", function() {
+			var name_prefix = 'scheduled_payment_made_';
+			var is_checked = $(this).prop('checked');
+			var name = $(this).attr('id');
+			var tokens = name.split('_');
+			var num = parseInt(tokens[3]);
+			
+			//uncheck any future payments
+			if(!is_checked) {
+				num++;
+				var total = <?php echo $this->payments_sans_renewal; ?>;
+	
+				for(;num<=total;num++) {
+					$("#" + name_prefix + num.toString()).prop('checked', false);
+				}
+			}
+			//check any previous payments
+			else {
+				num--;
+
+				for(;num>0;num--) {
+					$("#" + name_prefix + num.toString()).prop('checked', true);
+				}
+			}
+		});
+	});
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<?php $this->placeholder('content')->captureStart('SET'); ?>
+<div class="row no-margin">
+	<div class="widget-body no-padding">
+		<div class="widget-table no-padding">
+			<form id="edit_payments" method="POST" class="form-horizontal">
+				<input type='hidden' id='num_payments' name='num_payments' value='<?php echo $this->num_payments; ?>'>
+				<input type='hidden' id='num_payments_sans_renewal' name='num_payments_sans_renewal' value='<?php echo $this->payments_sans_renewal; ?>'>
+
+				<?php printPayments($this->payments, $this->payments_sans_renewal); ?>				
+
+				<div class="space-6"></div>
+				
+				<div class="form-group">
+					<label class="col-sm-3"></label>
+					<div class="col-sm-9">
+						<a class="btn btn-sm" href="<?php echo $this->wizard()->getRedirect('contracts', $this->basePath('contract/contracts/')); ?>">
+							<i class="ace-icon fa fa-remove align-top bigger-125"></i>
+							Cancel
+						</a>
+						<a class="btn btn-sm btn-warning" href="<?php echo $this->basePath("contract/contracts/edit/{$this->id}?recalc_payments={$this->recalc_payments}&extend_payments={$this->extend_payments}&renew={$this->renew}"); ?>">
+							<i class="ace-icon fa fa-arrow-circle-o-left align-top bigger-125"></i>
+							Back
+						</a>
+						<button class="btn btn-sm btn-primary"
+							type="submit">
+							<i class="ace-icon fa fa-check align-top bigger-125"></i>
+							Submit
+						</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<?php include(__DIR__ . "/pane/payment-calculator.phtml"); ?>
+<?php $this->placeholder('content')->captureEnd(); ?>
+<?php
+function printPayments($payments, $num_payments_sans_renewal) {
+	$first_scheduled_payment = 1;
+	$payment_type_text_paid = 'Paid';
+	$payment_type_text_scheduled = 'Scheduled';
+	$payment_type_text_renewal = 'Renewal';
+	
+	$i=1;
+	foreach($payments AS $payment) {
+// 		$payment_made_checked = ($first_scheduled_payment) ? 'checked' : '';
+		$payment_made_checked = ($payment['payment_type'] == $payment_type_text_paid) ? 'checked' : '';
+// 		$payment_made_checked = '';
+		
+		if($payment['payment_type'] == $payment_type_text_renewal) {
+			echo "<hr>";
+			echo "
+				<div class='row'>
+					<div class='col-sm-5 col-sm-offset-3'>
+						<label class='control-label' for='include_renewal'>Include Renewal Placeholder? </label>			
+						<input name='include_renewal'
+							id='include_renewal'
+							type='checkbox'
+							checked
+							class='ace ace-switch ace-switch-2'
+							value='1' />
+						<span class='lbl' style='vertical-align: text-top;'></span>
+					</div>
+				</div>";
+			echo "<div id='renewal'>";
+		}
+		else if($num_payments_sans_renewal==$i && $i>1) {
+			echo "
+				<div class='row'>
+					<div class='col-sm-5 col-sm-offset-3'>
+						<label class='control-label' for='include_renewal'>Include Last Payment? </label>
+						<input name='include_final'
+							id='include_final'
+							type='checkbox'
+							checked
+							class='ace ace-switch ace-switch-2'
+							value='1' />
+						<span class='lbl' style='vertical-align: text-top;'></span>
+					</div>
+				</div>";
+			echo "<div id='final'>";
+		}
+
+		echo "<input type='hidden' id='payment_id_{$i}' name='payment_id_{$i}' value='{$payment['id']}'>";
+		echo "<input type='hidden' id='payment_type_{$i}' name='payment_type_{$i}' value='{$payment['payment_type']}'>";
+		echo "<input type='hidden' id='num_months_{$i}' name='num_months_{$i}' value='{$payment['num_months']}'>";
+
+		if($payment['payment_type'] != $payment_type_text_renewal) {
+			echo "
+				<div class='form-group'>
+					<label class='col-sm-3  control-label' for='scheduled_payment_made_{$i}'>Paid? </label>
+					<div class='col-sm-5' style='padding-top:7px;'>
+						<input name='scheduled_payment_made_{$i}'
+							id='scheduled_payment_made_{$i}'
+							type='checkbox'
+							{$payment_made_checked}
+							class='ace ace-switch ace-switch-2 payment_made_checkbox'
+							value='1' />
+						<span class='lbl' style='vertical-align: text-top;'></span>
+					</div>
+				</div>";
+		}
+					
+		echo "
+			<div class='form-group'>
+				<label class='col-sm-3 control-label no-padding-right' for='payment_date_{$i}'>Date </label>
+				<div class='col-sm-5' style='padding-top:7px;'>
+					<div class='input-group'>
+						<input type='text'
+							name='payment_date_{$i}'
+							id='payment_date_{$i}'
+							placeholder='Date'
+							value=''
+							class='form-control date-picker' />
+						<span class='input-group-addon'>
+							<label for='payment_date_{$i}'><i class='fa fa-calendar bigger-11'></i></label>
+						</span>
+					</div>
+				</div>
+			</div>";
+		
+		$payment_amount_class = '';
+		if($payment['payment_type'] != $payment_type_text_paid) {
+			$payment_amount_class = (!$first_scheduled_payment) ? 'payment_amount_cascadable' : 'payment_amount_cascade';
+			if($payment['payment_type'] == $payment_type_text_renewal) {
+				$payment_amount_class = 'payment_amount_cascadable_renewal';
+			}
+			
+			$payment_amount_class .= ($payment['payment_type'] != $payment_type_text_renewal) ? ' payment_amount' : ' payment_amount_renewal';
+		}
+		
+		echo "
+			<div class='form-group'>
+				<label class='col-sm-3 control-label no-padding-right' for='payment_amount_{$i}'>Amount </label>
+				<div class='col-sm-5' style='padding-top:7px;'>
+					<input type='text'
+						name='payment_amount_{$i}'
+						id='payment_amount_{$i}'
+						placeholder='0.00'
+						value='{$payment['amount']}'
+						class='width-100 {$payment_amount_class}' />
+				</div>";
+		if( ($payment['payment_type'] != $payment_type_text_paid) && $first_scheduled_payment) {
+			echo "
+				<div class='col-sm-1'>
+						<i id='cascade_amount' class='btn btn-sm'>Cascade Amount</i>
+				</div>";
+		}
+
+		echo"
+			</div>";
+		
+		if($payment['payment_type'] == $payment_type_text_renewal) {
+			echo "<div class='col-sm-offset-3'>";
+				echo "*If cascade or calculator is used, 10% will be added to payment amount to account for possible growth.";
+			echo "</div>";
+			echo "</div>";
+		}
+		else if($num_payments_sans_renewal==$i && $i>1) {
+			echo "<div class='col-sm-offset-3'>";
+				echo "*Due to start/end date alignments, this last payment may not be necessary. Please include/exclude as needed.";
+			echo "</div>";
+			echo "</div>";
+		}
+		
+		if( ($payment['payment_type'] != $payment_type_text_paid) && $first_scheduled_payment) {
+			$first_scheduled_payment = 0;
+		}
+		
+		$i++;
+	}
+}
+
+function setPayments($payments) {
+	$i=1;
+	foreach($payments AS $payment) {
+		echo "var date = '{$payment['payment_date']}';";
+		echo "if(date !== '') { ";
+		echo "date = new Date(date);";
+		echo "date.setDate(date.getDate() + 1);";
+		echo "$('#payment_date_{$i}').datepicker('setDate', date);";
+		echo "}";
+		$i++;
+	}
+}
+?>

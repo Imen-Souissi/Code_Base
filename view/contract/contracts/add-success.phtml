@@ -1,0 +1,36 @@
+<?php include(__DIR__ . "/layout/layout.phtml"); ?>
+
+<?php $this->placeholder('header')->captureStart('SET'); ?>
+<div class="row">
+	<div class="col-sm-8">
+		<h1>
+			Contracts
+			<small>
+				<i class="ace-icon fa fa-angle-double-right"></i>
+				Contract Added
+			</small>
+		</h1>
+	</div>
+</div>
+<?php $this->placeholder('header')->captureEnd(); ?>
+
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript">
+	$(document).ready(function() {
+		setTimeout(function() {
+			window.location.href = '<?php echo $this->wizard()->getRedirect('contracts', $this->basePath('contract/contracts/')); ?>';
+		}, 1000);
+	});
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<?php $this->placeholder('content')->captureStart('SET'); ?>
+<div class="row no-margin">
+	<div class="widget-body no-padding">
+		<div class="widget-table no-padding">
+			Contract successfully added.
+		</div>
+	</div>
+</div>
+
+<?php $this->placeholder('content')->captureEnd(); ?>

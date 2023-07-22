@@ -1,0 +1,132 @@
+<?php
+$route = $this->route()->getRouteName();
+$controller = $this->route()->getControllerName();
+$action = $this->route()->getAction();
+
+$is_view_contract_document = false;
+if($route == 'contract/default' && $controller == 'contract-documents' && $action == 'view') {
+	$is_view_contract_document = true;
+}
+?>
+<?php $this->placeholder('script')->captureStart(); ?>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("#delete_contract_document").on('submit', function() {
+			$("#delete_contract_document_message")
+				.show()
+				.removeClass("label-success")
+				.removeClass("label-danger")
+				.addClass("label-default")
+				.html("Deleting contract document...");
+			
+			$.ajax({
+				type: 'POST',
+				url: '<?php echo $this->basePath('contract/contract-documents/delete/'); ?>' + $("#delete_contract_document_id").val()
+			}).done(function(data) {
+				if (data.status == 1) {
+					$("#delete_contract_document_message")
+						.removeClass("label-default")
+						.addClass("label-success")
+						.html("Successfully deleted contract document");
+					
+					setTimeout(function() {
+						$("#delete_contract_document_message").hide();
+						
+						<?php if ($is_view_contract_document) { ?>
+						window.location = '<?php echo $this->basePath('contract/contract-documents/'); ?>';
+						<?php } else { ?>
+						$("#delete-contract-document-modal").modal('hide');
+						if ($.fn.DataTable.isDataTable('#documents')) {
+							$("#documents").dataTable().api().ajax.reload();
+						}
+						<?php } ?>
+					}, 1000);
+				} else {
+					$("#delete_contract_document_message")
+						.removeClass("label-default")
+						.addClass("label-danger");
+						
+					if (data.error) {
+						if ($.isArray(data.error)) {
+							$("#delete_contract_document_message").html(data.error.join('<br />'));
+						} else {
+							$("#delete_contract_document_message").html(data.error);
+						}
+					} else {
+						$("#delete_contract_document_message").html("Unable to delete contract, try again");
+					}
+				}
+			}).fail(function(error) {
+				$("#delete_contract_document_message")
+					.removeClass("label-default")
+					.addClass("label-danger")
+					.html("Unable to delete contract document, try again");
+			});
+			
+			// prevent the page submit
+			return false;
+		});
+	});
+	
+	function deleteContractDocument(row) {
+		$("#delete_contract_document_message").hide();
+		var data = $("#documents").dataTable().fnGetData(row);
+		if (data) {
+			$("#delete_contract_document_id").val(data.id);
+			$("#delete_contract_document_name_value").html(data.name);
+			
+			$('#delete-contract-document-modal').modal('show');
+		}
+	}
+</script>
+<?php $this->placeholder('script')->captureEnd(); ?>
+
+<div id="delete-contract-document-modal" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header no-padding">
+				<div class="table-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						<span class="white">&times;</span>
+					</button>
+					Delete Contract Document
+				</div>
+			</div>
+			<form id="delete_contract_document" class="form-horizontal">
+				<div class="modal-body no-padding">
+					<div class="row no-padding no-margin">
+						<div class="alert alert-warning">
+							Are you sure?  Click <strong>Delete</strong> to proceed and delete this document
+						</div>
+						<input type="hidden" id="delete_contract_document_id" name="id" value="<?php echo ($is_view_contract_document) ? $this->id : ''; ?>" />
+						<div class="profile-user-info">
+							<div class="profile-info-row">
+								<div class="profile-info-name"> Name </div>
+								<div class="profile-info-value">
+									<span id="delete_contract_document_name_value">
+										<?php echo ($is_view_contract_document) ? $this->contract_document['name'] : ''; ?>
+									</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="space-6"></div>
+				<div class="modal-footer">
+					<button class="btn btn-sm pull-left"
+							type="button"
+							data-dismiss="modal">
+						<i class="ace-icon fa fa-remove bigger-125"></i>
+						Cancel
+					</button>
+					<button class="btn btn-sm btn-danger pull-left"
+							type="submit">
+						<i class="ace-icon fa fa-trash bigger-125"></i>
+						Delete
+					</button>
+					<div id="delete_contract_document_message" style="display: none;" class="pull-right label label-default"></div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
