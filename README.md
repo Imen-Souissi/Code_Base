@@ -1,23 +1,62 @@
 # Code_Base
 Project Code
-The following modules has been added : API, Application, Auth, Contract, Brics, Ticket and Power
+
 ======================================
 
 Improved Notes:
 
 ======================================
+In this application built around Zend Framework 2, a modular approach has been adopted to organize and structure its components efficiently. 
+Each entity in the application is represented as a module, with every module comprising three essential layers: the model, view, and controller.
+
+Model Layer:
+The model layer of each module is responsible for handling the data and business logic associated with that specific entity. It acts as the data access and manipulation layer, allowing seamless interactions with the underlying database and encapsulating the business rules that govern the data's behavior.
+
+View Layer:
+The view layer is responsible for presenting the data to the end-users in a visually appealing and understandable format. It encompasses the user interface (UI) elements and templates that users interact with while interacting with the application. By separating the view layer from the model and controller, it ensures a clear distinction between the presentation and data layers.
+
+Controller Layer:
+The controller layer serves as the intermediary between the model and view layers. It handles incoming requests from users or external sources, processes them, and communicates with the model layer to fetch or update the data accordingly. The controller then renders the appropriate view to display the processed data to the user.
+
+======================================
+
+The following modules has been uploaded : API, Application, Auth, Contract, Brics, Ticket and Power. 
+
+API Module:
+The API module is responsible for providing a secure and structured interface for external systems or applications to interact with the application's data and functionalities. It enables seamless integration with other services, promoting interoperability and data sharing.
+
+Application Module:
+The Application module likely serves as the core module of the entire application. It may encompass general application settings, configurations, and shared functionalities that are required across multiple modules. This module acts as the backbone, facilitating smooth communication and coordination between different parts of the application.
+
+Auth Module:
+The Auth module handles user authentication and authorization processes. It ensures that only authorized users have access to specific features and data within the application, enhancing security and protecting sensitive information.
+
+Contract Module:
+The Contract module likely manages aspects related to contracts, such as contract creation, tracking, and expiration dates. It simplifies the contract management process and enhances efficiency in handling contractual agreements.
+
+BRICS Module:
+The BRICS module serves as the core module of the entire application.
+
+Ticket Module:
+The Ticket module is responsible for managing support tickets or service requests submitted by users. It streamlines the ticketing process, ensuring prompt and efficient responses to user inquiries or issues.
+
+Power Module:
+The Power module probably deals with power-related data, such as power consumption, allocation, and analysis. It provides valuable insights into the power usage across different aspects of the application, optimizing resource utilization and sustainability.
+
+======================================
+The enhancements introduced to the existing system:
+
 Landing Page:
 - Two different navbars: 
-  1. For the landing page: refer to the view layer: simple.phtml
-  2. For the dashboard page: refer to the view layer layout.phtml
-- Landing page content: refer to the view layer indexLandPAGE.PHTML
+  1. For the landing page: Please refer to the view layer: simple.phtml
+  2. For the dashboard page: Please refer to the view layer layout.phtml
+- To check the Landing page content: Please refer to the view layer indexLandPAGE.PHTML
 
-Dashboard:
-- Created dashboard and necessary REST files.
-- REST: Pulls data from the database updated by a cron job.
-- Dashboard view layer: widgets.phtml
-- REST Controller for power module: powerpdusController.php
-- Endpoint: /img
+Dashboard: Data Visualization and Reporting:
+  To facilitate better decision-making, I introduced data visualization tools and reporting capabilities. Users can now access meaningful insights and analytics through visual representations, enabling them   to interpret data more effectively and make informed choices. Refer to the dashboard view layer: ------> Dashboard view layer: widgets.phtml
+- I have Created a new dashboard and necessary REST files.
+- I have created RESTfull API that Pulls data from the database updated by a cron job ----------> REST Controller for power module: powerpdusController.php
+- For endpoint please check : Endpoint: /img, endpoint.txt and endpoint.json
 - Cron script controller: PowerIqController.php
 - Module structure: Each module has a specific structure - src folder containing the controller layer (may include REST, script, export logic) and the model layer, and another folder for the view layer.
 
@@ -29,7 +68,7 @@ Autogenerated Lab Views:
 - Configuration file: module.config.php - Added the newly created controller under 'controllers' => array( 'invokables' => array( 'Gem\Controller\Autogenerated' => 'Gem\Controller\AutogeneratedController',
 
 Cron Jobs:
-- Important cron jobs:
+- Important cron jobs taht I have created or improved:
   1. Contract notification
   2. Contract expiration
   3. Salesforce pulling cases
@@ -42,3 +81,7 @@ Cron Jobs:
 - Salesforce pulling cases CRON:
   - Module: Ticket
   - Controller: SalesforceController.php
+
+
+
+
