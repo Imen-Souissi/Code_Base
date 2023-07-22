@@ -56,7 +56,7 @@ Dashboard: Data Visualization and Reporting:
   To facilitate better decision-making, I introduced data visualization tools and reporting capabilities. Users can now access meaningful insights and analytics through visual representations, enabling them   to interpret data more effectively and make informed choices. Refer to the dashboard view layer: ------> Dashboard view layer: widgets.phtml
 - I have Created a new dashboard and necessary REST files.
 - I have created RESTfull API that Pulls data from the database updated by a cron job ----------> REST Controller for power module: powerpdusController.php
-- For endpoint please check : Endpoint: /img, endpoint.txt and endpoint.json
+- For endpoint please check : powerpdu_endpoint.JPG, endpoint.txt and endpoint.json
 - Cron script controller: PowerIqController.php
 - Module structure: Each module has a specific structure - src folder containing the controller layer (may include REST, script, export logic) and the model layer, and another folder for the view layer.
 
